@@ -1,4 +1,4 @@
 # Athens-backend
 
 ## API 문서
-[API Documentation](https://mint-dobby.notion.site/API-61d1cf3d7bf546848e832cf27ca54a00)
+[API Documentation](https://mint-dobby.notion.site/API-815f068c3cdd49a6861e28e6f818bcff?pvs=4)
