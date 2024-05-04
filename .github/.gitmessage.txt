@@ -1,0 +1,40 @@
+[#issue] type: description
+
+# Commit Message Convention
+#
+# - 커밋 메시지는 반드시 한글로 작성합니다.
+# - GitHub 이슈 번호를 참조합니다.
+#
+# 기본 형식
+# - `[#{issue-number}] <type>: <description>`
+#
+# 예시
+# - `[#123] feat: login 기능 구현`
+#
+# Commit Types
+#
+# 🌟 새로운 기능 및 주요 변경
+# - `feat`: 새로운 기능 추가
+# - `!BREAKING CHANGE`: 큰 API 변경
+#
+# 🛠️ 버그 수정 및 긴급 조치
+# - `fix`: 버그 수정
+# - `!HOTFIX`: 긴급한 버그 수정
+#
+# 🔧 코드 개선
+# - `refactor`: 코드 리팩토링
+# - `style`: 코드 포맷 변경, 세미콜론 누락 등 코드 수정 없는 경우
+#
+# 📚 문서 및 주석
+# - `docs`: 문서 수정
+# - `comment`: 주석 추가 및 변경
+#
+# 🧪 테스트
+# - `test`: 테스트 코드 추가, 프로덕션 코드 변경 없음
+#
+# 🏗️ 구조적 변경
+# - `rename`: 파일/폴더명 수정, 이동
+# - `remove`: 파일 삭제
+#
+# 🎨 기타
+# - `chore`: 빌드 업무 수정, 패키지 매니저 변경 등 프로덕션 코드 변경 없는 경우
