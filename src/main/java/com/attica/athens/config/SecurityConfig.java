@@ -28,7 +28,10 @@ public class SecurityConfig {
             "/v3/api-docs/**",
             "/swagger-ui/**",
             "/swagger-resources/**",
-            "/ws/**"
+            "/ws/**",
+
+            "/api/v1/user/**",
+            "/api/v1/temp-user/**"
     };
 
     private final AuthenticationConfiguration authenticationConfiguration;
@@ -85,8 +88,9 @@ public class SecurityConfig {
         // 경로별 인가 작업
         http
                 .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers(("/api/v1/temp-user/test")).hasRole("TEMP_USER")
-                        .anyRequest().permitAll()
+                        .requestMatchers(PUBLIC_URLS).permitAll()
+                        .requestMatchers("/api/v1/test/**").hasRole("TEMP_USER")
+                        .anyRequest().authenticated()
                 );
 
         // LoginFilter 등록 (/login시 동작)
