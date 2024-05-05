@@ -30,6 +30,7 @@ public class SecurityConfig {
             "/swagger-resources/**",
             "/ws/**",
 
+            "/login",
             "/api/v1/user/**",
             "/api/v1/temp-user/**"
     };
