@@ -4,12 +4,14 @@ import com.attica.athens.config.SecurityConfig;
 import com.attica.athens.user.domain.TempUser;
 import com.attica.athens.user.domain.User;
 import com.attica.athens.user.domain.UserRole;
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -38,46 +40,19 @@ public class JWTFilter extends OncePerRequestFilter {
             return;
         }
 
-        String authorization = request.getHeader(AUTHORIZATION);
-
-        if (authorization == null || !authorization.startsWith(BEARER)) {
-            logger.debug("Token is null");
-            filterChain.doFilter(request, response);
-
-            return;
-        }
-
-        String token = authorization.split(" ")[1];
+        String token = resolveToken(request);
 
         if (jwtUtil.isExpired(token)) {
-            logger.debug("Token is expired");
             filterChain.doFilter(request, response);
 
-            return;
+            throw new ExpiredJwtException(null, null, "Token has expired");
         }
 
         String id = jwtUtil.getId(token);
         String role = jwtUtil.getRole(token);
 
-        if (role.equals(UserRole.ROLE_TEMP_USER.name())) {
-            TempUser tempUser = new TempUser(id);
-            CustomUserDetails customUserDetails = new CustomUserDetails(tempUser);
-
-            Authentication authToken = new UsernamePasswordAuthenticationToken(customUserDetails, null,
-                    customUserDetails.getAuthorities());
-            SecurityContextHolder.getContext().setAuthentication(authToken);
-
-            filterChain.doFilter(request, response);
-            return;
-        }
-
-        User user = new User(id, "fakeUsername", "fakePassword");
-
-        CustomUserDetails customUserDetails = new CustomUserDetails(user);
-
-        Authentication authToken = new UsernamePasswordAuthenticationToken(customUserDetails, null,
-                customUserDetails.getAuthorities());
-        SecurityContextHolder.getContext().setAuthentication(authToken);
+        Authentication authentication = createAuthentication(id, role);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
 
         filterChain.doFilter(request, response);
     }
@@ -93,5 +68,27 @@ public class JWTFilter extends OncePerRequestFilter {
         }
 
         return false;
+    }
+
+    private String resolveToken(HttpServletRequest request) {
+
+        String authorization = request.getHeader(AUTHORIZATION);
+
+        if (authorization == null || !authorization.startsWith(BEARER)) {
+            throw new AuthenticationCredentialsNotFoundException("Token not found");
+        }
+
+        return authorization.split(" ")[1];
+    }
+
+    private Authentication createAuthentication(String id, String role) {
+
+        CustomUserDetails customUserDetails =
+                role.equals(UserRole.ROLE_TEMP_USER.name())
+                        ? new CustomUserDetails(new TempUser(id))
+                        : new CustomUserDetails(new User(id, "fakeUsername", "fakePassword"));
+
+        return new UsernamePasswordAuthenticationToken(customUserDetails, null,
+                customUserDetails.getAuthorities());
     }
 }
