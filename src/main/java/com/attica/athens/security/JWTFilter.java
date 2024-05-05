@@ -33,6 +33,8 @@ public class JWTFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         if (isNonProtectedUrl(request)) {
+            filterChain.doFilter(request, response);
+
             return;
         }
 
