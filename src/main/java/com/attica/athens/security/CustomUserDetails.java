@@ -1,6 +1,7 @@
 package com.attica.athens.security;
 
 import com.attica.athens.user.domain.BaseUser;
+import com.attica.athens.user.domain.TempUser;
 import com.attica.athens.user.domain.User;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -48,7 +49,11 @@ public class CustomUserDetails implements UserDetails {
             return ((User) baseUser).getUsername();
         }
 
-        return baseUser.getId();
+        if (baseUser instanceof TempUser) {
+            return ((TempUser) baseUser).getId();
+        }
+
+        return "";
     }
 
     @Override
