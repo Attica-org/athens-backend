@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.2.5'
     id 'io.spring.dependency-management' version '1.1.4'
+    id 'checkstyle'
 }
 
 group = 'com.attica'
@@ -44,4 +45,19 @@ dependencies {
 
 tasks.named('test') {
     useJUnitPlatform()
+}
+
+compileJava.options.encoding = 'UTF-8'
+compileTestJava.options.encoding = 'UTF-8'
+
+tasks.withType(Checkstyle) {
+    reports {
+        xml.required = true
+        html.required = true
+    }
+}
+
+checkstyle {
+    configFile = file("config/checkstyle/google-checkstyle.xml")
+    configProperties = ["suppressionFile": "config/checkstyle/google-checkstyle.xml"]
 }
