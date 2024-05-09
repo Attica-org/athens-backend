@@ -28,6 +28,12 @@ public class Agora {
     @Column(nullable = false)
     private Integer capacity;
 
+    private Integer duration;
+
+    private Integer viewCount;
+
+    private Integer status;
+
     @ManyToOne
     @JoinColumn(name = "code")
     private Category code;
