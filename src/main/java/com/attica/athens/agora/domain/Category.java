@@ -2,8 +2,6 @@ package com.attica.athens.agora.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -19,8 +17,7 @@ import lombok.NoArgsConstructor;
 public class Category {
 
     @Id
-    @Enumerated(EnumType.STRING)
-    private CategoryName code;
+    private String code;
 
     @ManyToOne()
     @JoinColumn(name = "parent_code")
@@ -31,10 +28,4 @@ public class Category {
 
     @Column(nullable = false)
     private String name;
-
-    public Category(CategoryName code, Integer level, String name) {
-        this.code = code;
-        this.level = level;
-        this.name = name;
-    }
 }
