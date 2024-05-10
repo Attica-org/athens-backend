@@ -37,8 +37,7 @@ public class Agora {
     @Column(nullable = false)
     private Integer viewCount;
 
-    @Enumerated(EnumType.STRING)
-    private AgoraStatus agoraStatus;
+    private Integer status;
 
     @ManyToOne
     @JoinColumn(name = "code")
