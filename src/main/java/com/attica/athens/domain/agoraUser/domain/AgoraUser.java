@@ -1,7 +1,7 @@
 package com.attica.athens.domain.agoraUser.domain;
 
 import com.attica.athens.domain.agora.domain.Agora;
-import com.attica.athens.domain.common.BaseTimeEntity;
+import com.attica.athens.domain.common.AuditingFields;
 import com.attica.athens.domain.user.domain.BaseUser;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -20,7 +20,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class AgoraUser extends BaseTimeEntity {
+public class AgoraUser extends AuditingFields {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
