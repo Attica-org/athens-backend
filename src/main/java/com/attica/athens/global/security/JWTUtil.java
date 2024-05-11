@@ -12,6 +12,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class JWTUtil {
 
+    private static final long EXPIRED_MS = 60 * 60 * 10000;
+
     private final SecretKey secretKey;
 
     public JWTUtil(@Value("${spring.jwt.secret}") String secret) {
@@ -23,7 +25,7 @@ public class JWTUtil {
     public String getId(String token) { // secretKey로 검증
 
         return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload()
-                .get("id", String.class);
+                .get("username", String.class);
     }
 
     public String getRole(String token) {
@@ -39,13 +41,13 @@ public class JWTUtil {
                 .getExpiration().before(new Date());
     }
 
-    public String createJwt(String id, String role, Long expiredMs) {
+    public String createJwt(String id, String role) {
 
         return Jwts.builder()
                 .claim("id", id)
                 .claim("role", role)
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + expiredMs))
+                .expiration(new Date(System.currentTimeMillis() + EXPIRED_MS))
                 .signWith(secretKey)
                 .compact();
     }

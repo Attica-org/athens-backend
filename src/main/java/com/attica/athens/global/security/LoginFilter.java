@@ -15,7 +15,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
-    public static final long EXPIRED_MS = 60 * 60 * 10L;
     public static final String BEARER = "Bearer ";
     public static final String AUTHORIZATION = "Authorization";
 
@@ -53,7 +52,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         GrantedAuthority auth = iterator.next();
         String role = auth.getAuthority();
 
-        String token = jwtUtil.createJwt(username, role, EXPIRED_MS);
+        String token = jwtUtil.createJwt(username, role);
 
         response.addHeader(AUTHORIZATION, BEARER + token);
     }
