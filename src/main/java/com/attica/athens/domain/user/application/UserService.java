@@ -3,7 +3,6 @@ package com.attica.athens.domain.user.application;
 import com.attica.athens.domain.user.dao.UserRepository;
 import com.attica.athens.domain.user.domain.User;
 import com.attica.athens.domain.user.dto.request.CreateUserRequest;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -27,8 +26,7 @@ public class UserService {
             throw new RuntimeException("User already exists");
         }
 
-        String userId = UUID.randomUUID().toString();
-        User user = User.of(userId, username, bCryptPasswordEncoder.encode(password));
+        User user = User.of(username, bCryptPasswordEncoder.encode(password));
 
         userRepository.save(user);
     }
