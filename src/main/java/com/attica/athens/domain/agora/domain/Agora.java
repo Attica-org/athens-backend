@@ -1,18 +1,23 @@
 package com.attica.athens.domain.agora.domain;
 
+import com.attica.athens.domain.agoraUser.domain.AgoraUser;
 import com.attica.athens.domain.common.BaseTimeEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -51,8 +56,11 @@ public class Agora extends BaseTimeEntity {
     private AgoraStatus status;
 
     @JoinColumn(name = "code")
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Category code;
+
+    @OneToMany(mappedBy = "agora")
+    private final List<AgoraUser> agoraUsers = new ArrayList<>();
 
     private Agora(String title, Integer capacity, Duration duration, Category code) {
         this.title = title;
