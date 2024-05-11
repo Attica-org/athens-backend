@@ -23,7 +23,7 @@ public class User extends BaseUser {
         this.password = password;
     }
 
-    public static User of(String username, String password) {
+    public static User createUser(String username, String password) {
         return new User(username, password);
     }
 }

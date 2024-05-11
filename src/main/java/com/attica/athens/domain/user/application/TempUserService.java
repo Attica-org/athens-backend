@@ -18,7 +18,7 @@ public class TempUserService {
     @Transactional
     public String createTempUser() {
 
-        TempUser tempUser = TempUser.from();
+        TempUser tempUser = TempUser.createTempUser();
 
         tempUserRepository.save(tempUser);
 

@@ -38,7 +38,7 @@ public class Category {
         this.name = name;
     }
 
-    public static Category of(CategoryName code, Category parentCode, Integer level, String name) {
+    public static Category createCategory(CategoryName code, Category parentCode, Integer level, String name) {
         return new Category(code, parentCode, level, name);
     }
 }

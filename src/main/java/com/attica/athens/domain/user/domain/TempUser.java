@@ -14,7 +14,7 @@ public class TempUser extends BaseUser {
         super(role);
     }
 
-    public static TempUser from() {
+    public static TempUser createTempUser() {
         return new TempUser(UserRole.ROLE_TEMP_USER);
     }
 }

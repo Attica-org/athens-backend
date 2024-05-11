@@ -25,7 +25,7 @@ public class AgoraService {
     }
 
     private Agora createAgora(AgoraCreateRequest requestDto) {
-        return Agora.of(requestDto.title(),
+        return Agora.createAgora(requestDto.title(),
                 requestDto.capacity(),
                 requestDto.duration(),
                 requestDto.code());

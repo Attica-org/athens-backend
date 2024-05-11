@@ -53,7 +53,8 @@ public class AgoraUser extends AuditingFields {
         this.user = user;
     }
 
-    public static AgoraUser of(AgoraUserType type, String nickname, Integer photoNumber, Agora agora, BaseUser user) {
+    public static AgoraUser createAgoraUser(AgoraUserType type, String nickname, Integer photoNumber, Agora agora,
+                                            BaseUser user) {
         return new AgoraUser(type, nickname, photoNumber, agora, user);
     }
 }

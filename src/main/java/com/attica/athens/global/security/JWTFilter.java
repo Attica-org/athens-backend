@@ -85,8 +85,8 @@ public class JWTFilter extends OncePerRequestFilter {
 
         CustomUserDetails customUserDetails =
                 role.equals(UserRole.ROLE_TEMP_USER.name())
-                        ? new CustomUserDetails(TempUser.from())
-                        : new CustomUserDetails(User.of("fakeUsername", "fakePassword"));
+                        ? new CustomUserDetails(TempUser.createTempUser())
+                        : new CustomUserDetails(User.createUser("fakeUsername", "fakePassword"));
 
         return new UsernamePasswordAuthenticationToken(customUserDetails, null,
                 customUserDetails.getAuthorities());

@@ -34,7 +34,7 @@ public class ChatMessage extends AuditingFields {
     private Long id;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "type")
+    @Column(length = 50, nullable = false)
     private MessageType type;
 
     @Lob
@@ -51,7 +51,7 @@ public class ChatMessage extends AuditingFields {
         this.user = user;
     }
 
-    public static ChatMessage of(MessageType type, String content, AgoraUser user) {
+    public static ChatMessage createChatMessage(MessageType type, String content, AgoraUser user) {
         return new ChatMessage(type, content, user);
     }
 }

@@ -26,7 +26,7 @@ public class UserService {
             throw new RuntimeException("User already exists");
         }
 
-        User user = User.of(username, bCryptPasswordEncoder.encode(password));
+        User user = User.createUser(username, bCryptPasswordEncoder.encode(password));
 
         userRepository.save(user);
     }

@@ -71,7 +71,7 @@ public class Agora extends AuditingFields {
         this.code = code;
     }
 
-    public static Agora of(String title, Integer capacity, Duration duration, Category code) {
+    public static Agora createAgora(String title, Integer capacity, Duration duration, Category code) {
         return new Agora(title, capacity, duration, code);
     }
 }
