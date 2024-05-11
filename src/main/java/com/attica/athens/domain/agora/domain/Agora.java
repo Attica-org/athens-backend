@@ -33,7 +33,7 @@ public class Agora extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(length = 50, nullable = false)
     private String title;
 
     @Column(nullable = false)
@@ -46,6 +46,7 @@ public class Agora extends BaseTimeEntity {
     private Integer viewCount;
 
     @Enumerated(EnumType.STRING)
+    @Column(length = 25, nullable = false)
     private AgoraStatus status;
 
     @JoinColumn(name = "code")
