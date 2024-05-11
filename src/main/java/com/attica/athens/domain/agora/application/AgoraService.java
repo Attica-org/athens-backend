@@ -21,16 +21,13 @@ public class AgoraService {
         categoryRepository.findCategoryByName(requestDto.code().getName())
                 .orElseThrow(() -> new RuntimeException("category not found"));
 
-        Agora createdAgora = agoraRepository.save(createAgora(requestDto));
-        return createdAgora;
+        return agoraRepository.save(createAgora(requestDto));
     }
 
     private Agora createAgora(AgoraCreateRequest requestDto) {
-        return Agora.builder()
-                .title(requestDto.title())
-                .capacity(requestDto.capacity())
-                .duration(requestDto.getDuration())
-                .code(requestDto.code())
-                .build();
+        return Agora.of(requestDto.title(),
+                requestDto.capacity(),
+                requestDto.duration(),
+                requestDto.code());
     }
 }
