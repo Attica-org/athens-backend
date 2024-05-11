@@ -5,8 +5,8 @@
 //import com.attica.athens.agora.domain.Agora;
 //import com.attica.athens.agora.domain.Category;
 //import com.attica.athens.agora.domain.CategoryName;
-//import com.attica.athens.agora.dto.CreateAgoraRequestDto;
-//import com.attica.athens.agora.repository.CategoryRepository;
+//import com.attica.athens.agora.dto.request.CreateAgoraRequestDto;
+//import com.attica.athens.agora.dao.CategoryRepository;
 //import java.time.LocalTime;
 //import org.assertj.core.api.Assertions;
 //import org.junit.jupiter.api.BeforeEach;
