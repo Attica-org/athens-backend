@@ -22,7 +22,7 @@ import lombok.ToString;
 @Getter
 @ToString(callSuper = true)
 @Table(indexes = {
-        @Index(columnList = "createdAt")
+        @Index(name = "idx_chat_message_created_at", columnList = "createdAt")
 })
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

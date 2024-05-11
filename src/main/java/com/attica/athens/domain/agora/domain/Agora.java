@@ -26,9 +26,9 @@ import lombok.ToString;
 @Getter
 @ToString(callSuper = true)
 @Table(indexes = {
-        @Index(columnList = "title"),
-        @Index(columnList = "createdAt"),
-        @Index(columnList = "createdBy")
+        @Index(name = "idx_agora_title", columnList = "title"),
+        @Index(name = "idx_agora_created_at", columnList = "createdAt"),
+        @Index(name = "idx_agora_created_by", columnList = "createdBy")
 })
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
