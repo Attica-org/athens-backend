@@ -50,7 +50,7 @@ public class CustomUserDetails implements UserDetails {
         }
 
         if (baseUser instanceof TempUser) {
-            return ((TempUser) baseUser).getId();
+            return ((TempUser) baseUser).getUuid().toString();
         }
 
         return "";

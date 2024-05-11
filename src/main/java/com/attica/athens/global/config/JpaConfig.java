@@ -1,6 +1,5 @@
 package com.attica.athens.global.config;
 
-import com.attica.athens.global.security.CustomUserDetails;
 import java.util.Optional;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,8 +19,7 @@ public class JpaConfig {
                 .map(SecurityContext::getAuthentication)
                 .filter(Authentication::isAuthenticated)
                 .map(Authentication::getPrincipal)
-                .map(CustomUserDetails.class::cast)
-                .map(CustomUserDetails::getUsername);
+                .map(Object::toString);
     }
 }
 
