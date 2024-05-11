@@ -9,6 +9,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -32,8 +33,10 @@ public class Category {
     @Column(nullable = false)
     private String name;
 
-    public Category(CategoryName code, Integer level, String name) {
-        this.code = code;
+    @Builder
+    public Category(CategoryName categoryName, Category category, Integer level, String name) {
+        this.code = categoryName;
+        this.parentCode = category;
         this.level = level;
         this.name = name;
     }
