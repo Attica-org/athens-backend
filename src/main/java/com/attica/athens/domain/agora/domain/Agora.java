@@ -55,8 +55,8 @@ public class Agora extends BaseTimeEntity {
     @Column(length = 25, nullable = false)
     private AgoraStatus status;
 
-    @JoinColumn(name = "code")
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "code")
     private Category code;
 
     @OneToMany(mappedBy = "agora")
