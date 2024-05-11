@@ -12,6 +12,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.time.LocalTime;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -43,4 +44,14 @@ public class Agora {
     @ManyToOne
     @JoinColumn(name = "code")
     private Category code;
+
+    @Builder
+    public Agora(String title, Integer capacity, LocalTime duration, Category code) {
+        this.title = title;
+        this.capacity = capacity;
+        this.duration = duration;
+        this.viewCount = 0;
+        this.agoraStatus = AgoraStatus.RUNNING;
+        this.code = code;
+    }
 }
