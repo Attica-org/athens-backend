@@ -1,9 +1,9 @@
 package com.attica.athens.global.security;
 
-import com.attica.athens.global.config.SecurityConfig;
 import com.attica.athens.domain.user.domain.TempUser;
 import com.attica.athens.domain.user.domain.User;
 import com.attica.athens.domain.user.domain.UserRole;
+import com.attica.athens.global.config.SecurityConfig;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -85,8 +85,8 @@ public class JWTFilter extends OncePerRequestFilter {
 
         CustomUserDetails customUserDetails =
                 role.equals(UserRole.ROLE_TEMP_USER.name())
-                        ? new CustomUserDetails(new TempUser(id))
-                        : new CustomUserDetails(new User(id, "fakeUsername", "fakePassword"));
+                        ? new CustomUserDetails(TempUser.from(id))
+                        : new CustomUserDetails(User.of(id, "fakeUsername", "fakePassword"));
 
         return new UsernamePasswordAuthenticationToken(customUserDetails, null,
                 customUserDetails.getAuthorities());

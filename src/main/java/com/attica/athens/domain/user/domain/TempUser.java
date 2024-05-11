@@ -14,8 +14,12 @@ public class TempUser extends BaseUser {
     @Id
     private String id;
 
-    public TempUser(String id) {
+    private TempUser(String id) {
         super(UserRole.ROLE_TEMP_USER);
         this.id = id;
+    }
+
+    public static TempUser from(String id) {
+        return new TempUser(id);
     }
 }

@@ -22,7 +22,7 @@ public class TempUserService {
     public String createTempUser() {
 
         String tempUserId = UUID.randomUUID().toString();
-        TempUser tempUser = new TempUser(tempUserId);
+        TempUser tempUser = TempUser.from(tempUserId);
 
         tempUserRepository.save(tempUser);
 

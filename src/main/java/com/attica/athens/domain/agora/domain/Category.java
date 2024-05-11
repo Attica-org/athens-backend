@@ -7,37 +7,38 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Entity
-@Table(name = "category")
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
+@Entity
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Category {
 
     @Id
     @Enumerated(EnumType.STRING)
+    @Column(length = 50, nullable = false)
     private CategoryName code;
 
-    @ManyToOne()
+    @ManyToOne
     @JoinColumn(name = "parent_code")
     private Category parentCode;
 
     @Column(nullable = false)
     private Integer level;
 
-    @Column(nullable = false)
+    @Column(length = 50, nullable = false)
     private String name;
 
-    @Builder
-    public Category(CategoryName categoryName, Category category, Integer level, String name) {
-        this.code = categoryName;
-        this.parentCode = category;
+    private Category(CategoryName code, Category parentCode, Integer level, String name) {
+        this.code = code;
+        this.parentCode = parentCode;
         this.level = level;
         this.name = name;
+    }
+
+    public static Category of(CategoryName code, Category parentCode, Integer level, String name) {
+        return new Category(code, parentCode, level, name);
     }
 }

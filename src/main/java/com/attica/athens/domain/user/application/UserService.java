@@ -1,8 +1,8 @@
 package com.attica.athens.domain.user.application;
 
+import com.attica.athens.domain.user.dao.UserRepository;
 import com.attica.athens.domain.user.domain.User;
 import com.attica.athens.domain.user.dto.request.CreateUserRequest;
-import com.attica.athens.domain.user.dao.UserRepository;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -28,7 +28,7 @@ public class UserService {
         }
 
         String userId = UUID.randomUUID().toString();
-        User user = new User(userId, username, bCryptPasswordEncoder.encode(password));
+        User user = User.of(userId, username, bCryptPasswordEncoder.encode(password));
 
         userRepository.save(user);
     }
