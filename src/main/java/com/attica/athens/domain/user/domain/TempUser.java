@@ -1,5 +1,6 @@
 package com.attica.athens.domain.user.domain;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import lombok.AccessLevel;
@@ -12,6 +13,7 @@ import lombok.NoArgsConstructor;
 public class TempUser extends BaseUser {
 
     @Id
+    @Column(name = "temp_user_id")
     private String id;
 
     private TempUser(String id) {

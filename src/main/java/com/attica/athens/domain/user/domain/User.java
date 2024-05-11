@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 public class User extends BaseUser {
 
     @Id
+    @Column(name = "user_id")
     private String id;
 
     @Column(length = 50, nullable = false)

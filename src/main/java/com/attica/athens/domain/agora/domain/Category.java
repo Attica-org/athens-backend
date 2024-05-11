@@ -18,7 +18,7 @@ public class Category {
 
     @Id
     @Enumerated(EnumType.STRING)
-    @Column(length = 50, nullable = false)
+    @Column(name = "code", length = 50, nullable = false)
     private CategoryName code;
 
     @ManyToOne
