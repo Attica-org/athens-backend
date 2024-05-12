@@ -28,6 +28,7 @@ public class AgoraService {
         return Agora.createAgora(requestDto.title(),
                 requestDto.capacity(),
                 requestDto.duration(),
+                requestDto.color(),
                 requestDto.code());
     }
 }

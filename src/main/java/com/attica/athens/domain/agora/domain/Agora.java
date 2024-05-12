@@ -51,6 +51,9 @@ public class Agora extends AuditingFields {
     @Column(name = "view_count", nullable = false)
     private Integer viewCount;
 
+    @Column(nullable = false)
+    private String color;
+
     @Enumerated(EnumType.STRING)
     @Column(length = 25, nullable = false)
     private AgoraStatus status;
@@ -62,7 +65,7 @@ public class Agora extends AuditingFields {
     @OneToMany(mappedBy = "agora")
     private final List<AgoraUser> agoraUsers = new ArrayList<>();
 
-    private Agora(String title, Integer capacity, Duration duration, Category code) {
+    private Agora(String title, Integer capacity, Duration duration, String color, Category code) {
         this.title = title;
         this.capacity = capacity;
         this.duration = duration;
@@ -71,7 +74,7 @@ public class Agora extends AuditingFields {
         this.code = code;
     }
 
-    public static Agora createAgora(String title, Integer capacity, Duration duration, Category code) {
-        return new Agora(title, capacity, duration, code);
+    public static Agora createAgora(String title, Integer capacity, Duration duration, String color, Category code) {
+        return new Agora(title, capacity, duration, color, code);
     }
 }
