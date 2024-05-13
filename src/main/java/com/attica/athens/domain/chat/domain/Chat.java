@@ -22,20 +22,20 @@ import lombok.ToString;
 @Getter
 @ToString(callSuper = true)
 @Table(indexes = {
-        @Index(name = "idx_chat_message_created_at", columnList = "createdAt")
+        @Index(name = "idx_chat_created_at", columnList = "createdAt")
 })
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class ChatMessage extends AuditingFields {
+public class Chat extends AuditingFields {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "message_id")
+    @Column(name = "chat_id")
     private Long id;
 
     @Enumerated(EnumType.STRING)
     @Column(length = 50, nullable = false)
-    private MessageType type;
+    private ChatType type;
 
     @Lob
     @Column(nullable = false)
@@ -45,13 +45,13 @@ public class ChatMessage extends AuditingFields {
     @JoinColumn(name = "agora_user_id")
     private AgoraUser user;
 
-    private ChatMessage(MessageType type, String content, AgoraUser user) {
+    private Chat(ChatType type, String content, AgoraUser user) {
         this.type = type;
         this.content = content;
         this.user = user;
     }
 
-    public static ChatMessage createChatMessage(MessageType type, String content, AgoraUser user) {
-        return new ChatMessage(type, content, user);
+    public static Chat createChat(ChatType type, String content, AgoraUser user) {
+        return new Chat(type, content, user);
     }
 }
