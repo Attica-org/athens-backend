@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class TempUserController {
 
-    public static final String AUTHORIZATION = "Authorization";
-    public static final String BEARER = "Bearer ";
+    private static final String AUTHORIZATION = "Authorization";
+    private static final String BEARER = "Bearer ";
 
     private final TempUserService tempUserService;
 
