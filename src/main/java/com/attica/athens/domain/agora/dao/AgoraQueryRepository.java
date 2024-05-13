@@ -7,5 +7,5 @@ import java.util.List;
 
 public interface AgoraQueryRepository {
 
-    AgoraSlice<SimpleAgoraResult> findAgoraByCategory(Long agoraId, AgoraStatus status, List<String> categories, int size);
+    AgoraSlice<SimpleAgoraResult> findAgoraByCategory(Long agoraId, AgoraStatus status, List<String> categories);
 }

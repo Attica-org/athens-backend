@@ -25,7 +25,9 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
     }
 
     @Override
-    public AgoraSlice<SimpleAgoraResult> findAgoraByCategory(Long agoraId, AgoraStatus status, List<String> categories, int size) {
+    public AgoraSlice<SimpleAgoraResult> findAgoraByCategory(Long agoraId, AgoraStatus status, List<String> categories) {
+        final int size = 10;
+
         List<SimpleAgoraResult> result = jpaQueryFactory
             .select(Projections.constructor(
                 SimpleAgoraResult.class,
