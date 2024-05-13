@@ -25,6 +25,45 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
     }
 
     @Override
+    public AgoraSlice<SimpleAgoraResult> findAgoraByKeyword(Long agoraId, AgoraStatus status, String keyword) {
+        System.out.println(keyword);
+        final int size = 10;
+
+        List<SimpleAgoraResult> result = jpaQueryFactory
+            .select(Projections.constructor(
+                SimpleAgoraResult.class,
+                agora.id,
+                agora.title,
+                agora.color,
+                Projections.constructor(SimpleParticipants.class,
+                    new CaseBuilder()
+                        .when(agoraUser.type.eq(AgoraUserType.PROS)).then(agoraUser.count())
+                        .otherwise(0L),
+                    new CaseBuilder()
+                        .when(agoraUser.type.eq(AgoraUserType.CONS)).then(agoraUser.count())
+                        .otherwise(0L),
+                    new CaseBuilder()
+                        .when(agoraUser.type.eq(AgoraUserType.OBSERVER)).then(agoraUser.count())
+                        .otherwise(0L)
+                ),
+                agora.createdAt,
+                agora.status
+            ))
+            .from(agora)
+            .leftJoin(agora.agoraUsers, agoraUser)
+            .where(gtAgoraId(agoraId),
+                containKeyword(keyword),
+                agora.status.eq(status)
+            )
+            .groupBy(agora.id, agoraUser.type)
+            .orderBy(agora.id.desc())
+            .limit(size + 1L)
+            .fetch();
+
+        return getSimpleAgoraResultAgoraSlice(size, result);
+    }
+
+    @Override
     public AgoraSlice<SimpleAgoraResult> findAgoraByCategory(Long agoraId, AgoraStatus status, List<String> categories) {
         final int size = 10;
 
@@ -59,6 +98,10 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
             .limit(size + 1L)
             .fetch();
 
+        return getSimpleAgoraResultAgoraSlice(size, result);
+    }
+
+    private AgoraSlice<SimpleAgoraResult> getSimpleAgoraResultAgoraSlice(final int size, final List<SimpleAgoraResult> result) {
         boolean hasNext = false;
         Long lastAgoraId = null;
         if (result != null && result.size() > size) {
@@ -70,6 +113,11 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
         return new AgoraSlice<>(result, lastAgoraId, hasNext);
     }
 
+
+    private BooleanExpression containKeyword(String keyword) {
+        if (keyword == null || keyword.isEmpty()) return null;
+        return agora.title.containsIgnoreCase(keyword);
+    }
     private BooleanExpression gtAgoraId(Long agoraId) {
         if (agoraId == null) return null;
         return agora.id.lt(agoraId);
