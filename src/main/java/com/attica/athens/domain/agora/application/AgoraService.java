@@ -42,7 +42,6 @@ public class AgoraService {
         return agoraRepository.save(createAgora(request, category));
     }
 
-
     private Agora createAgora(AgoraCreateRequest request, Category category) {
         return Agora.createAgora(request.title(),
             request.capacity(),
