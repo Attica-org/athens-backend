@@ -6,6 +6,7 @@ import com.attica.athens.domain.agora.dto.AgoraSlice;
 import com.attica.athens.domain.agora.dto.SimpleAgoraResult;
 import com.attica.athens.domain.agora.dto.request.AgoraCreateRequest;
 import com.attica.athens.domain.agora.dto.request.SearchCategoryRequestDto;
+import com.attica.athens.domain.agora.dto.request.SearchKeywordRequestDto;
 import com.attica.athens.domain.agora.dto.response.AgoraCreateResponse;
 import com.attica.athens.domain.agora.dto.response.AgoraResponse;
 import org.springframework.http.HttpStatus;
@@ -40,11 +41,24 @@ public class AgoraController {
                 .build());
     }
 
-    @GetMapping
+    @GetMapping(params = {"status", "category", "next"})
     public ResponseEntity<AgoraResponse<AgoraSlice<SimpleAgoraResult>>> getAgoraByCategory(
         SearchCategoryRequestDto requestDto
     ) {
         AgoraSlice<SimpleAgoraResult> response = agoraService.findAgoraByCategory(requestDto);
+
+        return ResponseEntity.status(HttpStatus.OK)
+            .body(AgoraResponse.<AgoraSlice<SimpleAgoraResult>>builder()
+                .success(true)
+                .response(response)
+                .build());
+    }
+
+    @GetMapping(params = {"agora_name", "status", "next"})
+    public ResponseEntity<AgoraResponse<AgoraSlice<SimpleAgoraResult>>> getAgoraByKeyword(
+        SearchKeywordRequestDto requestDto
+    ) {
+        AgoraSlice<SimpleAgoraResult> response = agoraService.findAgoraByKeyword(requestDto);
 
         return ResponseEntity.status(HttpStatus.OK)
             .body(AgoraResponse.<AgoraSlice<SimpleAgoraResult>>builder()

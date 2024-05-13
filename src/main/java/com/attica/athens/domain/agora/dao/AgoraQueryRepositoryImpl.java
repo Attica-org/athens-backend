@@ -26,7 +26,6 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
 
     @Override
     public AgoraSlice<SimpleAgoraResult> findAgoraByKeyword(Long agoraId, AgoraStatus status, String keyword) {
-        System.out.println(keyword);
         final int size = 10;
 
         List<SimpleAgoraResult> result = jpaQueryFactory
@@ -112,7 +111,6 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
 
         return new AgoraSlice<>(result, lastAgoraId, hasNext);
     }
-
 
     private BooleanExpression containKeyword(String keyword) {
         if (keyword == null || keyword.isEmpty()) return null;
