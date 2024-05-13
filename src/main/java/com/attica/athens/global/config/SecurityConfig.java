@@ -3,6 +3,7 @@ package com.attica.athens.global.config;
 import com.attica.athens.global.security.JWTFilter;
 import com.attica.athens.global.security.JWTUtil;
 import com.attica.athens.global.security.LoginFilter;
+import java.util.Arrays;
 import java.util.Collections;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,7 +30,6 @@ public class SecurityConfig {
             "/swagger-ui/**",
             "/swagger-resources/**",
             "/ws/**",
-
             "/login",
             "/api/v1/user/**",
             "/api/v1/temp-user/**"
@@ -38,8 +38,8 @@ public class SecurityConfig {
     private final AuthenticationConfiguration authenticationConfiguration;
     private final JWTUtil jwtUtil;
 
-    @Value("${frontend.local}")
-    private String frontLocal;
+    @Value("${cors.allowed-origins}")
+    private String[] allowedOrigins;
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
@@ -60,17 +60,13 @@ public class SecurityConfig {
         http
                 .cors((cors) -> cors
                         .configurationSource(request -> {
-
                             CorsConfiguration configuration = new CorsConfiguration();
-
-                            configuration.setAllowedOrigins(Collections.singletonList(frontLocal));
+                            configuration.setAllowedOriginPatterns(Arrays.asList(allowedOrigins));
                             configuration.setAllowedMethods(Collections.singletonList("*"));
                             configuration.setAllowCredentials(true);
                             configuration.setAllowedHeaders(Collections.singletonList("*"));
                             configuration.setMaxAge(3600L);
-
                             configuration.setExposedHeaders(Collections.singletonList("Authorization"));
-
                             return configuration;
                         }));
 
@@ -91,7 +87,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers(PUBLIC_URLS).permitAll()
                         .requestMatchers("/api/v1/test/**").hasRole("TEMP_USER")
-                        .anyRequest().authenticated()
+                        .anyRequest().permitAll()
                 );
 
         // LoginFilter 등록 (/login시 동작)
@@ -99,7 +95,7 @@ public class SecurityConfig {
                 .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil),
                         UsernamePasswordAuthenticationFilter.class);
 
-        // JWTFilter 등록 (모든 요청에 대해 동작)
+//        // JWTFilter 등록 (모든 요청에 대해 동작)
         http
                 .addFilterBefore(new JWTFilter(jwtUtil), LoginFilter.class);
 
