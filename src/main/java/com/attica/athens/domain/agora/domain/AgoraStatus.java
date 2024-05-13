@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum AgoraStatus {
-    QUEUED(""),
+    QUEUED("queued"),
     RUNNING("active"),
     CLOSED("closed")
     ;
