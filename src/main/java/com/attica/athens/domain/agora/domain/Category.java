@@ -17,9 +17,8 @@ import lombok.NoArgsConstructor;
 public class Category {
 
     @Id
-    @Enumerated(EnumType.STRING)
     @Column(name = "code", length = 50, nullable = false)
-    private CategoryName code;
+    private String code;
 
     @ManyToOne
     @JoinColumn(name = "parent_code")
@@ -31,14 +30,14 @@ public class Category {
     @Column(length = 50, nullable = false)
     private String name;
 
-    private Category(CategoryName code, Category parentCode, Integer level, String name) {
+    private Category(String code, Category parentCode, Integer level, String name) {
         this.code = code;
         this.parentCode = parentCode;
         this.level = level;
         this.name = name;
     }
 
-    public static Category createCategory(CategoryName code, Category parentCode, Integer level, String name) {
+    public static Category createCategory(String code, Category parentCode, Integer level, String name) {
         return new Category(code, parentCode, level, name);
     }
 }

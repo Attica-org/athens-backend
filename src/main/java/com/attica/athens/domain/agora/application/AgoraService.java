@@ -3,6 +3,7 @@ package com.attica.athens.domain.agora.application;
 import com.attica.athens.domain.agora.dao.AgoraRepository;
 import com.attica.athens.domain.agora.dao.CategoryRepository;
 import com.attica.athens.domain.agora.domain.Agora;
+import com.attica.athens.domain.agora.domain.Category;
 import com.attica.athens.domain.agora.dto.request.AgoraCreateRequest;
 import org.springframework.stereotype.Service;
 
@@ -18,17 +19,17 @@ public class AgoraService {
     }
 
     public Agora create(final AgoraCreateRequest requestDto) {
-        categoryRepository.findCategoryByName(requestDto.code().getName())
-                .orElseThrow(() -> new RuntimeException("category not found"));
+        Category category = categoryRepository.findCategoryByName(requestDto.code())
+            .orElseThrow(() -> new RuntimeException("category not found"));
 
-        return agoraRepository.save(createAgora(requestDto));
+        return agoraRepository.save(createAgora(requestDto, category));
     }
 
-    private Agora createAgora(AgoraCreateRequest requestDto) {
+    private Agora createAgora(AgoraCreateRequest requestDto, Category category) {
         return Agora.createAgora(requestDto.title(),
                 requestDto.capacity(),
                 requestDto.duration(),
                 requestDto.color(),
-                requestDto.code());
+                category);
     }
 }
