@@ -41,7 +41,7 @@ public class AgoraController {
     }
 
     @GetMapping
-    public ResponseEntity<AgoraResponse<AgoraSlice<SimpleAgoraResult>>> getAgora(
+    public ResponseEntity<AgoraResponse<AgoraSlice<SimpleAgoraResult>>> getAgoraByCategory(
         SearchCategoryRequestDto requestDto
     ) {
         AgoraSlice<SimpleAgoraResult> response = agoraService.findAgoraByCategory(requestDto);
