@@ -63,7 +63,7 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
         Long lastAgoraId = null;
         if (result != null && result.size() > size) {
             result.remove(size);
-            lastAgoraId = result.get(result.size() - 1).id();
+            lastAgoraId = result.get(result.size() - 1).getId();
             hasNext = true;
         }
 

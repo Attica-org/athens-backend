@@ -26,7 +26,7 @@ public class AgoraService {
     public AgoraSlice<SimpleAgoraResult> findAgoraByCategory(SearchCategoryRequestDto request) {
         AgoraStatus status = AgoraStatus.of(request.status());
         List<String> categories = categoryRepository.findParentCodeByCategory(request.category());
-        return agoraRepository.findAgoraByCategory(request.lastAgoraId(), status, categories);
+        return agoraRepository.findAgoraByCategory(request.next(), status, categories);
     }
 
     public Agora create(final AgoraCreateRequest requestDto) {

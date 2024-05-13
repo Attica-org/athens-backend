@@ -6,12 +6,12 @@ import lombok.Getter;
 @Getter
 public class AgoraSlice<T> {
     private final List<T> agoras;
-    private final Long lastAgoraId;
+    private final Long next;
     private final boolean hasNext;
 
     public AgoraSlice(List<T> agoras, Long lastAgoraId, boolean hasNext) {
         this.agoras = agoras;
-        this.lastAgoraId = lastAgoraId;
+        this.next = lastAgoraId;
         this.hasNext = hasNext;
     }
 }
