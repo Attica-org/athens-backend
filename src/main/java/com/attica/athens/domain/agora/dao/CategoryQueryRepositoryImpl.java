@@ -17,9 +17,9 @@ public class CategoryQueryRepositoryImpl implements CategoryQueryRepository {
     }
 
     @Override
-    public Optional<Category> findCategoryByName(String name) {
+    public Optional<Category> findCategoryByName(String code) {
         Category entity = jpaQueryFactory.selectFrom(category)
-                .where(category.name.eq(name))
+                .where(category.code.eq(code))
                 .fetchOne();
 
         return Optional.ofNullable(entity);
