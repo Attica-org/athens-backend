@@ -24,15 +24,15 @@ public class AgoraController {
 
     @PostMapping
     public ResponseEntity<AgoraResponse<AgoraCreateResponse>> createAgora(
-            @RequestBody AgoraCreateRequest requestDto
+        @RequestBody AgoraCreateRequest requestDto
     ) {
         Agora agora = agoraService.create(requestDto);
         AgoraCreateResponse response = new AgoraCreateResponse(agora.getId());
 
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(AgoraResponse.<AgoraCreateResponse>builder()
-                        .success(true)
-                        .response(response)
-                        .build());
+            .body(AgoraResponse.<AgoraCreateResponse>builder()
+                .success(true)
+                .response(response)
+                .build());
     }
 }
