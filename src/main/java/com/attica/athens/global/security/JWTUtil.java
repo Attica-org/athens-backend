@@ -25,7 +25,7 @@ public class JWTUtil {
     public String getId(String token) { // secretKey로 검증
 
         return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload()
-                .get("username", String.class);
+                .get("id", String.class);
     }
 
     public String getRole(String token) {
