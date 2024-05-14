@@ -29,14 +29,14 @@ public class CategoryQueryRepositoryImpl implements CategoryQueryRepository {
     }
 
     @Override
-    public List<String> findParentCodeByCategory(String category) {
+    public List<String> findParentCodeByCategory(String categoryId) {
         List<String> parentCodes = new ArrayList<>();
-        String currentCategory = category;
+        String currentCategory = categoryId;
 
         while (currentCategory != null) {
             parentCodes.add(currentCategory);
-            Category entity = jpaQueryFactory.selectFrom(QCategory.category)
-                .where(QCategory.category.code.eq(currentCategory))
+            Category entity = jpaQueryFactory.selectFrom(category)
+                .where(category.code.eq(currentCategory))
                 .fetchOne();
 
             if (entity == null || entity.getParentCode() == null) {

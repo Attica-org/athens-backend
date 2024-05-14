@@ -8,8 +8,8 @@ import com.attica.athens.domain.agora.domain.Category;
 import com.attica.athens.domain.agora.dto.AgoraSlice;
 import com.attica.athens.domain.agora.dto.SimpleAgoraResult;
 import com.attica.athens.domain.agora.dto.request.AgoraCreateRequest;
-import com.attica.athens.domain.agora.dto.request.SearchCategoryRequestDto;
-import com.attica.athens.domain.agora.dto.request.SearchKeywordRequestDto;
+import com.attica.athens.domain.agora.dto.request.SearchCategoryRequest;
+import com.attica.athens.domain.agora.dto.request.SearchKeywordRequest;
 import java.util.List;
 import org.springframework.stereotype.Service;
 
@@ -24,14 +24,16 @@ public class AgoraService {
         this.categoryRepository = categoryRepository;
     }
 
-    public AgoraSlice<SimpleAgoraResult> findAgoraByKeyword(SearchKeywordRequestDto request) {
+    public AgoraSlice<SimpleAgoraResult> findAgoraByKeyword(final SearchKeywordRequest request) {
         AgoraStatus status = AgoraStatus.of(request.status());
-        return agoraRepository.findAgoraByKeyword(request.next(), status, request.agora_name());
+
+        return agoraRepository.findAgoraByKeyword(request.next(), status, request.agoraName());
     }
 
-    public AgoraSlice<SimpleAgoraResult> findAgoraByCategory(SearchCategoryRequestDto request) {
+    public AgoraSlice<SimpleAgoraResult> findAgoraByCategory(final SearchCategoryRequest request) {
         AgoraStatus status = AgoraStatus.of(request.status());
         List<String> categories = categoryRepository.findParentCodeByCategory(request.category());
+
         return agoraRepository.findAgoraByCategory(request.next(), status, categories);
     }
 
@@ -42,7 +44,7 @@ public class AgoraService {
         return agoraRepository.save(createAgora(request, category));
     }
 
-    private Agora createAgora(AgoraCreateRequest request, Category category) {
+    private Agora createAgora(final AgoraCreateRequest request, final Category category) {
         return Agora.createAgora(request.title(),
             request.capacity(),
             request.duration(),
