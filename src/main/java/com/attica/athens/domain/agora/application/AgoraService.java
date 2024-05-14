@@ -3,13 +3,13 @@ package com.attica.athens.domain.agora.application;
 import com.attica.athens.domain.agora.dao.AgoraRepository;
 import com.attica.athens.domain.agora.dao.CategoryRepository;
 import com.attica.athens.domain.agora.domain.Agora;
-import com.attica.athens.domain.agora.domain.AgoraStatus;
 import com.attica.athens.domain.agora.domain.Category;
-import com.attica.athens.domain.agora.dto.AgoraSlice;
 import com.attica.athens.domain.agora.dto.SimpleAgoraResult;
 import com.attica.athens.domain.agora.dto.request.AgoraCreateRequest;
 import com.attica.athens.domain.agora.dto.request.SearchCategoryRequest;
 import com.attica.athens.domain.agora.dto.request.SearchKeywordRequest;
+import com.attica.athens.domain.agora.dto.response.AgoraSlice;
+import com.attica.athens.domain.agora.dto.response.CreateAgoraResponse;
 import java.util.List;
 import org.springframework.stereotype.Service;
 
@@ -25,23 +25,20 @@ public class AgoraService {
     }
 
     public AgoraSlice<SimpleAgoraResult> findAgoraByKeyword(final SearchKeywordRequest request) {
-        AgoraStatus status = AgoraStatus.of(request.status());
-
-        return agoraRepository.findAgoraByKeyword(request.next(), status, request.agoraName());
+        return agoraRepository.findAgoraByKeyword(request.next(), request.status(), request.agoraName());
     }
 
     public AgoraSlice<SimpleAgoraResult> findAgoraByCategory(final SearchCategoryRequest request) {
-        AgoraStatus status = AgoraStatus.of(request.status());
         List<String> categories = categoryRepository.findParentCodeByCategory(request.category());
-
-        return agoraRepository.findAgoraByCategory(request.next(), status, categories);
+        return agoraRepository.findAgoraByCategory(request.next(), request.status(), categories);
     }
 
-    public Agora create(final AgoraCreateRequest request) {
+    public CreateAgoraResponse create(final AgoraCreateRequest request) {
         Category category = categoryRepository.findCategoryByName(request.code())
-            .orElseThrow(() -> new RuntimeException("category not found"));
+            .orElseThrow(() -> new RuntimeException());
 
-        return agoraRepository.save(createAgora(request, category));
+        Agora created = agoraRepository.save(createAgora(request, category));
+        return new CreateAgoraResponse(created.getId());
     }
 
     private Agora createAgora(final AgoraCreateRequest request, final Category category) {

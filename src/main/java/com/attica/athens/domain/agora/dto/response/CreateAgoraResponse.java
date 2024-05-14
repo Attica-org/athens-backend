@@ -1,6 +1,6 @@
 package com.attica.athens.domain.agora.dto.response;
 
-public record AgoraCreateResponse(
+public record CreateAgoraResponse(
         Long id
 ) {
 }

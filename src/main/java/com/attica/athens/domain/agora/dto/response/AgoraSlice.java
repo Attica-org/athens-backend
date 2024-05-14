@@ -1,4 +1,4 @@
-package com.attica.athens.domain.agora.dto;
+package com.attica.athens.domain.agora.dto.response;
 
 import java.util.List;
 import lombok.Getter;
