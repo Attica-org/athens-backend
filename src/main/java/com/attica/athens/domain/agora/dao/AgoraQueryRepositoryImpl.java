@@ -37,13 +37,16 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
                 Projections.constructor(SimpleParticipants.class,
                     new CaseBuilder()
                         .when(agoraUser.type.eq(AgoraUserType.PROS)).then(agoraUser.count())
-                        .otherwise(0L),
+                        .otherwise(0L)
+                        .intValue(),
                     new CaseBuilder()
                         .when(agoraUser.type.eq(AgoraUserType.CONS)).then(agoraUser.count())
-                        .otherwise(0L),
+                        .otherwise(0L)
+                        .intValue(),
                     new CaseBuilder()
                         .when(agoraUser.type.eq(AgoraUserType.OBSERVER)).then(agoraUser.count())
                         .otherwise(0L)
+                        .intValue()
                 ),
                 agora.createdAt,
                 agora.status
@@ -75,13 +78,16 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
                 Projections.constructor(SimpleParticipants.class,
                     new CaseBuilder()
                         .when(agoraUser.type.eq(AgoraUserType.PROS)).then(agoraUser.count())
-                        .otherwise(0L),
+                        .otherwise(0L)
+                        .intValue(),
                     new CaseBuilder()
                         .when(agoraUser.type.eq(AgoraUserType.CONS)).then(agoraUser.count())
-                        .otherwise(0L),
+                        .otherwise(0L)
+                        .intValue(),
                     new CaseBuilder()
                         .when(agoraUser.type.eq(AgoraUserType.OBSERVER)).then(agoraUser.count())
                         .otherwise(0L)
+                        .intValue()
                 ),
                 agora.createdAt,
                 agora.status

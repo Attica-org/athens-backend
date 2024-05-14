@@ -1,5 +1,6 @@
 package com.attica.athens.domain.agora.domain;
 
+import java.util.Arrays;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -14,11 +15,9 @@ public enum AgoraStatus {
     private final String status;
 
     public static AgoraStatus of(String status) {
-        for (AgoraStatus agoraStatus : values()) {
-            if (agoraStatus.getStatus().equals(status)) {
-                return agoraStatus;
-            }
-        }
-        return null;
+        return Arrays.stream(AgoraStatus.values())
+            .filter(value -> value.getStatus().equals(status))
+            .findAny()
+            .orElseThrow(() -> new RuntimeException("status not found"));
     }
 }
