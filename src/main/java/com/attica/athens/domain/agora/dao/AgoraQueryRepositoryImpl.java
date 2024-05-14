@@ -4,7 +4,7 @@ import static com.attica.athens.domain.agora.domain.QAgora.agora;
 import static com.attica.athens.domain.agoraUser.domain.QAgoraUser.agoraUser;
 
 import com.attica.athens.domain.agora.domain.AgoraStatus;
-import com.attica.athens.domain.agora.dto.AgoraSlice;
+import com.attica.athens.domain.agora.dto.response.AgoraSlice;
 import com.attica.athens.domain.agora.dto.SimpleAgoraResult;
 import com.attica.athens.domain.agora.dto.SimpleParticipants;
 import com.attica.athens.domain.agoraUser.domain.AgoraUserType;
@@ -111,7 +111,7 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
         Long lastAgoraId = null;
         if (result != null && result.size() > size) {
             result.remove(size);
-            lastAgoraId = result.get(result.size() - 1).getId();
+            lastAgoraId = result.get(result.size() - 1).id();
             hasNext = true;
         }
 
