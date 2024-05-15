@@ -7,6 +7,7 @@ import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionConnectEvent;
 import org.springframework.web.socket.messaging.SessionConnectedEvent;
+import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 import org.springframework.web.socket.messaging.SessionSubscribeEvent;
 import org.springframework.web.socket.messaging.SessionUnsubscribeEvent;
 
@@ -14,8 +15,8 @@ import org.springframework.web.socket.messaging.SessionUnsubscribeEvent;
 @Component
 public class WebSocketEventHandler {
 
-    @EventListener(SessionConnectEvent.class)
-    public void onApplicationEvent(SessionConnectEvent event) {
+    @EventListener
+    public void handleWebSocketSessionConnect(SessionConnectEvent event) {
         logConnectEvent(event);
     }
 
@@ -28,28 +29,27 @@ public class WebSocketEventHandler {
         log.info("WebSocket {}: userId={}, userRole={}", event.getClass().getSimpleName(), userId, userRole);
     }
 
-    @EventListener
-    public void handleWebSocketSessionConnected(SessionConnectedEvent event) {
-        log.info("WebSocket Connected: ");
+    @EventListener(SessionConnectedEvent.class)
+    public void handleWebSocketSessionConnected() {
+        log.info("WebSocket Connected");
     }
 
     @EventListener
-    public void handleWebSocketSessionDisconnected(SessionUnsubscribeEvent session) {
-        log.info("WebSocket Disconnected: ");
+    public void handleWebSocketSessionDisconnected(SessionDisconnectEvent event) {
+        StompHeaderAccessor accessor = StompHeaderAccessor.wrap(event.getMessage());
+
+        Objects.requireNonNull(accessor.getSessionAttributes()).clear();
+
+        log.info("WebSocket Disconnected");
     }
 
-    @EventListener
-    public void handleWebSocketSessionSubscribe(SessionSubscribeEvent session) {
-        log.info("WebSocket Subscribe: ");
+    @EventListener(SessionSubscribeEvent.class)
+    public void handleWebSocketSessionSubscribe() {
+        log.info("WebSocket Subscribe");
     }
 
-    @EventListener
-    public void handleWebSocketSessionUnsubscribe(SessionUnsubscribeEvent session) {
-        log.info("WebSocket Unsubscribe: ");
-    }
-
-    @EventListener
-    public void handleWebSocketSessionConnectedEventListener(SessionConnectedEvent session) {
-        log.info("WebSocket Connected: ");
+    @EventListener(SessionUnsubscribeEvent.class)
+    public void handleWebSocketSessionUnsubscribe() {
+        log.info("WebSocket Unsubscribe");
     }
 }
