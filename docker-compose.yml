@@ -1,0 +1,10 @@
+version: "3"
+
+services:
+  backend:
+    build: ./
+    container_name: athens-backend
+    ports:
+      - 8080:8080
+    env_file: ../.env
+    restart: always

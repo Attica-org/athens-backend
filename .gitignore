@@ -1,6 +1,6 @@
 # yml
 **/application-local.yml
-**/application-prod.yml
+# **/application-prod.yml
 **/application-test.yml
 
 # idea
