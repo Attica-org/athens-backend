@@ -1,0 +1,24 @@
+name: 
+on:
+  push:
+    branches:
+      - "main"
+     
+jobs:
+  server-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        
+      - name: Deploy using docker-compose
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.AWS_IP }}
+          username: ubuntu
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd ~/athens-backend
+            sudo git pull
+            sudo docker-compose down
+            sudo docker-compose up --build -d
