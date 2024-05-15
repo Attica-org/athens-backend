@@ -53,9 +53,10 @@ public class JwtChannelInterceptor implements ChannelInterceptor {
 
     private void checkUserIdAndRoleInSessionAttributes(StompHeaderAccessor accessor) {
         Map<String, Object> sessionAttributes = accessor.getSessionAttributes();
-        if (sessionAttributes == null || !sessionAttributes.containsKey("userId") ||
+        if (sessionAttributes == null ||
+                !sessionAttributes.containsKey("userId") ||
                 !sessionAttributes.containsKey("userRole")) {
-            throw new IllegalStateException("Session attributes - userId or userRole is missing");
+            throw new IllegalStateException("Session attributes : userId or userRole is missing");
         }
     }
 }
