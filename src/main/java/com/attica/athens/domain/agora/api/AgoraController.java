@@ -9,6 +9,7 @@ import com.attica.athens.domain.agora.dto.request.SearchKeywordRequest;
 import com.attica.athens.domain.agora.dto.response.AgoraResponse;
 import com.attica.athens.domain.agora.dto.response.AgoraSlice;
 import com.attica.athens.domain.agora.dto.response.CreateAgoraResponse;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -43,7 +44,7 @@ public class AgoraController {
 
     @GetMapping(params = {"status", "category", "next"})
     public ResponseEntity<AgoraResponse<AgoraSlice<SimpleAgoraResult>>> getAgoraByCategory(
-        SearchCategoryRequest request
+        @Valid SearchCategoryRequest request
     ) {
         AgoraSlice<SimpleAgoraResult> response = agoraService.findAgoraByCategory(request);
 

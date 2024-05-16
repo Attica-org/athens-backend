@@ -10,6 +10,8 @@ import com.attica.athens.domain.agora.dto.request.SearchCategoryRequest;
 import com.attica.athens.domain.agora.dto.request.SearchKeywordRequest;
 import com.attica.athens.domain.agora.dto.response.AgoraSlice;
 import com.attica.athens.domain.agora.dto.response.CreateAgoraResponse;
+import com.attica.athens.domain.agora.exception.NotFoundCategoryException;
+import java.util.ArrayList;
 import java.util.List;
 import org.springframework.stereotype.Service;
 
@@ -29,13 +31,12 @@ public class AgoraService {
     }
 
     public AgoraSlice<SimpleAgoraResult> findAgoraByCategory(final SearchCategoryRequest request) {
-        List<String> categories = categoryRepository.findParentCodeByCategory(request.category());
-        return agoraRepository.findAgoraByCategory(request.next(), request.status(), categories);
+        List<String> categories = findParentCodeByCategory(request.categoryId());
+        return agoraRepository.findAgoraByCategory(request.next(), request.getStatus(), categories);
     }
 
     public CreateAgoraResponse create(final AgoraCreateRequest request) {
-        Category category = categoryRepository.findCategoryByName(request.categoryId())
-            .orElseThrow(() -> new RuntimeException());
+        Category category = findByCategory(request.categoryId());
 
         Agora created = agoraRepository.save(createAgora(request, category));
         return new CreateAgoraResponse(created.getId());
@@ -47,5 +48,28 @@ public class AgoraService {
             request.duration(),
             request.color(),
             category);
+    }
+
+    public List<String> findParentCodeByCategory(String categoryId) {
+        List<String> parentCodes = new ArrayList<>();
+        String currentCategory = categoryId;
+
+        while (currentCategory != null) {
+            parentCodes.add(currentCategory);
+            Category entity = findByCategory(currentCategory);
+
+            if (entity == null || entity.getParentCode() == null) {
+                break;
+            }
+
+            currentCategory = entity.getParentCode().getCode();
+        }
+
+        return parentCodes;
+    }
+
+    private Category findByCategory(String categoryId) {
+        return categoryRepository.findCategoryByName(categoryId)
+            .orElseThrow(() -> new NotFoundCategoryException(categoryId));
     }
 }
