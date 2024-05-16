@@ -2,7 +2,7 @@ package com.attica.athens.domain.chat.application;
 
 import com.attica.athens.domain.agora.dao.AgoraRepository;
 import com.attica.athens.domain.agora.domain.Agora;
-import com.attica.athens.domain.agoraUser.api.AgoraUserRepository;
+import com.attica.athens.domain.agoraUser.dao.AgoraUserRepository;
 import com.attica.athens.domain.agoraUser.domain.AgoraUser;
 import com.attica.athens.domain.chat.dao.ChatRepository;
 import com.attica.athens.domain.chat.domain.Chat;

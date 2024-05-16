@@ -1,4 +1,4 @@
-package com.attica.athens.domain.agoraUser.api;
+package com.attica.athens.domain.agoraUser.dao;
 
 
 import com.attica.athens.domain.agoraUser.domain.AgoraUser;
