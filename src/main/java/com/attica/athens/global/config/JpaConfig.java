@@ -16,29 +16,28 @@ public class JpaConfig {
 
     @Bean
     public AuditorAware<String> auditorAware() {
-        return () -> {
-            String userId = getWebSocketUserId();
-            if (userId != null) {
-                return Optional.of(userId);
-            }
-
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            if (authentication == null || !authentication.isAuthenticated()) {
-                throw new IllegalStateException("AuditorAware : principal is missing");
-            }
-
-            Object principal = authentication.getPrincipal();
-            if (principal instanceof CustomUserDetails) {
-                return Optional.of(((CustomUserDetails) principal).getUsername());
-            }
-
-            return Optional.of(principal.toString());
-        };
+        return () -> getWebSocketUserId()
+                .or(this::getPrinciple);
     }
 
-    private String getWebSocketUserId() {
+    private Optional<String> getPrinciple() {
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new IllegalStateException("AuditorAware : principal is missing");
+        }
+
+        Object principal = authentication.getPrincipal();
+        if (principal instanceof CustomUserDetails) {
+            return Optional.of(((CustomUserDetails) principal).getUsername());
+        }
+
+        return Optional.of(principal.toString());
+    }
+
+    private Optional<String> getWebSocketUserId() {
+
         return Optional.ofNullable(WebSocketUtils.getSessionAttributes())
-                .map(sessionAttributes -> (String) sessionAttributes.get("userId"))
-                .orElse(null);
+                .map(sessionAttributes -> (String) sessionAttributes.get("userId"));
     }
 }

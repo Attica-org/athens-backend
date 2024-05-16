@@ -36,7 +36,7 @@ public class JwtChannelInterceptor implements ChannelInterceptor {
             throw new RuntimeException("Invalid token");
         }
 
-        jwtToken = jwtToken.substring(7);
+        jwtToken = jwtToken.substring(BEARER_.length());
 
         if (jwtUtil.isExpired(jwtToken)) {
             throw new ExpiredJwtException(null, null, "Token has expired");
