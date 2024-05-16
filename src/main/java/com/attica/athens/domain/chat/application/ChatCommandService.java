@@ -57,7 +57,7 @@ public class ChatCommandService {
     }
 
     private AgoraUser findAgoraUserByAgoraIdAndUserId(Long agoraId, Long userId) {
-        return agoraUserRepository.findByAgora_IdAndUser_Id(agoraId, userId)
+        return agoraUserRepository.findByAgoraIdAndUserId(agoraId, userId)
                 .orElseThrow(() -> new IllegalArgumentException("User is not in the agora."));
     }
 

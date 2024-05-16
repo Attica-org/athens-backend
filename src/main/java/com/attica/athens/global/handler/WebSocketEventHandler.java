@@ -20,7 +20,7 @@ public class WebSocketEventHandler {
         logConnectEvent(event);
     }
 
-    private static void logConnectEvent(SessionConnectEvent event) {
+    private void logConnectEvent(SessionConnectEvent event) {
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(event.getMessage());
 
         String userId = (String) Objects.requireNonNull(accessor.getSessionAttributes()).get("userId");

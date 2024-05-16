@@ -7,5 +7,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface AgoraUserRepository extends JpaRepository<AgoraUser, Integer> {
 
-    Optional<AgoraUser> findByAgora_IdAndUser_Id(Long agoraId, Long userId);
+    Optional<AgoraUser> findByAgoraIdAndUserId(Long agoraId, Long userId);
 }
