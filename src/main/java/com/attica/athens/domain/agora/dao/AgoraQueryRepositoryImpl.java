@@ -119,7 +119,7 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
     }
 
     private BooleanExpression containKeyword(String keyword) {
-        if (keyword == null || keyword.isEmpty()) return null;
+        // if (keyword == null || keyword.isEmpty()) return null;
         return agora.title.containsIgnoreCase(keyword);
     }
 
