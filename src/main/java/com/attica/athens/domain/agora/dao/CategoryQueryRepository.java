@@ -7,6 +7,4 @@ import java.util.Optional;
 public interface CategoryQueryRepository {
 
     Optional<Category> findCategoryByName(String name);
-
-    List<String> findParentCodeByCategory(String category);
 }
