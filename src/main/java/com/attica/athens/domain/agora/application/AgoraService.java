@@ -31,7 +31,7 @@ public class AgoraService {
     }
 
     public AgoraSlice<SimpleAgoraResult> findAgoraByCategory(final SearchCategoryRequest request) {
-        List<String> categories = findParentCodeByCategory(request.categoryId());
+        List<String> categories = findParentCodeByCategory(request.category());
         return agoraRepository.findAgoraByCategory(request.next(), request.getStatus(), categories);
     }
 

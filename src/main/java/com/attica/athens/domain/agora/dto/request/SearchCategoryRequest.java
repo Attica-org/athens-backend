@@ -10,7 +10,7 @@ public record SearchCategoryRequest(
     @Pattern(regexp = "^(active|closed)$", message = "허용되지 않는 Status 입니다.")
     String status,
     @NotEmpty @NotBlank
-    String categoryId,
+    String category,
     Long next
 ) {
 
