@@ -30,7 +30,7 @@ public class AgoraController {
 
     @PostMapping
     public ResponseEntity<AgoraResponse<CreateAgoraResponse>> createAgora(
-        @RequestBody AgoraCreateRequest request
+        @RequestBody @Valid AgoraCreateRequest request
     ) {
         CreateAgoraResponse response = agoraService.create(request);
 
@@ -56,14 +56,13 @@ public class AgoraController {
         );
     }
 
-    @GetMapping
+    @GetMapping(params = {"agoras_name", "status", "next"})
     public ResponseEntity<AgoraResponse<AgoraSlice<SimpleAgoraResult>>> getAgoraByKeyword(
-        @RequestParam(name = "agora_name") String agoraName,
-        @RequestParam AgoraStatus status,
-        @RequestParam(required = false) Long next
+        @RequestParam("agoras_name") String agoraName,
+        @Valid SearchKeywordRequest request
     ) {
         AgoraSlice<SimpleAgoraResult> response =
-            agoraService.findAgoraByKeyword(new SearchKeywordRequest(agoraName, status, next));
+            agoraService.findAgoraByKeyword(agoraName, new SearchKeywordRequest(request.status(), request.next()));
 
         return ResponseEntity.ok(
             AgoraResponse.<AgoraSlice<SimpleAgoraResult>>builder()

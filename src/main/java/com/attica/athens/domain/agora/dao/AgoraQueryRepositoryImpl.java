@@ -25,7 +25,7 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
     }
 
     @Override
-    public AgoraSlice<SimpleAgoraResult> findAgoraByKeyword(Long agoraId, AgoraStatus status, String keyword) {
+    public AgoraSlice<SimpleAgoraResult> findAgoraByKeyword(Long agoraId, List<AgoraStatus> status, String keyword) {
         final int size = 10;
 
         List<SimpleAgoraResult> result = jpaQueryFactory
@@ -54,8 +54,8 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
             .from(agora)
             .leftJoin(agora.agoraUsers, agoraUser)
             .where(gtAgoraId(agoraId),
-                containKeyword(keyword),
-                agora.status.eq(status)
+                (containKeyword(keyword))
+                    .and((agora.status.in(status)))
             )
             .groupBy(agora.id, agoraUser.type)
             .orderBy(agora.id.desc())
@@ -122,6 +122,7 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
         if (keyword == null || keyword.isEmpty()) return null;
         return agora.title.containsIgnoreCase(keyword);
     }
+
     private BooleanExpression gtAgoraId(Long agoraId) {
         if (agoraId == null) return null;
         return agora.id.lt(agoraId);
