@@ -26,8 +26,8 @@ public class AgoraService {
         this.categoryRepository = categoryRepository;
     }
 
-    public AgoraSlice<SimpleAgoraResult> findAgoraByKeyword(final SearchKeywordRequest request) {
-        return agoraRepository.findAgoraByKeyword(request.next(), request.status(), request.agoraName());
+    public AgoraSlice<SimpleAgoraResult> findAgoraByKeyword(final String agoraName, final SearchKeywordRequest request) {
+        return agoraRepository.findAgoraByKeyword(request.next(), request.getStatus(), agoraName);
     }
 
     public AgoraSlice<SimpleAgoraResult> findAgoraByCategory(final SearchCategoryRequest request) {
