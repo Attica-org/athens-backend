@@ -7,6 +7,6 @@ public record AgoraCreateRequest(
         Integer capacity,
         Duration duration,
         String color,
-        String code
+        String categoryId
 ) {
 }

@@ -34,7 +34,7 @@ public class AgoraService {
     }
 
     public CreateAgoraResponse create(final AgoraCreateRequest request) {
-        Category category = categoryRepository.findCategoryByName(request.code())
+        Category category = categoryRepository.findCategoryByName(request.categoryId())
             .orElseThrow(() -> new RuntimeException());
 
         Agora created = agoraRepository.save(createAgora(request, category));
