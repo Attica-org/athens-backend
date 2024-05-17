@@ -1,9 +1,11 @@
 package com.attica.athens.global.interceptor;
 
-import com.attica.athens.global.security.JWTUtil;
+import static com.attica.athens.global.security.JWTUtil.getId;
+import static com.attica.athens.global.security.JWTUtil.getRole;
+import static com.attica.athens.global.security.JWTUtil.isExpired;
+
 import io.jsonwebtoken.ExpiredJwtException;
 import java.util.Map;
-import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.simp.stomp.StompCommand;
@@ -12,13 +14,10 @@ import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.stereotype.Component;
 
 @Component
-@RequiredArgsConstructor
 public class JwtChannelInterceptor implements ChannelInterceptor {
 
     public static final String AUTHORIZATION = "Authorization";
     public static final String BEARER_ = "Bearer ";
-
-    private final JWTUtil jwtUtil;
 
     @Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
@@ -38,12 +37,12 @@ public class JwtChannelInterceptor implements ChannelInterceptor {
 
         jwtToken = jwtToken.substring(BEARER_.length());
 
-        if (jwtUtil.isExpired(jwtToken)) {
+        if (isExpired(jwtToken)) {
             throw new ExpiredJwtException(null, null, "Token has expired");
         }
 
-        String userId = jwtUtil.getId(jwtToken);
-        String userRole = jwtUtil.getRole(jwtToken);
+        String userId = getId(jwtToken);
+        String userRole = getRole(jwtToken);
 
         accessor.getSessionAttributes().put("userId", userId);
         accessor.getSessionAttributes().put("userRole", userRole);
