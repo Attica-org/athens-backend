@@ -31,8 +31,8 @@ public class AgoraService {
     }
 
     public AgoraSlice<SimpleAgoraResult> findAgoraByCategory(final SearchCategoryRequest request) {
-        List<String> categories = findParentCodeByCategory(request.category());
-        return agoraRepository.findAgoraByCategory(request.next(), request.getStatus(), categories);
+        List<Long> categoryIds = findParentCodeByCategory(request.category());
+        return agoraRepository.findAgoraByCategory(request.next(), request.getStatus(), categoryIds);
     }
 
     public CreateAgoraResponse create(final AgoraCreateRequest request) {
@@ -50,26 +50,26 @@ public class AgoraService {
             category);
     }
 
-    public List<String> findParentCodeByCategory(String categoryId) {
-        List<String> parentCodes = new ArrayList<>();
-        String currentCategory = categoryId;
+    public List<Long> findParentCodeByCategory(final Long categoryId) {
+        List<Long> parentCodes = new ArrayList<>();
+        Long currentCategory = categoryId;
 
         while (currentCategory != null) {
             parentCodes.add(currentCategory);
             Category entity = findByCategory(currentCategory);
 
-            if (entity == null || entity.getParentCode() == null) {
+            if (entity == null || entity.getParent() == null) {
                 break;
             }
 
-            currentCategory = entity.getParentCode().getCode();
+            currentCategory = entity.getParent().getId();
         }
 
         return parentCodes;
     }
 
-    private Category findByCategory(String categoryId) {
-        return categoryRepository.findCategoryByName(categoryId)
+    private Category findByCategory(final Long categoryId) {
+        return categoryRepository.findById(categoryId)
             .orElseThrow(() -> new NotFoundCategoryException(categoryId));
     }
 }
