@@ -15,8 +15,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
-    public static final String BEARER = "Bearer ";
-    public static final String AUTHORIZATION = "Authorization";
+    private static final String BEARER = "Bearer ";
+    private static final String AUTHORIZATION = "Authorization";
 
     private final AuthenticationManager authenticationManager;
     private final JWTUtil jwtUtil;

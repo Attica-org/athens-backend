@@ -3,7 +3,7 @@
 # **/application-prod.yml
 **/application-test.yml
 
-# idea
+/http
 /.idea/
 
 ### Git ###

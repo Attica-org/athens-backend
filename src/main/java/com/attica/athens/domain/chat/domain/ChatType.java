@@ -1,6 +1,6 @@
 package com.attica.athens.domain.chat.domain;
 
-public enum MessageType {
+public enum ChatType {
     CHAT,
     JOIN,
     LEAVE
