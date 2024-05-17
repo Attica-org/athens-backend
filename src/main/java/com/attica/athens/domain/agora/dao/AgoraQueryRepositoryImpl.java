@@ -66,7 +66,7 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
     }
 
     @Override
-    public AgoraSlice<SimpleAgoraResult> findAgoraByCategory(Long agoraId, List<AgoraStatus> status, List<String> categories) {
+    public AgoraSlice<SimpleAgoraResult> findAgoraByCategory(Long agoraId, List<AgoraStatus> status, List<Long> categoryIds) {
         final int size = 10;
 
         List<SimpleAgoraResult> result = jpaQueryFactory
@@ -96,7 +96,7 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
             .leftJoin(agora.agoraUsers, agoraUser)
             .where(gtAgoraId(agoraId),
                 agora.status.in(status)
-                .and(agora.code.code.in(categories))
+                .and(agora.category.id.in(categoryIds))
             )
             .groupBy(agora.id, agoraUser.type)
             .orderBy(agora.id.desc())

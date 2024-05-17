@@ -5,7 +5,7 @@ import org.springframework.http.HttpStatus;
 
 public class NotFoundCategoryException extends CustomException {
 
-    public NotFoundCategoryException(String categoryId) {
+    public NotFoundCategoryException(Long categoryId) {
         super(
             HttpStatus.NOT_FOUND,
             "존재하지 않는 카테고리입니다. categoryId: " + categoryId

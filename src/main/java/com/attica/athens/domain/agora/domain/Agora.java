@@ -25,7 +25,9 @@ import lombok.ToString;
 
 @Getter
 @ToString(callSuper = true)
-@Table(indexes = {
+@Table(
+    name = "agora",
+    indexes = {
         @Index(name = "idx_agora_title", columnList = "title"),
         @Index(name = "idx_agora_created_at", columnList = "createdAt"),
         @Index(name = "idx_agora_created_by", columnList = "createdBy")
@@ -59,23 +61,23 @@ public class Agora extends AuditingFields {
     private AgoraStatus status;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "code")
-    private Category code;
+    @JoinColumn(name = "category_id")
+    private Category category;
 
     @OneToMany(mappedBy = "agora")
     private final List<AgoraUser> agoraUsers = new ArrayList<>();
 
-    private Agora(String title, Integer capacity, Duration duration, String color, Category code) {
+    private Agora(String title, Integer capacity, Duration duration, String color, Category category) {
         this.title = title;
         this.capacity = capacity;
         this.duration = duration;
         this.viewCount = 0;
         this.status = AgoraStatus.RUNNING;
         this.color = color;
-        this.code = code;
+        this.category = category;
     }
 
-    public static Agora createAgora(String title, Integer capacity, Duration duration, String color, Category code) {
-        return new Agora(title, capacity, duration, color, code);
+    public static Agora createAgora(String title, Integer capacity, Duration duration, String color, Category category) {
+        return new Agora(title, capacity, duration, color, category);
     }
 }
