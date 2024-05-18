@@ -77,7 +77,7 @@ public class JWTUtil {
         CustomUserDetails customUserDetails =
                 role.equals(UserRole.ROLE_TEMP_USER.name())
                         ? new CustomUserDetails(TempUser.createTempUser())
-                        : new CustomUserDetails(User.createUser("fakeUsername", "fakePassword"));
+                        : new CustomUserDetails(User.createUser(id, "fakePassword"));
 
         return new UsernamePasswordAuthenticationToken(customUserDetails, null,
                 customUserDetails.getAuthorities());
