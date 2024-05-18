@@ -4,6 +4,9 @@ import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
+import org.springframework.messaging.support.MessageHeaderAccessor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionConnectEvent;
 import org.springframework.web.socket.messaging.SessionConnectedEvent;
@@ -21,12 +24,17 @@ public class WebSocketEventHandler {
     }
 
     private void logConnectEvent(SessionConnectEvent event) {
-        StompHeaderAccessor accessor = StompHeaderAccessor.wrap(event.getMessage());
+        StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(event.getMessage(), StompHeaderAccessor.class);
 
-        String userId = (String) Objects.requireNonNull(accessor.getSessionAttributes()).get("userId");
-        String userRole = (String) Objects.requireNonNull(accessor.getSessionAttributes()).get("userRole");
+        Authentication authentication = (Authentication) Objects.requireNonNull(accessor.getUser());
+        String username = authentication.getName();
+        String userRole = authentication.getAuthorities()
+                .stream()
+                .findFirst()
+                .map(GrantedAuthority::getAuthority)
+                .orElseThrow(() -> new IllegalArgumentException("User role is not exist."));
 
-        log.info("WebSocket {}: userId={}, userRole={}", event.getClass().getSimpleName(), userId, userRole);
+        log.info("WebSocket {}: username={}, userRole={}", event.getClass().getSimpleName(), username, userRole);
     }
 
     @EventListener(SessionConnectedEvent.class)
@@ -36,10 +44,6 @@ public class WebSocketEventHandler {
 
     @EventListener
     public void handleWebSocketSessionDisconnected(SessionDisconnectEvent event) {
-        StompHeaderAccessor accessor = StompHeaderAccessor.wrap(event.getMessage());
-
-        Objects.requireNonNull(accessor.getSessionAttributes()).clear();
-
         log.info("WebSocket Disconnected");
     }
 

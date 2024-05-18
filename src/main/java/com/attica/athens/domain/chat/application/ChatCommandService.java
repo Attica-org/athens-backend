@@ -12,10 +12,10 @@ import com.attica.athens.domain.chat.dto.response.SendChatResponse.SendChatData;
 import com.attica.athens.domain.user.dao.BaseUserRepository;
 import com.attica.athens.domain.user.dao.UserRepository;
 import com.attica.athens.domain.user.domain.BaseUser;
-import com.attica.athens.domain.user.domain.UserRole;
-import java.util.Objects;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,21 +30,22 @@ public class ChatCommandService {
     private final AgoraUserRepository agoraUserRepository;
     private final ChatRepository chatRepository;
 
-    public SendChatResponse sendChat(String userId, String userRole, Long agoraId, SendChatRequest sendChatRequest) {
+    public SendChatResponse sendChat(Authentication authentication, Long agoraId, SendChatRequest sendChatRequest) {
 
         Agora agora = findAgoraById(agoraId);
 
-        if (!Objects.equals(userRole, UserRole.ROLE_USER.name()) &&
-                !Objects.equals(userRole, UserRole.ROLE_TEMP_USER.name())) {
-            throw new IllegalArgumentException("Request userRole is invalid. UserRole : " + userRole);
-        }
+        String username = authentication.getName();
+        String userRole = authentication.getAuthorities()
+                .stream()
+                .findFirst()
+                .map(GrantedAuthority::getAuthority)
+                .orElseThrow(() -> new IllegalArgumentException("User role is not exist."));
 
-        BaseUser user;
-        if (userRole.equals(UserRole.ROLE_USER.name())) {
-            user = findUserByUsername(userId);
-        } else {
-            user = findUserByUuid(userId);
-        }
+        BaseUser user = switch (userRole) {
+            case "ROLE_USER" -> findUserByUsername(username);
+            case "ROLE_TEMP_USER" -> findUserByUuid(username);
+            default -> throw new IllegalArgumentException("Role is not valid.");
+        };
 
         AgoraUser agoraUser = findAgoraUserByAgoraIdAndUserId(agora.getId(), user.getId());
 

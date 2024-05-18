@@ -21,15 +21,15 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     private final JwtChannelInterceptor jwtChannelInterceptor;
 
     @Override
-    public void configureMessageBroker(MessageBrokerRegistry registry) {
-        registry.enableSimpleBroker(SIMPLE_BROKER);
-        registry.setApplicationDestinationPrefixes(PUBLISH);
-    }
-
-    @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint(ENDPOINT)
                 .setAllowedOriginPatterns("*");
+    }
+
+    @Override
+    public void configureMessageBroker(MessageBrokerRegistry registry) {
+        registry.enableSimpleBroker(SIMPLE_BROKER);
+        registry.setApplicationDestinationPrefixes(PUBLISH);
     }
 
     @Override
