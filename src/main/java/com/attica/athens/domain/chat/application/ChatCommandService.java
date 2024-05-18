@@ -14,8 +14,8 @@ import com.attica.athens.domain.user.dao.UserRepository;
 import com.attica.athens.domain.user.domain.BaseUser;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,12 +30,12 @@ public class ChatCommandService {
     private final AgoraUserRepository agoraUserRepository;
     private final ChatRepository chatRepository;
 
-    public SendChatResponse sendChat(Authentication authentication, Long agoraId, SendChatRequest sendChatRequest) {
+    public SendChatResponse sendChat(UserDetails userDetails, Long agoraId, SendChatRequest sendChatRequest) {
 
         Agora agora = findAgoraById(agoraId);
 
-        String username = authentication.getName();
-        String userRole = authentication.getAuthorities()
+        String username = userDetails.getUsername();
+        String userRole = userDetails.getAuthorities()
                 .stream()
                 .findFirst()
                 .map(GrantedAuthority::getAuthority)
