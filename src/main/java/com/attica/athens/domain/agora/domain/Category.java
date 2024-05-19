@@ -2,8 +2,6 @@ package com.attica.athens.domain.agora.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -32,7 +30,7 @@ public class Category {
     @Column(nullable = false)
     private Integer level;
 
-    @Column(nullable = false)
+    @Column(length = 50, nullable = false)
     private String name;
 
     public Category(Long id, Integer level, String name) {
