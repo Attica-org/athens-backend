@@ -26,7 +26,6 @@ public class GlobalExceptionHandler {
         CustomException exception
     ) {
         ErrorResponse response = ErrorResponse.of(
-            exception.getHttpStatus().getReasonPhrase(),
             exception.getHttpStatus().value(),
             exception.getMessage()
         );
@@ -47,7 +46,6 @@ public class GlobalExceptionHandler {
         String message = objectMapper.writeValueAsString(map);
 
         ErrorResponse response = ErrorResponse.of(
-            HttpStatus.BAD_REQUEST.getReasonPhrase(),
             HttpStatus.BAD_REQUEST.value(),
             message
         );
@@ -60,7 +58,6 @@ public class GlobalExceptionHandler {
         IllegalArgumentException exception
     ) {
         ErrorResponse response = ErrorResponse.of(
-            HttpStatus.BAD_REQUEST.getReasonPhrase(),
             HttpStatus.BAD_REQUEST.value(),
             exception.getMessage()
         );

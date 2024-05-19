@@ -14,6 +14,7 @@ import com.attica.athens.domain.agora.exception.NotFoundCategoryException;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class AgoraService {
@@ -31,10 +32,11 @@ public class AgoraService {
     }
 
     public AgoraSlice<SimpleAgoraResult> findAgoraByCategory(final SearchCategoryRequest request) {
-        List<Long> categoryIds = findParentCodeByCategory(request.category());
+        List<Long> categoryIds = findParentCategoryById(request.category());
         return agoraRepository.findAgoraByCategory(request.next(), request.getStatus(), categoryIds);
     }
 
+    @Transactional
     public CreateAgoraResponse create(final AgoraCreateRequest request) {
         Category category = findByCategory(request.categoryId());
 
@@ -50,19 +52,17 @@ public class AgoraService {
             category);
     }
 
-    public List<Long> findParentCodeByCategory(final Long categoryId) {
+    private List<Long> findParentCategoryById(final Long categoryId) {
+        Category category = findByCategory(categoryId);
         List<Long> parentCodes = new ArrayList<>();
-        Long currentCategory = categoryId;
+        Long currentCategory = category.getId();
 
         while (currentCategory != null) {
             parentCodes.add(currentCategory);
-            Category entity = findByCategory(currentCategory);
-
-            if (entity == null || entity.getParent() == null) {
-                break;
-            }
-
-            currentCategory = entity.getParent().getId();
+            currentCategory = categoryRepository.findById(currentCategory)
+                .map(Category::getParent)
+                .map(Category::getId)
+                .orElse(null);
         }
 
         return parentCodes;

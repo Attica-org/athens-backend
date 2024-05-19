@@ -1,7 +1,6 @@
 package com.attica.athens.domain.agora.api;
 
 import com.attica.athens.domain.agora.application.AgoraService;
-import com.attica.athens.domain.agora.domain.AgoraStatus;
 import com.attica.athens.domain.agora.dto.SimpleAgoraResult;
 import com.attica.athens.domain.agora.dto.request.AgoraCreateRequest;
 import com.attica.athens.domain.agora.dto.request.SearchCategoryRequest;
@@ -56,9 +55,9 @@ public class AgoraController {
         );
     }
 
-    @GetMapping(params = {"agoras_name", "status", "next"})
+    @GetMapping(params = {"agora_name", "status", "next"})
     public ResponseEntity<AgoraResponse<AgoraSlice<SimpleAgoraResult>>> getAgoraByKeyword(
-        @RequestParam("agoras_name") String agoraName,
+        @RequestParam("agora_name") String agoraName,
         @Valid SearchKeywordRequest request
     ) {
         AgoraSlice<SimpleAgoraResult> response =
