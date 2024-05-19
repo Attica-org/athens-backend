@@ -15,7 +15,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.AccessLevel;
@@ -46,7 +45,7 @@ public class Agora extends AuditingFields {
     private Integer capacity;
 
     @Column(nullable = false)
-    private Duration duration;
+    private Integer duration;
 
     @Column(name = "view_count", nullable = false)
     private Integer viewCount;
@@ -65,7 +64,7 @@ public class Agora extends AuditingFields {
     @OneToMany(mappedBy = "agora")
     private final List<AgoraUser> agoraUsers = new ArrayList<>();
 
-    private Agora(String title, Integer capacity, Duration duration, String color, Category code) {
+    private Agora(String title, Integer capacity, Integer duration, String color, Category code) {
         this.title = title;
         this.capacity = capacity;
         this.duration = duration;
@@ -75,7 +74,7 @@ public class Agora extends AuditingFields {
         this.code = code;
     }
 
-    public static Agora createAgora(String title, Integer capacity, Duration duration, String color, Category code) {
+    public static Agora createAgora(String title, Integer capacity, Integer duration, String color, Category code) {
         return new Agora(title, capacity, duration, color, code);
     }
 }
