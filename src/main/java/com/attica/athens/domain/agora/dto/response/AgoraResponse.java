@@ -9,8 +9,8 @@ public class AgoraResponse<T> {
     private T response;
 
     @Builder
-    public AgoraResponse(boolean success, T response) {
-        this.success = success;
+    public AgoraResponse(T response) {
+        this.success = true;
         this.response = response;
     }
 }

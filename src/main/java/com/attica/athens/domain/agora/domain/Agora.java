@@ -67,17 +67,17 @@ public class Agora extends AuditingFields {
     @OneToMany(mappedBy = "agora")
     private final List<AgoraUser> agoraUsers = new ArrayList<>();
 
-    private Agora(String title, Integer capacity, Duration duration, String color, Category category) {
+    private Agora(String title, Integer capacity, Integer duration, String color, Category category) {
         this.title = title;
         this.capacity = capacity;
-        this.duration = duration;
+        this.duration = Duration.ofMinutes(duration);
         this.viewCount = 0;
         this.status = AgoraStatus.RUNNING;
         this.color = color;
         this.category = category;
     }
 
-    public static Agora createAgora(String title, Integer capacity, Duration duration, String color, Category category) {
+    public static Agora createAgora(String title, Integer capacity, Integer duration, String color, Category category) {
         return new Agora(title, capacity, duration, color, category);
     }
 }
