@@ -52,7 +52,7 @@ public class ChatQueryService {
         Map<Long, AgoraUser> agoraUserMap = mapAgoraUserIdToAgoraUser(agoraUsers);
         List<ChatData> chatData = mapChatsToChatData(agoraUserMap, chats);
 
-        Long nextKey = getNextCursor(cursor, chats);
+        Long nextKey = getNextCursor(chats);
 
         return new GetChatResponse(agora.getId(), chatData, cursor.next(nextKey));
     }
@@ -69,9 +69,9 @@ public class ChatQueryService {
         }
     }
 
-    private Long getNextCursor(Cursor cursor, List<Chat> chats) {
+    private Long getNextCursor(List<Chat> chats) {
 
-        if (cursor.getEffectiveSize() > chats.size()) {
+        if (chats.size() > 0 && chats.get(chats.size() - 1).getId().equals(1L)) {
             return Cursor.NONE_KEY;
         }
 
