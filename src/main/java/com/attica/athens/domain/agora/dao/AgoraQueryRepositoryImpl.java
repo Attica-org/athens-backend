@@ -25,7 +25,7 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
     }
 
     @Override
-    public AgoraSlice<SimpleAgoraResult> findAgoraByKeyword(Long agoraId, AgoraStatus status, String keyword) {
+    public AgoraSlice<SimpleAgoraResult> findAgoraByKeyword(Long agoraId, List<AgoraStatus> status, String keyword) {
         final int size = 10;
 
         List<SimpleAgoraResult> result = jpaQueryFactory
@@ -54,8 +54,8 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
             .from(agora)
             .leftJoin(agora.agoraUsers, agoraUser)
             .where(gtAgoraId(agoraId),
-                containKeyword(keyword),
-                agora.status.eq(status)
+                (containKeyword(keyword))
+                    .and((agora.status.in(status)))
             )
             .groupBy(agora.id, agoraUser.type)
             .orderBy(agora.id.desc())
@@ -66,7 +66,7 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
     }
 
     @Override
-    public AgoraSlice<SimpleAgoraResult> findAgoraByCategory(Long agoraId, AgoraStatus status, List<String> categories) {
+    public AgoraSlice<SimpleAgoraResult> findAgoraByCategory(Long agoraId, List<AgoraStatus> status, List<Long> categoryIds) {
         final int size = 10;
 
         List<SimpleAgoraResult> result = jpaQueryFactory
@@ -95,8 +95,8 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
             .from(agora)
             .leftJoin(agora.agoraUsers, agoraUser)
             .where(gtAgoraId(agoraId),
-                agora.status.eq(status)
-                .and(agora.code.code.in(categories))
+                agora.status.in(status)
+                .and(agora.category.id.in(categoryIds))
             )
             .groupBy(agora.id, agoraUser.type)
             .orderBy(agora.id.desc())
@@ -119,9 +119,10 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
     }
 
     private BooleanExpression containKeyword(String keyword) {
-        if (keyword == null || keyword.isEmpty()) return null;
+        // if (keyword == null || keyword.isEmpty()) return null;
         return agora.title.containsIgnoreCase(keyword);
     }
+
     private BooleanExpression gtAgoraId(Long agoraId) {
         if (agoraId == null) return null;
         return agora.id.lt(agoraId);
