@@ -22,6 +22,7 @@ public class TempUserService {
 
         tempUserRepository.save(tempUser);
 
-        return jwtUtil.createJwt(tempUser.getUuid().toString(), UserRole.ROLE_TEMP_USER.name());
+        // 임시
+        return jwtUtil.createJwt("access",tempUser.getUuid().toString(), UserRole.ROLE_TEMP_USER.name(),600000L);
     }
 }
