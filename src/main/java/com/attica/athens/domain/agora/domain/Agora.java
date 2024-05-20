@@ -48,7 +48,7 @@ public class Agora extends AuditingFields {
     private Integer capacity;
 
     @Column(nullable = false)
-    private Duration duration;
+    private Integer duration;
 
     @Column(name = "view_count", nullable = false)
     private Integer viewCount;
@@ -70,7 +70,7 @@ public class Agora extends AuditingFields {
     private Agora(String title, Integer capacity, Integer duration, String color, Category category) {
         this.title = title;
         this.capacity = capacity;
-        this.duration = Duration.ofMinutes(duration);
+        this.duration = duration;
         this.viewCount = 0;
         this.status = AgoraStatus.RUNNING;
         this.color = color;
