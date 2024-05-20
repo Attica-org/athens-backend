@@ -27,9 +27,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<?> handleCustomException(
         CustomException exception
     ) {
-
-        ErrorResponse response = ErrorResponse.of(
-            exception.getHttpStatus().value(),
+        ErrorResponse response = new ErrorResponse(
             exception.getErrorCode(),
             exception.getMessage()
         );
@@ -50,8 +48,7 @@ public class GlobalExceptionHandler {
 
         String message = objectMapper.writeValueAsString(map);
 
-        ErrorResponse response = ErrorResponse.of(
-            HttpStatus.BAD_REQUEST.value(),
+        ErrorResponse response = new ErrorResponse(
             ErrorCode.VALIDATION_FAILED.getCode(),
             message
         );
@@ -64,8 +61,7 @@ public class GlobalExceptionHandler {
     ResponseEntity<?> handleIllegalArgumentException(
         IllegalArgumentException exception
     ) {
-        ErrorResponse response = ErrorResponse.of(
-            HttpStatus.BAD_REQUEST.value(),
+        ErrorResponse response = new ErrorResponse(
             ErrorCode.WRONG_REQUEST_TRANSMISSION.getCode(),
             exception.getMessage()
         );
