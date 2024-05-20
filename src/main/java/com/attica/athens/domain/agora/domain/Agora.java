@@ -67,7 +67,7 @@ public class Agora extends AuditingFields {
     @OneToMany(mappedBy = "agora")
     private final List<AgoraUser> agoraUsers = new ArrayList<>();
 
-    private Agora(String title, Integer capacity, Integer duration, String color, Category category) {
+    public Agora(String title, Integer capacity, Integer duration, String color, Category category) {
         this.title = title;
         this.capacity = capacity;
         this.duration = duration;
@@ -75,9 +75,5 @@ public class Agora extends AuditingFields {
         this.status = AgoraStatus.RUNNING;
         this.color = color;
         this.category = category;
-    }
-
-    public static Agora createAgora(String title, Integer capacity, Integer duration, String color, Category category) {
-        return new Agora(title, capacity, duration, color, category);
     }
 }

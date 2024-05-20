@@ -45,7 +45,7 @@ public class AgoraService {
     }
 
     private Agora createAgora(final AgoraCreateRequest request, final Category category) {
-        return Agora.createAgora(request.title(),
+        return new Agora(request.title(),
             request.capacity(),
             request.duration(),
             request.color(),
