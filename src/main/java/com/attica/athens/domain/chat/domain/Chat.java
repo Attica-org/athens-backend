@@ -43,12 +43,12 @@ public class Chat extends AuditingFields {
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "agora_user_id")
-    private AgoraUser user;
+    private AgoraUser agoraUser;
 
-    private Chat(ChatType type, String content, AgoraUser user) {
+    private Chat(ChatType type, String content, AgoraUser agoraUser) {
         this.type = type;
         this.content = content;
-        this.user = user;
+        this.agoraUser = agoraUser;
     }
 
     public static Chat createChat(ChatType type, String content, AgoraUser user) {

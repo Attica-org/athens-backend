@@ -19,4 +19,6 @@ public interface AgoraUserRepository extends JpaRepository<AgoraUser, Integer> {
             "WHERE au.agora.id = :agoraId " +
             "GROUP BY au.type")
     List<SendMetaResponse.ParticipantsInfo> countAgoraUsersByType(@Param("agoraId") Long agoraId);
+
+    List<AgoraUser> findByAgoraId(Long agoraId);
 }
