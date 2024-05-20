@@ -33,9 +33,7 @@ public class AgoraController {
     public ResponseEntity<ApiResponse<?>> createAgora(
         @RequestBody @Valid AgoraCreateRequest request
     ) {
-        CreateAgoraResponse result = agoraService.create(request);
-
-        AgoraResponse<CreateAgoraResponse> response = new AgoraResponse<>(result);
+        CreateAgoraResponse response = agoraService.create(request);
 
         return ResponseEntity.ok(ApiUtil.success(response));
     }
@@ -44,9 +42,7 @@ public class AgoraController {
     public ResponseEntity<ApiResponse<?>> getAgoraByCategory(
         @Valid SearchCategoryRequest request
     ) {
-        AgoraSlice<SimpleAgoraResult> result = agoraService.findAgoraByCategory(request);
-
-        AgoraResponse<AgoraSlice<SimpleAgoraResult>> response = new AgoraResponse<>(result);
+        AgoraSlice<SimpleAgoraResult> response = agoraService.findAgoraByCategory(request);
 
         return ResponseEntity.ok(ApiUtil.success(response));
     }
@@ -56,10 +52,8 @@ public class AgoraController {
         @RequestParam("agora_name") String agoraName,
         @Valid SearchKeywordRequest request
     ) {
-        AgoraSlice<SimpleAgoraResult> result =
+        AgoraSlice<SimpleAgoraResult> response =
             agoraService.findAgoraByKeyword(agoraName, new SearchKeywordRequest(request.status(), request.next()));
-
-        AgoraResponse<AgoraSlice<SimpleAgoraResult>> response = new AgoraResponse<>(result);
 
         return ResponseEntity.ok(ApiUtil.success(response));
     }
