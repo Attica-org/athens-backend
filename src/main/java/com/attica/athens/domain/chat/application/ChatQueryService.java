@@ -7,6 +7,7 @@ import com.attica.athens.domain.agoraUser.domain.AgoraUser;
 import com.attica.athens.domain.chat.dao.ChatRepository;
 import com.attica.athens.domain.chat.domain.Chat;
 import com.attica.athens.domain.chat.dto.Cursor;
+import com.attica.athens.domain.chat.dto.response.GetChatParticipants;
 import com.attica.athens.domain.chat.dto.response.GetChatResponse;
 import com.attica.athens.domain.chat.dto.response.GetChatResponse.ChatData;
 import com.attica.athens.domain.chat.dto.response.SendMetaResponse;
@@ -104,6 +105,12 @@ public class ChatQueryService {
     private Agora findAgoraById(Long agoraId) {
         return agoraRepository.findById(agoraId)
                 .orElseThrow(() -> new IllegalArgumentException("Agora is not exist."));
+    }
+
+    public GetChatParticipants getChatParticipants(Long agoraId) {
+        List<AgoraUser> agoraUsers = findAgoraUsersByAgoraId(agoraId);
+
+        return new GetChatParticipants(agoraUsers, agoraId);
     }
 
     private List<AgoraUser> findAgoraUsersByAgoraId(Long agoraId) {

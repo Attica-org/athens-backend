@@ -32,6 +32,7 @@ public class SecurityConfig {
             "/ws/**",
             "/login",
             "/api/v1/user/**",
+            "/api/v1/agoras/**",
             "/api/v1/temp-user/**"
     };
 

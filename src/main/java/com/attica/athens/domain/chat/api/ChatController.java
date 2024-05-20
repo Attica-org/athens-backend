@@ -4,10 +4,13 @@ import com.attica.athens.domain.chat.application.ChatCommandService;
 import com.attica.athens.domain.chat.application.ChatQueryService;
 import com.attica.athens.domain.chat.dto.Cursor;
 import com.attica.athens.domain.chat.dto.request.SendChatRequest;
+import com.attica.athens.domain.chat.dto.response.GetChatParticipants;
 import com.attica.athens.domain.chat.dto.response.GetChatResponse;
 import com.attica.athens.domain.chat.dto.response.SendChatResponse;
 import com.attica.athens.domain.chat.dto.response.SendMetaResponse;
+import com.attica.athens.domain.common.ApiUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -45,9 +48,19 @@ public class ChatController {
     }
 
     @GetMapping("/agoras/{agora-id}/chats")
-    public GetChatResponse getChatHistory(@PathVariable("agora-id") Long agoraId,
-                                          @RequestBody Cursor cursor) {
+    public ResponseEntity getChatHistory(@PathVariable("agora-id") Long agoraId,
+                                         @RequestBody Cursor cursor) {
 
-        return chatQueryService.getChatHistory(agoraId, cursor);
+        GetChatResponse response = chatQueryService.getChatHistory(agoraId, cursor);
+
+        return ResponseEntity.ok(ApiUtil.success(response));
+    }
+
+    @GetMapping("/agoras/{agora-id}/users")
+    public ResponseEntity getChatParticipants(@PathVariable("agora-id") Long agoraId) {
+
+        GetChatParticipants response = chatQueryService.getChatParticipants(agoraId);
+
+        return ResponseEntity.ok(ApiUtil.success(response));
     }
 }

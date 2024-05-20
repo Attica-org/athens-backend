@@ -22,7 +22,7 @@ public record SendChatResponse(ChatType type, SendChatData data) {
         }
     }
 
-    public record UserData(Long id, String nickname, Integer photoNumber, AgoraUserType agoraUserType) {
+    public record UserData(Long id, String nickname, Integer photoNumber, AgoraUserType type) {
 
         public static UserData from(AgoraUser agoraUser) {
             return new UserData(agoraUser.getId(), agoraUser.getNickname(), agoraUser.getPhotoNumber(),
