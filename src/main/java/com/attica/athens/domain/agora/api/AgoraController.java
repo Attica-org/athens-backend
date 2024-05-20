@@ -8,6 +8,8 @@ import com.attica.athens.domain.agora.dto.request.SearchKeywordRequest;
 import com.attica.athens.domain.agora.dto.response.AgoraResponse;
 import com.attica.athens.domain.agora.dto.response.AgoraSlice;
 import com.attica.athens.domain.agora.dto.response.CreateAgoraResponse;
+import com.attica.athens.domain.common.ApiResponse;
+import com.attica.athens.domain.common.ApiUtil;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,46 +30,46 @@ public class AgoraController {
     }
 
     @PostMapping
-    public ResponseEntity<AgoraResponse<CreateAgoraResponse>> createAgora(
+    public ResponseEntity<ApiResponse<?>> createAgora(
         @RequestBody @Valid AgoraCreateRequest request
     ) {
-        CreateAgoraResponse response = agoraService.create(request);
+        CreateAgoraResponse result = agoraService.create(request);
 
-        return ResponseEntity.ok(
-                AgoraResponse.<CreateAgoraResponse>builder()
-                    .success(true)
-                    .response(response)
-                    .build()
-            );
+        AgoraResponse<CreateAgoraResponse> response =
+            AgoraResponse.<CreateAgoraResponse>builder()
+            .response(result)
+            .build();
+
+        return ResponseEntity.ok(ApiUtil.success(response));
     }
 
     @GetMapping(params = {"status", "category", "next"})
-    public ResponseEntity<AgoraResponse<AgoraSlice<SimpleAgoraResult>>> getAgoraByCategory(
+    public ResponseEntity<ApiResponse<?>> getAgoraByCategory(
         @Valid SearchCategoryRequest request
     ) {
-        AgoraSlice<SimpleAgoraResult> response = agoraService.findAgoraByCategory(request);
+        AgoraSlice<SimpleAgoraResult> result = agoraService.findAgoraByCategory(request);
 
-        return ResponseEntity.ok(
+        AgoraResponse<AgoraSlice<SimpleAgoraResult>> response =
             AgoraResponse.<AgoraSlice<SimpleAgoraResult>>builder()
-                .success(true)
-                .response(response)
-                .build()
-        );
+            .response(result)
+            .build();
+
+        return ResponseEntity.ok(ApiUtil.success(response));
     }
 
     @GetMapping(params = {"agora_name", "status", "next"})
-    public ResponseEntity<AgoraResponse<AgoraSlice<SimpleAgoraResult>>> getAgoraByKeyword(
+    public ResponseEntity<ApiResponse<?>> getAgoraByKeyword(
         @RequestParam("agora_name") String agoraName,
         @Valid SearchKeywordRequest request
     ) {
-        AgoraSlice<SimpleAgoraResult> response =
+        AgoraSlice<SimpleAgoraResult> result =
             agoraService.findAgoraByKeyword(agoraName, new SearchKeywordRequest(request.status(), request.next()));
 
-        return ResponseEntity.ok(
+        AgoraResponse<AgoraSlice<SimpleAgoraResult>> response =
             AgoraResponse.<AgoraSlice<SimpleAgoraResult>>builder()
-                .success(true)
-                .response(response)
-                .build()
-        );
+            .response(result)
+            .build();
+
+        return ResponseEntity.ok(ApiUtil.success(response));
     }
 }

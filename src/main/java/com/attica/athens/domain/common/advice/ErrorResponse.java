@@ -1,22 +1,21 @@
 package com.attica.athens.domain.common.advice;
 
-import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ErrorResponse {
 
-    private int statusCode;
+    private int status;
+    private int code;
     private String message;
 
-    private ErrorResponse(int statusCode, String message) {
-        this.statusCode = statusCode;
+    private ErrorResponse(int status, int code, String message) {
+        this.status = status;
+        this.code = code;
         this.message = message;
     }
 
-    public static ErrorResponse of(int statusCode, String message) {
-        return new ErrorResponse(statusCode, message);
+    public static ErrorResponse of(int status, int code, String message) {
+        return new ErrorResponse(status, code, message);
     }
 }
