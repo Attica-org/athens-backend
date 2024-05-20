@@ -32,7 +32,8 @@ public class SecurityConfig {
             "/ws/**",
             "/login",
             "/api/v1/user/**",
-            "/api/v1/temp-user/**"
+            "/api/v1/temp-user/**",
+            "/api/v1/agoras/**"
     };
 
     private final AuthenticationConfiguration authenticationConfiguration;
