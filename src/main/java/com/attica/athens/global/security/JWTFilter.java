@@ -9,6 +9,7 @@ import com.attica.athens.global.config.SecurityConfig;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -37,7 +38,6 @@ public class JWTFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
-        // 헤더에서 access키에 담긴 토큰을 꺼냄
         String accessToken = request.getHeader("access");
 
         if (isNonProtectedUrl(request)) {
@@ -53,6 +53,8 @@ public class JWTFilter extends OncePerRequestFilter {
 
             return;
         }
+
+        //String token = accessToken.split(" ")[1];
 
         if (jwtUtil.isExpired(accessToken)) {
             //filterChain.doFilter(request, response);
@@ -103,10 +105,11 @@ public class JWTFilter extends OncePerRequestFilter {
 
     private Authentication createAuthentication(String id, String role) {
 
+
         CustomUserDetails customUserDetails =
                 role.equals(UserRole.ROLE_TEMP_USER.name())
                         ? new CustomUserDetails(TempUser.createTempUser())
-                        : new CustomUserDetails(User.createUser("fakeUsername", "fakePassword"));
+                        : new CustomUserDetails(User.createUser(id, "fakePassword"));
 
         return new UsernamePasswordAuthenticationToken(customUserDetails, null,
                 customUserDetails.getAuthorities());
