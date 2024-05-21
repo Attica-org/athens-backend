@@ -98,7 +98,7 @@ public class SecurityConfig {
 
 //        // JWTFilter 등록 (모든 요청에 대해 동작)
         http
-                .addFilterBefore(new JWTFilter(jwtUtil), LoginFilter.class);
+                .addFilterBefore(new JWTFilter(), LoginFilter.class);
 
         // 세션 설정 (statelss하도록)
         http
