@@ -32,8 +32,8 @@ public class SecurityConfig {
             "/ws/**",
             "/login",
             "/api/v1/user/**",
-            "/api/v1/agoras/**",
-            "/api/v1/temp-user/**"
+            "/api/v1/temp-user/**",
+            "/api/v1/agoras/**"
     };
 
     private final AuthenticationConfiguration authenticationConfiguration;
@@ -98,7 +98,7 @@ public class SecurityConfig {
 
 //        // JWTFilter 등록 (모든 요청에 대해 동작)
         http
-                .addFilterBefore(new JWTFilter(), LoginFilter.class);
+                .addFilterBefore(new JWTFilter(jwtUtil), LoginFilter.class);
 
         // 세션 설정 (statelss하도록)
         http
