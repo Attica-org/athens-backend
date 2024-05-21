@@ -1,5 +1,6 @@
 package com.attica.athens.global.config;
 
+import com.attica.athens.global.security.CustomLogoutFilter;
 import com.attica.athens.global.security.JWTFilter;
 import com.attica.athens.global.security.JWTUtil;
 import com.attica.athens.global.security.LoginFilter;
@@ -18,6 +19,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.web.cors.CorsConfiguration;
 
 @Configuration
@@ -102,6 +104,8 @@ public class SecurityConfig {
         // 세션 설정 (statelss하도록)
         http
                 .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+        http
+                .addFilterBefore(new CustomLogoutFilter(jwtUtil), LogoutFilter.class);
 
         return http.build();
     }

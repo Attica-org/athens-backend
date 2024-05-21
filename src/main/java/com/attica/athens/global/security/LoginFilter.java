@@ -57,7 +57,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         String refresh = jwtUtil.createJwt("refresh", username, role, 86400000L);
 
         //응답 설정
-        response.setHeader("access", access);
+        response.addCookie(createCookie("access", access));
         response.addCookie(createCookie("refresh", refresh));
         response.setStatus(HttpStatus.OK.value());
     }
@@ -72,7 +72,12 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     private Cookie createCookie(String key, String value) {
 
         Cookie cookie = new Cookie(key, value);
-        cookie.setMaxAge(24*60*60);
+        if(key=="access"){
+            cookie.setMaxAge(10*60*60);
+        }else if(key=="refresh") {
+            cookie.setMaxAge(24*60*60);
+        }
+
         //cookie.setSecure(true);
         //cookie.setPath("/");
         cookie.setHttpOnly(true);
