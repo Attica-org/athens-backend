@@ -1,5 +1,7 @@
 package com.attica.athens.global.security;
 
+import com.attica.athens.domain.common.advice.CustomException;
+import com.attica.athens.domain.common.advice.ErrorCode;
 import com.attica.athens.domain.user.domain.TempUser;
 import com.attica.athens.domain.user.domain.User;
 import com.attica.athens.domain.user.domain.UserRole;
@@ -11,6 +13,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -34,22 +37,39 @@ public class JWTFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
+        // 헤더에서 access키에 담긴 토큰을 꺼냄
+        String accessToken = request.getHeader("access");
+
         if (isNonProtectedUrl(request)) {
             filterChain.doFilter(request, response);
 
             return;
         }
 
-        String token = resolveToken(request);
+        // 토큰이 없다면 다음 필터로 넘김
+        if (accessToken == null) {
 
-        if (jwtUtil.isExpired(token)) {
             filterChain.doFilter(request, response);
 
+            return;
+        }
+
+        if (jwtUtil.isExpired(accessToken)) {
+            //filterChain.doFilter(request, response);
+
+            // 이후 전역 핸들러에서 응답
             throw new ExpiredJwtException(null, null, "Token has expired");
         }
 
-        String id = jwtUtil.getId(token);
-        String role = jwtUtil.getRole(token);
+        String category = jwtUtil.getCategory(accessToken);
+
+        // 이후 CUSTOMEXCEPTION 작성
+        if(!isAccessToken(category)){
+            throw new CustomException(HttpStatus.UNAUTHORIZED, ErrorCode.ACCESS_DENIED,"Access 토큰이 아닙니다");
+        }
+
+        String id = jwtUtil.getId(accessToken);
+        String role = jwtUtil.getRole(accessToken);
 
         Authentication authentication = createAuthentication(id, role);
         SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -70,16 +90,16 @@ public class JWTFilter extends OncePerRequestFilter {
         return false;
     }
 
-    private String resolveToken(HttpServletRequest request) {
-
-        String authorization = request.getHeader(AUTHORIZATION);
-
-        if (authorization == null || !authorization.startsWith(BEARER)) {
-            throw new AuthenticationCredentialsNotFoundException("Token not found");
-        }
-
-        return authorization.split(" ")[1];
-    }
+//    private String resolveToken(HttpServletRequest request) {
+//
+//        String authorization = request.getHeader(AUTHORIZATION);
+//
+//        if (authorization == null || !authorization.startsWith(BEARER)) {
+//            throw new AuthenticationCredentialsNotFoundException("Token not found");
+//        }
+//
+//        return authorization.split(" ")[1];
+//    }
 
     private Authentication createAuthentication(String id, String role) {
 
@@ -90,5 +110,13 @@ public class JWTFilter extends OncePerRequestFilter {
 
         return new UsernamePasswordAuthenticationToken(customUserDetails, null,
                 customUserDetails.getAuthorities());
+    }
+
+    private boolean isAccessToken(String category){
+        if(!category.equals("access")){
+            return false;
+        }
+
+        return true;
     }
 }
