@@ -25,9 +25,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @Slf4j
 public class JWTFilter extends OncePerRequestFilter {
 
-    private static final String AUTHORIZATION = "Authorization";
-    private static final String BEARER = "Bearer ";
-
     private final JWTUtil jwtUtil;
 
     public JWTFilter(JWTUtil jwtUtil) {
@@ -42,23 +39,16 @@ public class JWTFilter extends OncePerRequestFilter {
 
         if (isNonProtectedUrl(request)) {
             filterChain.doFilter(request, response);
-
             return;
         }
 
         // 토큰이 없다면 다음 필터로 넘김
         if (accessToken == null) {
-
             filterChain.doFilter(request, response);
-
             return;
         }
 
-        //String token = accessToken.split(" ")[1];
-
         if (jwtUtil.isExpired(accessToken)) {
-            //filterChain.doFilter(request, response);
-
             // 이후 전역 핸들러에서 응답
             throw new ExpiredJwtException(null, null, "Token has expired");
         }
@@ -88,23 +78,14 @@ public class JWTFilter extends OncePerRequestFilter {
                 return true;
             }
         }
-
         return false;
     }
+    private boolean isAccessToken(String category){
+        return category.equals("access");
+    }
 
-//    private String resolveToken(HttpServletRequest request) {
-//
-//        String authorization = request.getHeader(AUTHORIZATION);
-//
-//        if (authorization == null || !authorization.startsWith(BEARER)) {
-//            throw new AuthenticationCredentialsNotFoundException("Token not found");
-//        }
-//
-//        return authorization.split(" ")[1];
-//    }
 
     private Authentication createAuthentication(String id, String role) {
-
 
         CustomUserDetails customUserDetails =
                 role.equals(UserRole.ROLE_TEMP_USER.name())
@@ -115,11 +96,4 @@ public class JWTFilter extends OncePerRequestFilter {
                 customUserDetails.getAuthorities());
     }
 
-    private boolean isAccessToken(String category){
-        if(!category.equals("access")){
-            return false;
-        }
-
-        return true;
-    }
 }

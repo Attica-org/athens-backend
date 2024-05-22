@@ -1,10 +1,14 @@
 package com.attica.athens.global.security;
 
+import com.attica.athens.domain.token.dao.RefreshRepository;
+import com.attica.athens.domain.token.domain.RefreshToken;
+import com.attica.athens.domain.token.dto.CreateRefreshTokenRequest;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Iterator;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
@@ -17,15 +21,18 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
-    private static final String BEARER = "Bearer ";
-    private static final String AUTHORIZATION = "Authorization";
+    private static final long ACCESS_TOKEN_EXPIRATION_TIME = 600000L; // 10분
+    private static final long REFRESH_TOKEN_EXPIRATION_TIME = 86400000L; // 24시간
+    private static final int COOKIE_EXPIRATION_TIME = 24*60*60; // 24시간
 
     private final AuthenticationManager authenticationManager;
     private final JWTUtil jwtUtil;
+    private final RefreshRepository refreshRepository;
 
-    public LoginFilter(AuthenticationManager authenticationManager, JWTUtil jwtUtil) {
+    public LoginFilter(AuthenticationManager authenticationManager, JWTUtil jwtUtil, RefreshRepository refreshRepository) {
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
+        this.refreshRepository = refreshRepository;
     }
 
     @Override
@@ -54,16 +61,26 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         String role = auth.getAuthority();
 
         //토큰 생성
-        String access = jwtUtil.createJwt("access", username, role, 600000L);
-        String refresh = jwtUtil.createJwt("refresh", username, role, 86400000L);
+        String access = jwtUtil.createJwt("access", username, role, ACCESS_TOKEN_EXPIRATION_TIME);
+        String refresh = jwtUtil.createJwt("refresh", username, role, REFRESH_TOKEN_EXPIRATION_TIME);
 
+        addRefreshEntity(new CreateRefreshTokenRequest(username,refresh));
 
         //응답 설정
         response.setHeader("access", access);
         response.addCookie(createCookie("access", access));
         response.addCookie(createCookie("refresh", refresh));
         response.setStatus(HttpStatus.OK.value());
+    }
 
+    private void addRefreshEntity(CreateRefreshTokenRequest createRefreshTokenRequest) {
+
+        String username = createRefreshTokenRequest.username();
+        String refresh = createRefreshTokenRequest.refresh();
+
+        RefreshToken refreshEntity = RefreshToken.createRefreshToken(username,refresh);
+
+        refreshRepository.save(refreshEntity);
     }
 
     @Override
@@ -76,12 +93,8 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     private Cookie createCookie(String key, String value) {
 
         Cookie cookie = new Cookie(key, value);
-        if(key=="access"){
-            cookie.setMaxAge(10*60*60);
-        }else if(key=="refresh") {
-            cookie.setMaxAge(24*60*60);
-        }
 
+        cookie.setMaxAge(COOKIE_EXPIRATION_TIME);
         //cookie.setSecure(true);
         cookie.setPath("/");
         cookie.setHttpOnly(true);

@@ -1,5 +1,6 @@
 package com.attica.athens.global.config;
 
+import com.attica.athens.domain.token.dao.RefreshRepository;
 import com.attica.athens.global.security.CustomLogoutFilter;
 import com.attica.athens.global.security.JWTFilter;
 import com.attica.athens.global.security.JWTUtil;
@@ -39,6 +40,7 @@ public class SecurityConfig {
 
     private final AuthenticationConfiguration authenticationConfiguration;
     private final JWTUtil jwtUtil;
+    private final RefreshRepository refreshRepository;
 
     @Value("${cors.allowed-origins}")
     private String[] allowedOrigins;
@@ -54,7 +56,6 @@ public class SecurityConfig {
 
         return new BCryptPasswordEncoder();
     }
-
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -94,7 +95,7 @@ public class SecurityConfig {
 
         // LoginFilter 등록 (/login시 동작)
         http
-                .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil),
+                .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil,refreshRepository),
                         UsernamePasswordAuthenticationFilter.class);
 
 //        // JWTFilter 등록 (모든 요청에 대해 동작)
