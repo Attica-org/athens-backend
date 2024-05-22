@@ -12,6 +12,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
+
 @Service
 public class ReissueService {
 
@@ -91,7 +93,10 @@ public class ReissueService {
 //        response.addCookie(accessCookie);
         //Refresh 토큰 저장 DB에 기존의 Refresh 토큰 삭제 후 새 Refresh 토큰 저장
         refreshRepository.deleteByRefresh(refresh);
-        addRefreshEntity(new CreateRefreshTokenRequest(username, newRefresh));
+
+        String expiredRefreshTokenExpiredTime =  String.valueOf(REFRESH_TOKEN_EXPIRATION_TIME);
+
+        addRefreshEntity(new CreateRefreshTokenRequest(username, newRefresh,REFRESH_TOKEN_EXPIRATION_TIME));
 
         //response
         response.setHeader("access", newAccess);
@@ -106,7 +111,9 @@ public class ReissueService {
         String username = createRefreshTokenRequest.username();
         String refresh = createRefreshTokenRequest.refresh();
 
-        RefreshToken refreshEntity = RefreshToken.createRefreshToken(username,refresh);
+        Date date = new Date(System.currentTimeMillis() + REFRESH_TOKEN_EXPIRATION_TIME);
+
+        RefreshToken refreshEntity = RefreshToken.createRefreshToken(username,refresh,date.toString());
 
         refreshRepository.save(refreshEntity);
     }
