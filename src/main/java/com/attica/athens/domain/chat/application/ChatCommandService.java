@@ -12,10 +12,9 @@ import com.attica.athens.domain.chat.dto.response.SendChatResponse.SendChatData;
 import com.attica.athens.domain.user.dao.BaseUserRepository;
 import com.attica.athens.domain.user.dao.UserRepository;
 import com.attica.athens.domain.user.domain.BaseUser;
+import com.attica.athens.global.security.CustomUserDetails;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,24 +29,13 @@ public class ChatCommandService {
     private final AgoraUserRepository agoraUserRepository;
     private final ChatRepository chatRepository;
 
-    public SendChatResponse sendChat(UserDetails userDetails, Long agoraId, SendChatRequest sendChatRequest) {
+    public SendChatResponse sendChat(CustomUserDetails userDetails, Long agoraId, SendChatRequest sendChatRequest) {
 
         Agora agora = findAgoraById(agoraId);
 
-        String username = userDetails.getUsername();
-        String userRole = userDetails.getAuthorities()
-                .stream()
-                .findFirst()
-                .map(GrantedAuthority::getAuthority)
-                .orElseThrow(() -> new IllegalArgumentException("User role is not exist."));
+        Long userId = userDetails.getUserId();
 
-        BaseUser user = switch (userRole) {
-            case "ROLE_USER" -> findUserByUsername(username);
-            case "ROLE_TEMP_USER" -> findUserByUuid(username);
-            default -> throw new IllegalArgumentException("Role is not valid.");
-        };
-
-        AgoraUser agoraUser = findAgoraUserByAgoraIdAndUserId(agora.getId(), user.getId());
+        AgoraUser agoraUser = findAgoraUserByAgoraIdAndUserId(agora.getId(), userId);
 
         Chat chat = Chat.createChat(sendChatRequest.type(), sendChatRequest.message(), agoraUser);
         chat = chatRepository.save(chat);

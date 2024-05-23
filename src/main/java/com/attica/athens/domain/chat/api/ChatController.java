@@ -9,6 +9,7 @@ import com.attica.athens.domain.chat.dto.response.GetChatResponse;
 import com.attica.athens.domain.chat.dto.response.SendChatResponse;
 import com.attica.athens.domain.chat.dto.response.SendMetaResponse;
 import com.attica.athens.domain.common.ApiUtil;
+import com.attica.athens.global.security.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
@@ -16,7 +17,6 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -35,7 +35,7 @@ public class ChatController {
     @SendTo(value = "/topic/agoras/{agora-id}/chats")
     public SendChatResponse sendChat(@DestinationVariable("agora-id") Long agoraId,
                                      @Payload SendChatRequest sendChatRequest,
-                                     @AuthenticationPrincipal UserDetails userDetails) {
+                                     @AuthenticationPrincipal CustomUserDetails userDetails) {
 
         return chatCommandService.sendChat(userDetails, agoraId, sendChatRequest);
     }
