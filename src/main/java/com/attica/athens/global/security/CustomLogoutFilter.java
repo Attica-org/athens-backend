@@ -1,7 +1,6 @@
 package com.attica.athens.global.security;
 
 import com.attica.athens.domain.token.dao.RefreshRepository;
-import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
@@ -12,6 +11,11 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.web.filter.GenericFilterBean;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
 
 public class CustomLogoutFilter extends GenericFilterBean {
 
@@ -24,14 +28,15 @@ public class CustomLogoutFilter extends GenericFilterBean {
     }
 
     @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+            throws IOException, ServletException {
 
         doFilter((HttpServletRequest) request, (HttpServletResponse) response, chain);
     }
 
-    private void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws IOException, ServletException {
+    private void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws IOException, ServletException {
 
-        // logout 엔드포인트 확인
         String requestUri = request.getRequestURI();
         if (!requestUri.matches("^\\/logout$")) {
 
@@ -46,55 +51,41 @@ public class CustomLogoutFilter extends GenericFilterBean {
             return;
         }
 
-        // Access/Refresh 토큰 획득
-        String refresh = null;
-        String access = null;
-        Cookie[] cookies = request.getCookies();
-        for (Cookie cookie : cookies) {
+        Map<String, String> cookieMap = getCookieMap(request);
 
-            if (cookie.getName().equals("refresh")) {
-                refresh = cookie.getValue();
-            }
-            if(cookie.getName().equals("access")){
-                access = cookie.getValue();
-            }
-        }
+        String refresh = cookieMap.get("refresh");
+        String access = cookieMap.get("access");
 
-        //Access/Refresh 널 체크
         if (refresh == null || access == null) {
-
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
 
-        // 만료 체크
-        try {
-            jwtUtil.isExpired(refresh);
-            jwtUtil.isExpired(access);
-        } catch (ExpiredJwtException e) {
-
+        if (jwtUtil.isExpired(refresh) || jwtUtil.isExpired(access)) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
 
-        //DB에 저장되어 있는지 확인
         Boolean isExist = refreshRepository.existsByRefresh(refresh);
         if (!isExist) {
-
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
 
-        //로그아웃 진행
-        //Refresh 토큰 DB에서 제거
         refreshRepository.deleteByRefresh(refresh);
 
-        // 쿠키 제거
-        clearCookie(response,"refresh");
-        clearCookie(response,"access");
+        clearCookie(response, "refresh");
+        clearCookie(response, "access");
 
         response.setStatus(HttpServletResponse.SC_OK);
     }
+
+    private static Map<String, String> getCookieMap(HttpServletRequest request) {
+        return Optional.ofNullable(request.getCookies()).stream().flatMap(Arrays::stream)
+                .filter(cookie -> "refresh".equals(cookie.getName()) || "access".equals(cookie.getName()))
+                .collect(Collectors.toMap(Cookie::getName, Cookie::getValue));
+    }
+
     private void clearCookie(HttpServletResponse response, String cookieName) {
         Cookie cookie = new Cookie(cookieName, null);
         cookie.setMaxAge(0);

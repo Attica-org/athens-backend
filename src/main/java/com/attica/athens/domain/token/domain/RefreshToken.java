@@ -10,7 +10,7 @@ import lombok.Setter;
 @Setter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class RefreshToken{
+public class RefreshToken {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,7 +31,8 @@ public class RefreshToken{
         this.refresh = refresh;
         this.expiration = expiration;
     }
+
     public static RefreshToken createRefreshToken(String username, String refresh, String expiration) {
-        return new RefreshToken(username, refresh,expiration);
+        return new RefreshToken(username, refresh, expiration);
     }
 }

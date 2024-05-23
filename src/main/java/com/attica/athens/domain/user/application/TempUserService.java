@@ -20,9 +20,9 @@ import java.util.Date;
 @RequiredArgsConstructor
 public class TempUserService {
 
-    private static final long ACCESS_TOKEN_EXPIRATION_TIME = 600000L; // 10분
-    private static final long REFRESH_TOKEN_EXPIRATION_TIME = 86400000L; // 24시간
-    private static final int COOKIE_EXPIRATION_TIME = 24*60*60; // 24시간
+    private static final long ACCESS_TOKEN_EXPIRATION_TIME = 600000L;
+    private static final long REFRESH_TOKEN_EXPIRATION_TIME = 86400000L;
+    private static final int COOKIE_EXPIRATION_TIME = 24 * 60 * 60;
 
     private final TempUserRepository tempUserRepository;
     private final RefreshRepository refreshRepository;
@@ -35,18 +35,19 @@ public class TempUserService {
 
         tempUserRepository.save(tempUser);
 
-        String access = jwtUtil.createJwt("access", tempUser.getUuid().toString(), UserRole.ROLE_TEMP_USER.name(), ACCESS_TOKEN_EXPIRATION_TIME);
-        String refresh = jwtUtil.createJwt("refresh", tempUser.getUuid().toString(), UserRole.ROLE_TEMP_USER.name(), REFRESH_TOKEN_EXPIRATION_TIME);
+        String access = jwtUtil.createJwt("access", tempUser.getUuid().toString(), UserRole.ROLE_TEMP_USER.name(),
+                ACCESS_TOKEN_EXPIRATION_TIME);
+        String refresh = jwtUtil.createJwt("refresh", tempUser.getUuid().toString(), UserRole.ROLE_TEMP_USER.name(),
+                REFRESH_TOKEN_EXPIRATION_TIME);
 
-        //DB Refresh Token 저장
-        addRefreshEntity(new CreateRefreshTokenRequest(tempUser.getUuid().toString(),refresh,REFRESH_TOKEN_EXPIRATION_TIME));
+        addRefreshEntity(
+                new CreateRefreshTokenRequest(tempUser.getUuid().toString(), refresh, REFRESH_TOKEN_EXPIRATION_TIME));
 
-        //응답 설정
         response.addCookie(createCookie("access", access));
         response.addCookie(createCookie("refresh", refresh));
         response.setStatus(HttpStatus.OK.value());
-        // 임시
-        return jwtUtil.createJwt("access",tempUser.getUuid().toString(), UserRole.ROLE_TEMP_USER.name(),600000L);
+
+        return jwtUtil.createJwt("access", tempUser.getUuid().toString(), UserRole.ROLE_TEMP_USER.name(), 600000L);
     }
 
     private void addRefreshEntity(CreateRefreshTokenRequest createRefreshTokenRequest) {
@@ -56,7 +57,7 @@ public class TempUserService {
 
         Date date = new Date(System.currentTimeMillis() + REFRESH_TOKEN_EXPIRATION_TIME);
 
-        RefreshToken refreshEntity = RefreshToken.createRefreshToken(username,refresh,date.toString());
+        RefreshToken refreshEntity = RefreshToken.createRefreshToken(username, refresh, date.toString());
 
         refreshRepository.save(refreshEntity);
     }

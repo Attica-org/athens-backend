@@ -20,6 +20,6 @@ public class TempUserController {
 
         String token = tempUserService.createTempUser(response);
 
-        return ResponseEntity.ok().header("Cookie-set",token).build();
+        return ResponseEntity.ok().header("Cookie-set", token).build();
     }
 }
