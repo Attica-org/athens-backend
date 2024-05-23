@@ -1,8 +1,5 @@
 package com.attica.athens.global.security;
 
-import com.attica.athens.domain.user.domain.TempUser;
-import com.attica.athens.domain.user.domain.User;
-import com.attica.athens.domain.user.domain.UserRole;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.Jwts.SIG;
 import jakarta.servlet.http.HttpServletRequest;
@@ -31,10 +28,10 @@ public class JWTUtil {
                 SIG.HS256.key().build().getAlgorithm());
     }
 
-    public static String getId(String token) { // secretKey로 검증
+    public static Long getId(String token) { // secretKey로 검증
 
         return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload()
-                .get("id", String.class);
+                .get("id", Long.class);
     }
 
     public static String getRole(String token) {
@@ -50,7 +47,7 @@ public class JWTUtil {
                 .getExpiration().before(new Date());
     }
 
-    public static String createJwt(String id, String role) {
+    public static String createJwt(Long id, String role) {
 
         return Jwts.builder()
                 .claim("id", id)
@@ -72,12 +69,9 @@ public class JWTUtil {
         return authorization.split(" ")[1];
     }
 
-    public static Authentication createAuthentication(String id, String role) {
+    public static Authentication createAuthentication(Long id, String role) {
 
-        CustomUserDetails customUserDetails =
-                role.equals(UserRole.ROLE_TEMP_USER.name())
-                        ? new CustomUserDetails(TempUser.createTempUser())
-                        : new CustomUserDetails(User.createUser(id, "fakePassword"));
+        CustomUserDetails customUserDetails = new CustomUserDetails(id, "fakePassword", role);
 
         return new UsernamePasswordAuthenticationToken(customUserDetails, null,
                 customUserDetails.getAuthorities());

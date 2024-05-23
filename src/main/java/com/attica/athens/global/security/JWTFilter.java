@@ -40,7 +40,7 @@ public class JWTFilter extends OncePerRequestFilter {
             throw new ExpiredJwtException(null, null, "Token has expired");
         }
 
-        String id = getId(token);
+        Long id = getId(token);
         String role = getRole(token);
 
         Authentication authentication = createAuthentication(id, role);

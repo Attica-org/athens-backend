@@ -37,7 +37,7 @@ public class JwtChannelInterceptor implements ChannelInterceptor {
                 .filter(token -> !isExpired(token))
                 .orElseThrow(() -> new RuntimeException("Invalid token"));
 
-        String userId = getId(jwtToken);
+        Long userId = getId(jwtToken);
         String userRole = getRole(jwtToken);
 
         Authentication authentication = createAuthentication(userId, userRole);
