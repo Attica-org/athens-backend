@@ -2,6 +2,7 @@ package com.attica.athens.global.config;
 
 import com.attica.athens.global.interceptor.JwtChannelInterceptor;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
@@ -20,6 +21,12 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     private static final String ENDPOINT = "/ws";
     private static final String SIMPLE_BROKER = "/topic";
     private static final String PUBLISH = "/app";
+    public static final int POOL_SIZE = 10;
+    public static final int SERVER_HEARTBEAT = 10000;
+    public static final int CLIENT_HEARTBEAT = 2;
+    public static final int TIME_LIMIT = 15 * 1000;
+    public static final int SEND_BUFFER_SIZE_LIMIT = 512 * 1024;
+    public static final int MESSAGE_SIZE_LIMIT = 128 * 1024;
 
     private final JwtChannelInterceptor jwtChannelInterceptor;
 
@@ -30,19 +37,20 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 //                .withSockJS();
     }
 
+    @Bean
+    public TaskScheduler taskScheduler() {
+        ThreadPoolTaskScheduler taskScheduler = new ThreadPoolTaskScheduler();
+        taskScheduler.setPoolSize(POOL_SIZE);
+        taskScheduler.initialize();
+        return taskScheduler;
+    }
+
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
         registry.setApplicationDestinationPrefixes(PUBLISH);
         registry.enableSimpleBroker(SIMPLE_BROKER)
                 .setTaskScheduler(taskScheduler())
-                .setHeartbeatValue(new long[]{3000L, 3000L});
-    }
-
-    public TaskScheduler taskScheduler() {
-        ThreadPoolTaskScheduler taskScheduler = new ThreadPoolTaskScheduler();
-        taskScheduler.setPoolSize(10);
-        taskScheduler.initialize();
-        return taskScheduler;
+                .setHeartbeatValue(new long[]{SERVER_HEARTBEAT, CLIENT_HEARTBEAT});
     }
 
     @Override
@@ -52,7 +60,8 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void configureWebSocketTransport(WebSocketTransportRegistration registration) {
-        registration.setSendTimeLimit(15 * 1000).setSendBufferSizeLimit(512 * 1024);
-        registration.setMessageSizeLimit(128 * 1024);
+        registration.setSendTimeLimit(TIME_LIMIT)
+                .setSendBufferSizeLimit(SEND_BUFFER_SIZE_LIMIT);
+        registration.setMessageSizeLimit(MESSAGE_SIZE_LIMIT);
     }
 }
