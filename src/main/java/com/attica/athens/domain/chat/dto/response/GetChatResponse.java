@@ -7,7 +7,7 @@ import com.attica.athens.domain.chat.dto.response.SendChatResponse.UserData;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public record GetChatResponse(Long agoraId, List<ChatData> chats, Cursor meta) {
+public record GetChatResponse(List<ChatData> chats, Cursor meta) {
     public record ChatData(
             Long chatId,
             UserData user,

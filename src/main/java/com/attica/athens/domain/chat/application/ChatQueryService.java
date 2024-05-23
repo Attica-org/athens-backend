@@ -43,8 +43,6 @@ public class ChatQueryService {
 
     public GetChatResponse getChatHistory(Long agoraId, Cursor cursor) {
 
-        Agora agora = findAgoraById(agoraId);
-
         List<AgoraUser> agoraUsers = findAgoraUsersByAgoraId(agoraId);
 
         List<Long> agoraUserIds = extractAgoraUserIds(agoraUsers);
@@ -55,7 +53,7 @@ public class ChatQueryService {
 
         Long nextKey = getNextCursor(chats);
 
-        return new GetChatResponse(agora.getId(), chatData, cursor.next(nextKey));
+        return new GetChatResponse(chatData, cursor.next(nextKey));
     }
 
     private List<Chat> findChatsByCursor(Cursor cursor, List<Long> agoraUserIds) {

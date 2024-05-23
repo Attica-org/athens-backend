@@ -40,7 +40,7 @@ public class ChatCommandService {
         Chat chat = Chat.createChat(sendChatRequest.type(), sendChatRequest.message(), agoraUser);
         chat = chatRepository.save(chat);
 
-        SendChatData sendChatData = SendChatData.createSendChatData(chat, agora, agoraUser);
+        SendChatData sendChatData = SendChatData.createSendChatData(chat, agoraUser);
 
         return new SendChatResponse(chat.getType(), sendChatData);
     }
