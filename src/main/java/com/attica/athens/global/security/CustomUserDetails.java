@@ -1,19 +1,20 @@
 package com.attica.athens.global.security;
 
-import com.attica.athens.domain.user.domain.BaseUser;
-import com.attica.athens.domain.user.domain.TempUser;
-import com.attica.athens.domain.user.domain.User;
 import java.util.ArrayList;
 import java.util.Collection;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+@RequiredArgsConstructor
 public class CustomUserDetails implements UserDetails {
 
-    private final BaseUser baseUser;
+    private final Long id;
+    private final String password;
+    private final String role;
 
-    public CustomUserDetails(BaseUser baseUser) {
-        this.baseUser = baseUser;
+    public Long getUserId() {
+        return id;
     }
 
     @Override
@@ -21,62 +22,38 @@ public class CustomUserDetails implements UserDetails {
 
         Collection<GrantedAuthority> collection = new ArrayList<>();
 
-        collection.add(new GrantedAuthority() {
-            @Override
-            public String getAuthority() {
-
-                return baseUser.getRole().name();
-            }
-        });
+        collection.add((GrantedAuthority) () -> role);
 
         return collection;
     }
 
     @Override
     public String getPassword() {
-
-        if (baseUser instanceof User) {
-            return ((User) baseUser).getPassword();
-        }
-
-        return "";
+        return password;
     }
 
     @Override
     public String getUsername() {
-
-        if (baseUser instanceof User) {
-            return ((User) baseUser).getUsername();
-        }
-
-        if (baseUser instanceof TempUser) {
-            return ((TempUser) baseUser).getUuid().toString();
-        }
-
-        return "";
+        return String.valueOf(id);
     }
 
     @Override
     public boolean isAccountNonExpired() {
-
         return true;
     }
 
     @Override
     public boolean isAccountNonLocked() {
-
         return true;
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-
         return true;
     }
 
     @Override
     public boolean isEnabled() {
-
         return true;
     }
 }
