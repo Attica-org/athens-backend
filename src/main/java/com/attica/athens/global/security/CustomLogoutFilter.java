@@ -31,7 +31,7 @@ public class CustomLogoutFilter extends GenericFilterBean {
 
     private void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws IOException, ServletException {
 
-        //path and method verify
+        // logout 엔드포인트 확인
         String requestUri = request.getRequestURI();
         if (!requestUri.matches("^\\/logout$")) {
 
@@ -46,7 +46,7 @@ public class CustomLogoutFilter extends GenericFilterBean {
             return;
         }
 
-        //get token
+        // Access/Refresh 토큰 획득
         String refresh = null;
         String access = null;
         Cookie[] cookies = request.getCookies();
@@ -60,29 +60,19 @@ public class CustomLogoutFilter extends GenericFilterBean {
             }
         }
 
-        //refresh null check
+        //Access/Refresh 널 체크
         if (refresh == null || access == null) {
 
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
 
-        //expired check
+        // 만료 체크
         try {
             jwtUtil.isExpired(refresh);
             jwtUtil.isExpired(access);
         } catch (ExpiredJwtException e) {
 
-            //response status code
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            return;
-        }
-
-        // 토큰이 refresh인지 확인 (발급시 페이로드에 명시)
-        String category = jwtUtil.getCategory(refresh);
-        if (!category.equals("refresh")) {
-
-            //response status code
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
@@ -90,7 +80,7 @@ public class CustomLogoutFilter extends GenericFilterBean {
         //DB에 저장되어 있는지 확인
         Boolean isExist = refreshRepository.existsByRefresh(refresh);
         if (!isExist) {
-            //response status code
+
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
@@ -99,18 +89,16 @@ public class CustomLogoutFilter extends GenericFilterBean {
         //Refresh 토큰 DB에서 제거
         refreshRepository.deleteByRefresh(refresh);
 
-        //Refresh 토큰 Cookie 값 0
-        Cookie refreshCookie = new Cookie("refresh", null);
-        refreshCookie.setMaxAge(0);
-        refreshCookie.setPath("/");
+        // 쿠키 제거
+        clearCookie(response,"refresh");
+        clearCookie(response,"access");
 
-        response.addCookie(refreshCookie);
-
-        Cookie accessCookie = new Cookie("access", null);
-        accessCookie.setMaxAge(0);
-        accessCookie.setPath("/");
-
-        response.addCookie(accessCookie);
         response.setStatus(HttpServletResponse.SC_OK);
+    }
+    private void clearCookie(HttpServletResponse response, String cookieName) {
+        Cookie cookie = new Cookie(cookieName, null);
+        cookie.setMaxAge(0);
+        cookie.setPath("/");
+        response.addCookie(cookie);
     }
 }

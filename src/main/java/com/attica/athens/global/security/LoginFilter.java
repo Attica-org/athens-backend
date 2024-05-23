@@ -64,10 +64,10 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         String access = jwtUtil.createJwt("access", username, role, ACCESS_TOKEN_EXPIRATION_TIME);
         String refresh = jwtUtil.createJwt("refresh", username, role, REFRESH_TOKEN_EXPIRATION_TIME);
 
+        //DB Refresh Token 저장
         addRefreshEntity(new CreateRefreshTokenRequest(username,refresh,REFRESH_TOKEN_EXPIRATION_TIME));
 
         //응답 설정
-        response.setHeader("access", access);
         response.addCookie(createCookie("access", access));
         response.addCookie(createCookie("refresh", refresh));
         response.setStatus(HttpStatus.OK.value());

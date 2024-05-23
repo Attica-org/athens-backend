@@ -13,6 +13,9 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Optional;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
@@ -25,6 +28,8 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @Slf4j
 public class JWTFilter extends OncePerRequestFilter {
 
+    private final static String ACCESS_TOKEN_COOKIE_NAME = "access";
+
     private final JWTUtil jwtUtil;
 
     public JWTFilter(JWTUtil jwtUtil) {
@@ -35,7 +40,15 @@ public class JWTFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
-        String accessToken = request.getHeader("access");
+        // 쿠키에서 access token 가져오기
+        String accessToken = Optional.ofNullable(request.getCookies())
+                .map(cookies -> Arrays.stream(cookies)
+                        .filter(cookie -> ACCESS_TOKEN_COOKIE_NAME.equals(cookie.getName()))
+                        .findFirst()
+                        .map(Cookie::getValue)
+                        .orElse(null))
+                .orElse(null);
+
 
         if (isNonProtectedUrl(request)) {
             filterChain.doFilter(request, response);
@@ -48,16 +61,10 @@ public class JWTFilter extends OncePerRequestFilter {
             return;
         }
 
+        // 토큰 만료 확인
         if (jwtUtil.isExpired(accessToken)) {
-            // 이후 전역 핸들러에서 응답
+
             throw new ExpiredJwtException(null, null, "Token has expired");
-        }
-
-        String category = jwtUtil.getCategory(accessToken);
-
-        // 이후 CUSTOMEXCEPTION 작성
-        if(!isAccessToken(category)){
-            throw new CustomException(HttpStatus.UNAUTHORIZED, ErrorCode.ACCESS_DENIED,"Access 토큰이 아닙니다");
         }
 
         String id = jwtUtil.getId(accessToken);
@@ -81,9 +88,8 @@ public class JWTFilter extends OncePerRequestFilter {
         return false;
     }
     private boolean isAccessToken(String category){
-        return category.equals("access");
+        return category.equals(ACCESS_TOKEN_COOKIE_NAME);
     }
-
 
     private Authentication createAuthentication(String id, String role) {
 

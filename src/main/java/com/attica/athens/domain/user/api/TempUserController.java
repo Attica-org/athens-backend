@@ -1,6 +1,7 @@
 package com.attica.athens.domain.user.api;
 
 import com.attica.athens.domain.user.application.TempUserService;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -12,16 +13,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class TempUserController {
 
-    private static final String AUTHORIZATION = "Authorization";
-    private static final String BEARER = "Bearer ";
-
     private final TempUserService tempUserService;
 
     @PostMapping
-    public ResponseEntity<String> postTempUser() {
+    public ResponseEntity<String> postTempUser(HttpServletResponse response) {
 
-        String token = tempUserService.createTempUser();
+        String token = tempUserService.createTempUser(response);
 
-        return ResponseEntity.ok().header(AUTHORIZATION, BEARER + token).build();
+        return ResponseEntity.ok().header("Cookie-set",token).build();
     }
 }

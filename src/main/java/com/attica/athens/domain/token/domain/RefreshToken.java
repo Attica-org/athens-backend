@@ -1,7 +1,5 @@
 package com.attica.athens.domain.token.domain;
 
-import com.attica.athens.domain.common.AuditingFields;
-import com.attica.athens.domain.user.domain.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
