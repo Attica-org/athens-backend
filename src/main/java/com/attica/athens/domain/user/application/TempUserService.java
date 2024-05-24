@@ -13,7 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class TempUserService {
 
     private final TempUserRepository tempUserRepository;
-    private final JWTUtil jwtUtil;
 
     @Transactional
     public String createTempUser() {
@@ -22,6 +21,6 @@ public class TempUserService {
 
         tempUserRepository.save(tempUser);
 
-        return jwtUtil.createJwt(tempUser.getUuid().toString(), UserRole.ROLE_TEMP_USER.name());
+        return JWTUtil.createJwt(tempUser.getId(), UserRole.ROLE_TEMP_USER.name());
     }
 }

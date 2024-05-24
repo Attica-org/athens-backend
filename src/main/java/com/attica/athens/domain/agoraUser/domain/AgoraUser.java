@@ -45,16 +45,11 @@ public class AgoraUser extends AuditingFields {
     @JoinColumn(name = "user_id")
     private BaseUser user;
 
-    private AgoraUser(AgoraUserType type, String nickname, Integer photoNumber, Agora agora, BaseUser user) {
+    public AgoraUser(AgoraUserType type, String nickname, Integer photoNumber, Agora agora, BaseUser user) {
         this.type = type;
         this.nickname = nickname;
         this.photoNumber = photoNumber;
         this.agora = agora;
         this.user = user;
-    }
-
-    public static AgoraUser createAgoraUser(AgoraUserType type, String nickname, Integer photoNumber, Agora agora,
-                                            BaseUser user) {
-        return new AgoraUser(type, nickname, photoNumber, agora, user);
     }
 }

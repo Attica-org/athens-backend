@@ -1,7 +1,6 @@
 package com.attica.athens.global.config;
 
 import com.attica.athens.global.security.CustomUserDetails;
-import com.attica.athens.global.utils.WebSocketUtils;
 import java.util.Optional;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,8 +15,7 @@ public class JpaConfig {
 
     @Bean
     public AuditorAware<String> auditorAware() {
-        return () -> getWebSocketUserId()
-                .or(this::getPrinciple);
+        return this::getPrinciple;
     }
 
     private Optional<String> getPrinciple() {
@@ -33,11 +31,5 @@ public class JpaConfig {
         }
 
         return Optional.of(principal.toString());
-    }
-
-    private Optional<String> getWebSocketUserId() {
-
-        return Optional.ofNullable(WebSocketUtils.getSessionAttributes())
-                .map(sessionAttributes -> (String) sessionAttributes.get("userId"));
     }
 }

@@ -12,8 +12,7 @@ import com.attica.athens.domain.chat.dto.response.SendChatResponse.SendChatData;
 import com.attica.athens.domain.user.dao.BaseUserRepository;
 import com.attica.athens.domain.user.dao.UserRepository;
 import com.attica.athens.domain.user.domain.BaseUser;
-import com.attica.athens.domain.user.domain.UserRole;
-import java.util.Objects;
+import com.attica.athens.global.security.CustomUserDetails;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -30,23 +29,13 @@ public class ChatCommandService {
     private final AgoraUserRepository agoraUserRepository;
     private final ChatRepository chatRepository;
 
-    public SendChatResponse sendChat(String userId, String userRole, Long agoraId, SendChatRequest sendChatRequest) {
+    public SendChatResponse sendChat(CustomUserDetails userDetails, Long agoraId, SendChatRequest sendChatRequest) {
 
         Agora agora = findAgoraById(agoraId);
 
-        if (!Objects.equals(userRole, UserRole.ROLE_USER.name()) &&
-                !Objects.equals(userRole, UserRole.ROLE_TEMP_USER.name())) {
-            throw new IllegalArgumentException("Request userRole is invalid. UserRole : " + userRole);
-        }
+        Long userId = userDetails.getUserId();
 
-        BaseUser user;
-        if (userRole.equals(UserRole.ROLE_USER.name())) {
-            user = findUserByUsername(userId);
-        } else {
-            user = findUserByUuid(userId);
-        }
-
-        AgoraUser agoraUser = findAgoraUserByAgoraIdAndUserId(agora.getId(), user.getId());
+        AgoraUser agoraUser = findAgoraUserByAgoraIdAndUserId(agora.getId(), userId);
 
         Chat chat = Chat.createChat(sendChatRequest.type(), sendChatRequest.message(), agoraUser);
         chat = chatRepository.save(chat);
