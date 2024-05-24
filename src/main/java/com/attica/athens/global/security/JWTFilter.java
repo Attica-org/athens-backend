@@ -60,7 +60,7 @@ public class JWTFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-    private static String getAccessToken(HttpServletRequest request) {
+    private String getAccessToken(HttpServletRequest request) {
         return Optional.ofNullable(request.getCookies())
                 .map(cookies -> Arrays.stream(cookies)
                         .filter(cookie -> ACCESS_TOKEN_COOKIE_NAME.equals(cookie.getName()))

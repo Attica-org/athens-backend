@@ -54,13 +54,13 @@ public class ReissueService {
 
         refreshRepository.deleteByRefresh(refreshToken);
 
-        addRefreshEntity(new CreateRefreshTokenRequest(username, newRefresh, REFRESH_TOKEN_EXPIRATION_TIME));
+        createRefreshEntity(new CreateRefreshTokenRequest(username, newRefresh, REFRESH_TOKEN_EXPIRATION_TIME));
 
         response.addCookie(createCookie("access", newAccess));
         response.addCookie(createCookie("refresh", newRefresh));
     }
 
-    private static String getRefreshToken(HttpServletRequest request) {
+    private String getRefreshToken(HttpServletRequest request) {
         return Optional.ofNullable(request.getCookies()).flatMap(cookies -> Arrays.stream(cookies)
                         .filter(cookie -> REFRESH_TOKEN_COOKIE_NAME.equals(cookie.getName()))
                         .findFirst()
@@ -69,14 +69,15 @@ public class ReissueService {
                         "Refresh Token not found"));
     }
 
-    private void addRefreshEntity(CreateRefreshTokenRequest createRefreshTokenRequest) {
+
+    private void createRefreshEntity(CreateRefreshTokenRequest createRefreshTokenRequest) {
 
         String username = createRefreshTokenRequest.username();
         String refresh = createRefreshTokenRequest.refresh();
 
         Date date = new Date(System.currentTimeMillis() + REFRESH_TOKEN_EXPIRATION_TIME);
 
-        RefreshToken refreshEntity = RefreshToken.createRefreshToken(username, refresh, date.toString());
+        RefreshToken refreshEntity = RefreshToken.createRefreshToken(username, refresh, date);
 
         refreshRepository.save(refreshEntity);
     }

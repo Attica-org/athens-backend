@@ -76,7 +76,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
         Date date = new Date(System.currentTimeMillis() + REFRESH_TOKEN_EXPIRATION_TIME);
 
-        RefreshToken refreshEntity = RefreshToken.createRefreshToken(username, refresh, date.toString());
+        RefreshToken refreshEntity = RefreshToken.createRefreshToken(username, refresh, date);
 
         refreshRepository.save(refreshEntity);
     }

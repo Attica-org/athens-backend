@@ -1,6 +1,8 @@
 package com.attica.athens.domain.token.domain;
 
 import jakarta.persistence.*;
+import java.time.LocalDateTime;
+import java.util.Date;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -24,15 +26,15 @@ public class RefreshToken {
     private String refresh;
 
     @Column(nullable = false)
-    private String expiration;
+    private Date expiration;
 
-    private RefreshToken(String username, String refresh, String expiration) {
+    private RefreshToken(String username, String refresh, Date expiration) {
         this.username = username;
         this.refresh = refresh;
         this.expiration = expiration;
     }
 
-    public static RefreshToken createRefreshToken(String username, String refresh, String expiration) {
-        return new RefreshToken(username, refresh, expiration);
+    public static RefreshToken createRefreshToken(String username, String refresh, Date date) {
+        return new RefreshToken(username, refresh, date);
     }
 }
