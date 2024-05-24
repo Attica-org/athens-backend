@@ -1,8 +1,10 @@
 package com.attica.athens.global.security;
 
-import com.attica.athens.domain.user.domain.TempUser;
-import com.attica.athens.domain.user.domain.User;
-import com.attica.athens.domain.user.domain.UserRole;
+import static com.attica.athens.global.security.JWTUtil.createAuthentication;
+import static com.attica.athens.global.security.JWTUtil.getId;
+import static com.attica.athens.global.security.JWTUtil.getRole;
+import static com.attica.athens.global.security.JWTUtil.isExpired;
+
 import com.attica.athens.global.config.SecurityConfig;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
@@ -14,7 +16,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
@@ -24,12 +25,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 public class JWTFilter extends OncePerRequestFilter {
 
     private final static String ACCESS_TOKEN_COOKIE_NAME = "access";
-
-    private final JWTUtil jwtUtil;
-
-    public JWTFilter(JWTUtil jwtUtil) {
-        this.jwtUtil = jwtUtil;
-    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -47,12 +42,12 @@ public class JWTFilter extends OncePerRequestFilter {
             return;
         }
 
-        if (jwtUtil.isExpired(accessToken)) {
+        if (isExpired(accessToken)) {
             throw new ExpiredJwtException(null, null, "Token has expired");
         }
 
-        String id = jwtUtil.getId(accessToken);
-        String role = jwtUtil.getRole(accessToken);
+        Long id = getId(accessToken);
+        String role = getRole(accessToken);
 
         Authentication authentication = createAuthentication(id, role);
         SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -60,13 +55,13 @@ public class JWTFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
+
     private String getAccessToken(HttpServletRequest request) {
         return Optional.ofNullable(request.getCookies())
-                .map(cookies -> Arrays.stream(cookies)
+                .flatMap(cookies -> Arrays.stream(cookies)
                         .filter(cookie -> ACCESS_TOKEN_COOKIE_NAME.equals(cookie.getName()))
                         .findFirst()
-                        .map(Cookie::getValue)
-                        .orElse(null))
+                        .map(Cookie::getValue))
                 .orElse(null);
     }
 
@@ -81,17 +76,5 @@ public class JWTFilter extends OncePerRequestFilter {
         }
         return false;
     }
-
-
-    private Authentication createAuthentication(String id, String role) {
-
-        CustomUserDetails customUserDetails =
-                role.equals(UserRole.ROLE_TEMP_USER.name())
-                        ? new CustomUserDetails(TempUser.createTempUser())
-                        : new CustomUserDetails(User.createUser(id, "fakePassword"));
-
-        return new UsernamePasswordAuthenticationToken(customUserDetails, null,
-                customUserDetails.getAuthorities());
-    }
-
 }
+

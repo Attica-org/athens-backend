@@ -1,7 +1,10 @@
 package com.attica.athens.domain.token.domain;
 
-import jakarta.persistence.*;
-import java.time.LocalDateTime;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import java.util.Date;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -19,8 +22,8 @@ public class RefreshToken {
     @Column(name = "refreshToken_id")
     private Long id;
 
-    @Column(length = 50, nullable = false)
-    private String username;
+    @Column(name = "user_id", nullable = false)
+    private Long userId;
 
     @Column(nullable = false)
     private String refresh;
@@ -28,13 +31,13 @@ public class RefreshToken {
     @Column(nullable = false)
     private Date expiration;
 
-    private RefreshToken(String username, String refresh, Date expiration) {
-        this.username = username;
+    private RefreshToken(Long userId, String refresh, Date expiration) {
+        this.userId = userId;
         this.refresh = refresh;
         this.expiration = expiration;
     }
 
-    public static RefreshToken createRefreshToken(String username, String refresh, Date date) {
-        return new RefreshToken(username, refresh, date);
+    public static RefreshToken createRefreshToken(Long userId, String refresh, Date date) {
+        return new RefreshToken(userId, refresh, date);
     }
 }

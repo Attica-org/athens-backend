@@ -2,7 +2,7 @@ package com.attica.athens.domain.token.dto;
 
 
 public record CreateRefreshTokenRequest(
-        String username,
+        Long userId,
         String refresh,
         Long expiration
 ) {

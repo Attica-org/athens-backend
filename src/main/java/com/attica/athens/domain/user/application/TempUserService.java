@@ -1,20 +1,20 @@
 package com.attica.athens.domain.user.application;
 
+import static com.attica.athens.global.security.JWTUtil.createJwt;
+
 import com.attica.athens.domain.token.dao.RefreshRepository;
 import com.attica.athens.domain.token.domain.RefreshToken;
 import com.attica.athens.domain.token.dto.CreateRefreshTokenRequest;
 import com.attica.athens.domain.user.dao.TempUserRepository;
 import com.attica.athens.domain.user.domain.TempUser;
 import com.attica.athens.domain.user.domain.UserRole;
-import com.attica.athens.global.security.JWTUtil;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.Date;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Date;
 
 @Service
 @RequiredArgsConstructor
@@ -26,7 +26,6 @@ public class TempUserService {
 
     private final TempUserRepository tempUserRepository;
     private final RefreshRepository refreshRepository;
-    private final JWTUtil jwtUtil;
 
     @Transactional
     public String createTempUser(HttpServletResponse response) {
@@ -35,29 +34,29 @@ public class TempUserService {
 
         tempUserRepository.save(tempUser);
 
-        String access = jwtUtil.createJwt("access", tempUser.getUuid().toString(), UserRole.ROLE_TEMP_USER.name(),
+        String access = createJwt("access", tempUser.getId(), UserRole.ROLE_TEMP_USER.name(),
                 ACCESS_TOKEN_EXPIRATION_TIME);
-        String refresh = jwtUtil.createJwt("refresh", tempUser.getUuid().toString(), UserRole.ROLE_TEMP_USER.name(),
+        String refresh = createJwt("refresh", tempUser.getId(), UserRole.ROLE_TEMP_USER.name(),
                 REFRESH_TOKEN_EXPIRATION_TIME);
 
         addRefreshEntity(
-                new CreateRefreshTokenRequest(tempUser.getUuid().toString(), refresh, REFRESH_TOKEN_EXPIRATION_TIME));
+                new CreateRefreshTokenRequest(tempUser.getId(), refresh, REFRESH_TOKEN_EXPIRATION_TIME));
 
         response.addCookie(createCookie("access", access));
         response.addCookie(createCookie("refresh", refresh));
         response.setStatus(HttpStatus.OK.value());
 
-        return jwtUtil.createJwt("access", tempUser.getUuid().toString(), UserRole.ROLE_TEMP_USER.name(), 600000L);
+        return createJwt("access", tempUser.getId(), UserRole.ROLE_TEMP_USER.name(), 600000L);
     }
 
     private void addRefreshEntity(CreateRefreshTokenRequest createRefreshTokenRequest) {
 
-        String username = createRefreshTokenRequest.username();
+        Long userId = createRefreshTokenRequest.userId();
         String refresh = createRefreshTokenRequest.refresh();
 
         Date date = new Date(System.currentTimeMillis() + REFRESH_TOKEN_EXPIRATION_TIME);
 
-        RefreshToken refreshEntity = RefreshToken.createRefreshToken(username, refresh, date);
+        RefreshToken refreshEntity = RefreshToken.createRefreshToken(userId, refresh, date);
 
         refreshRepository.save(refreshEntity);
     }
