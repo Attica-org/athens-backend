@@ -1,6 +1,7 @@
-package com.attica.athens.global.security;
+package com.attica.athens.global.security.filter;
 
-import com.attica.athens.global.security.token.dao.RefreshRepository;
+import com.attica.athens.global.security.jwt.JWTUtil;
+import com.attica.athens.global.security.refresh.dao.RefreshRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;

@@ -1,7 +1,7 @@
-package com.attica.athens.global.security.token.api;
+package com.attica.athens.global.security.refresh.api;
 
-import com.attica.athens.global.security.token.application.ReissueService;
-import com.attica.athens.global.security.token.dto.CreateCookieResponse;
+import com.attica.athens.global.security.refresh.application.ReissueService;
+import com.attica.athens.global.security.refresh.dto.CreateCookieResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;

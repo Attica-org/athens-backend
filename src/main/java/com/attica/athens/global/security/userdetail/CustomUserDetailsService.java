@@ -1,6 +1,5 @@
-package com.attica.athens.global.security;
+package com.attica.athens.global.security.userdetail;
 
-import com.attica.athens.domain.user.dao.TempUserRepository;
 import com.attica.athens.domain.user.dao.UserRepository;
 import com.attica.athens.domain.user.domain.User;
 import lombok.RequiredArgsConstructor;

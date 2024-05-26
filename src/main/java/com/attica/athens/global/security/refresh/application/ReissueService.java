@@ -1,16 +1,16 @@
-package com.attica.athens.global.security.token.application;
+package com.attica.athens.global.security.refresh.application;
 
-import static com.attica.athens.global.security.JWTUtil.getId;
-import static com.attica.athens.global.security.JWTUtil.getRole;
-import static com.attica.athens.global.security.JWTUtil.isExpired;
+import static com.attica.athens.global.security.jwt.JWTUtil.getId;
+import static com.attica.athens.global.security.jwt.JWTUtil.getRole;
+import static com.attica.athens.global.security.jwt.JWTUtil.isExpired;
 
 import com.attica.athens.domain.common.advice.CustomException;
 import com.attica.athens.domain.common.advice.ErrorCode;
-import com.attica.athens.global.security.JWTUtil;
-import com.attica.athens.global.security.token.dao.RefreshRepository;
-import com.attica.athens.global.security.token.domain.RefreshToken;
-import com.attica.athens.global.security.token.dto.CreateCookieResponse;
-import com.attica.athens.global.security.token.dto.CreateRefreshTokenRequest;
+import com.attica.athens.global.security.jwt.JWTUtil;
+import com.attica.athens.global.security.refresh.dao.RefreshRepository;
+import com.attica.athens.global.security.refresh.domain.RefreshToken;
+import com.attica.athens.global.security.refresh.dto.CreateCookieResponse;
+import com.attica.athens.global.security.refresh.dto.CreateRefreshTokenRequest;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

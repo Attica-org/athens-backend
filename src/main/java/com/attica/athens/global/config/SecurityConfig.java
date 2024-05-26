@@ -1,10 +1,10 @@
 package com.attica.athens.global.config;
 
-import com.attica.athens.global.security.token.dao.RefreshRepository;
-import com.attica.athens.global.security.CustomLogoutFilter;
-import com.attica.athens.global.security.JWTFilter;
-import com.attica.athens.global.security.JWTUtil;
-import com.attica.athens.global.security.LoginFilter;
+import com.attica.athens.global.security.refresh.dao.RefreshRepository;
+import com.attica.athens.global.security.filter.CustomLogoutFilter;
+import com.attica.athens.global.security.jwt.JWTFilter;
+import com.attica.athens.global.security.jwt.JWTUtil;
+import com.attica.athens.global.security.filter.LoginFilter;
 import java.util.Arrays;
 import java.util.Collections;
 import lombok.RequiredArgsConstructor;

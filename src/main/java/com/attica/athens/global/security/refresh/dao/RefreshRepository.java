@@ -1,6 +1,6 @@
-package com.attica.athens.global.security.token.dao;
+package com.attica.athens.global.security.refresh.dao;
 
-import com.attica.athens.global.security.token.domain.RefreshToken;
+import com.attica.athens.global.security.refresh.domain.RefreshToken;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.transaction.annotation.Transactional;

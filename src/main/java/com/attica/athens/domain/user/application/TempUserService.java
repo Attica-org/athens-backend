@@ -1,10 +1,10 @@
 package com.attica.athens.domain.user.application;
 
-import static com.attica.athens.global.security.JWTUtil.createJwt;
+import static com.attica.athens.global.security.jwt.JWTUtil.createJwt;
 
-import com.attica.athens.global.security.token.dao.RefreshRepository;
-import com.attica.athens.global.security.token.domain.RefreshToken;
-import com.attica.athens.global.security.token.dto.CreateRefreshTokenRequest;
+import com.attica.athens.global.security.refresh.dao.RefreshRepository;
+import com.attica.athens.global.security.refresh.domain.RefreshToken;
+import com.attica.athens.global.security.refresh.dto.CreateRefreshTokenRequest;
 import com.attica.athens.domain.user.dao.TempUserRepository;
 import com.attica.athens.domain.user.domain.TempUser;
 import com.attica.athens.domain.user.domain.UserRole;
