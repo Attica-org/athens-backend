@@ -1,8 +1,10 @@
 package com.attica.athens.global.config;
 
-import com.attica.athens.global.security.JWTFilter;
-import com.attica.athens.global.security.JWTUtil;
-import com.attica.athens.global.security.LoginFilter;
+import com.attica.athens.global.security.refresh.dao.RefreshRepository;
+import com.attica.athens.global.security.filter.CustomLogoutFilter;
+import com.attica.athens.global.security.jwt.JWTFilter;
+import com.attica.athens.global.security.jwt.JWTUtil;
+import com.attica.athens.global.security.filter.LoginFilter;
 import java.util.Arrays;
 import java.util.Collections;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +20,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.web.cors.CorsConfiguration;
 
 @Configuration
@@ -32,12 +35,14 @@ public class SecurityConfig {
             "/ws/**",
             "/login",
             "/api/v1/user/**",
+            "/api/v1/reissue",
             "/api/v1/temp-user/**",
             "/api/v1/agoras/**"
     };
 
     private final AuthenticationConfiguration authenticationConfiguration;
     private final JWTUtil jwtUtil;
+    private final RefreshRepository refreshRepository;
 
     @Value("${cors.allowed-origins}")
     private String[] allowedOrigins;
@@ -53,7 +58,6 @@ public class SecurityConfig {
 
         return new BCryptPasswordEncoder();
     }
-
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -93,7 +97,7 @@ public class SecurityConfig {
 
         // LoginFilter 등록 (/login시 동작)
         http
-                .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration)),
+                .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), refreshRepository),
                         UsernamePasswordAuthenticationFilter.class);
 
 //        // JWTFilter 등록 (모든 요청에 대해 동작)
@@ -103,6 +107,8 @@ public class SecurityConfig {
         // 세션 설정 (statelss하도록)
         http
                 .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+        http
+                .addFilterBefore(new CustomLogoutFilter(jwtUtil, refreshRepository), LogoutFilter.class);
 
         return http.build();
     }

@@ -1,9 +1,9 @@
 package com.attica.athens.global.interceptor;
 
-import static com.attica.athens.global.security.JWTUtil.createAuthentication;
-import static com.attica.athens.global.security.JWTUtil.getId;
-import static com.attica.athens.global.security.JWTUtil.getRole;
-import static com.attica.athens.global.security.JWTUtil.isExpired;
+import static com.attica.athens.global.security.jwt.JWTUtil.createAuthentication;
+import static com.attica.athens.global.security.jwt.JWTUtil.getId;
+import static com.attica.athens.global.security.jwt.JWTUtil.getRole;
+import static com.attica.athens.global.security.jwt.JWTUtil.isExpired;
 
 import java.util.Optional;
 import org.springframework.messaging.Message;
