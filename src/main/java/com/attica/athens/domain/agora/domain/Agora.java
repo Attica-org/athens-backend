@@ -67,6 +67,9 @@ public class Agora extends AuditingFields {
     @Column(name = "start_time", updatable = false)
     private LocalDateTime startTime;
 
+    @Column(name = "end_vote_count", nullable = false)
+    private Integer endVoteCount;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
     private Category category;
@@ -84,22 +87,38 @@ public class Agora extends AuditingFields {
         this.category = category;
     }
 
-    public void changeStatus(AgoraStatus status) {
+    public void startAgora() {
+        AgoraStatus expectedStatus = AgoraStatus.QUEUED;
+
+        if (this.status == expectedStatus) {
+            this.startTime = LocalDateTime.now();
+            changeStatus(AgoraStatus.RUNNING);
+        } else {
+            throw new InvalidAgoraStatusException(expectedStatus);
+        }
+    }
+
+    public void incrementEndVoteCountAndCheckTermination(int participantsNum) {
+        AgoraStatus expectedStatus = AgoraStatus.RUNNING;
+
+        if (this.status == expectedStatus) {
+            endVoteCount++;
+
+            if (endVoteCount >= participantsNum / 2) {
+                changeStatus(AgoraStatus.CLOSED);
+            }
+        } else {
+            throw new InvalidAgoraStatusException(expectedStatus);
+        }
+    }
+
+    private void changeStatus(AgoraStatus status) {
         if ((this.status == AgoraStatus.QUEUED && status == AgoraStatus.RUNNING) ||
                 (this.status == AgoraStatus.RUNNING && status == AgoraStatus.CLOSED)
         ) {
             this.status = status;
         } else {
             throw new InvalidAgoraStatusChangeException(id);
-        }
-    }
-
-    public void startAgora() {
-        if (this.status == AgoraStatus.QUEUED) {
-            this.startTime = LocalDateTime.now();
-            changeStatus(AgoraStatus.RUNNING);
-        } else {
-            throw new InvalidAgoraStatusException(AgoraStatus.QUEUED);
         }
     }
 }

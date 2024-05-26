@@ -1,6 +1,7 @@
 package com.attica.athens.domain.agora.api;
 
 import com.attica.athens.domain.agora.application.AgoraService;
+import com.attica.athens.domain.agora.dto.response.EndVoteAgoraResponse;
 import com.attica.athens.domain.agora.dto.response.StartAgoraResponse;
 import com.attica.athens.domain.common.ApiResponse;
 import com.attica.athens.domain.common.ApiUtil;
@@ -26,6 +27,14 @@ public class AgoraAuthController {
     public ResponseEntity<ApiResponse<StartAgoraResponse>> startAgora(@PathVariable("agora-id") Long agoraId,
                                                                       @AuthenticationPrincipal CustomUserDetails userDetails) {
         StartAgoraResponse response = agoraService.startAgora(agoraId, userDetails.getUserId());
+
+        return ResponseEntity.ok(ApiUtil.success(response));
+    }
+
+    @PatchMapping("/{agora-id}/close")
+    public ResponseEntity<ApiResponse<EndVoteAgoraResponse>> endVoteAgora(@PathVariable("agora-id") Long agoraId,
+                                                                          @AuthenticationPrincipal CustomUserDetails userDetails) {
+        EndVoteAgoraResponse response = agoraService.endVoteAgora(agoraId, userDetails.getUserId());
 
         return ResponseEntity.ok(ApiUtil.success(response));
     }

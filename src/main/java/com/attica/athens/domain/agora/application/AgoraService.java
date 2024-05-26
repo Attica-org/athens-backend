@@ -10,11 +10,14 @@ import com.attica.athens.domain.agora.dto.request.SearchCategoryRequest;
 import com.attica.athens.domain.agora.dto.request.SearchKeywordRequest;
 import com.attica.athens.domain.agora.dto.response.AgoraSlice;
 import com.attica.athens.domain.agora.dto.response.CreateAgoraResponse;
+import com.attica.athens.domain.agora.dto.response.EndVoteAgoraResponse;
 import com.attica.athens.domain.agora.dto.response.StartAgoraResponse;
 import com.attica.athens.domain.agora.exception.NotFoundAgoraException;
 import com.attica.athens.domain.agora.exception.NotFoundCategoryException;
-import com.attica.athens.domain.agora.exception.UserNotParticipantException;
 import com.attica.athens.domain.agoraUser.dao.AgoraUserRepository;
+import com.attica.athens.domain.agoraUser.domain.AgoraUser;
+import com.attica.athens.domain.agoraUser.exception.AlreadyVotedException;
+import com.attica.athens.domain.agoraUser.exception.NotFoundAgoraUserException;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -82,7 +85,7 @@ public class AgoraService {
 
         boolean isExists = existsByAgoraIdAndUserId(agoraId, userId);
         if (!isExists) {
-            throw new UserNotParticipantException(agoraId);
+            throw new NotFoundAgoraUserException(agoraId, userId);
         }
 
         agora.startAgora();
@@ -97,5 +100,30 @@ public class AgoraService {
     private Agora findAgoraById(Long agoraId) {
         return agoraRepository.findById(agoraId)
                 .orElseThrow(() -> new NotFoundAgoraException(agoraId));
+    }
+
+    @Transactional
+    public EndVoteAgoraResponse endVoteAgora(Long agoraId, Long userId) {
+        Agora agora = findAgoraById(agoraId);
+
+        findAgoraUserAndMarkEndVoted(agoraId, userId);
+
+        int participantCount = agoraUserRepository.countByAgoraId(agoraId);
+        agora.incrementEndVoteCountAndCheckTermination(participantCount);
+
+        return EndVoteAgoraResponse.createEndVoteAgoraResponse(agora);
+    }
+
+    private void findAgoraUserAndMarkEndVoted(Long agoraId, Long userId) {
+        AgoraUser agoraUser = findAgoraUserByAgoraIdAndUserId(agoraId, userId);
+        if (agoraUser.isEndVoted()) {
+            throw new AlreadyVotedException();
+        }
+        agoraUser.markEndVoted();
+    }
+
+    private AgoraUser findAgoraUserByAgoraIdAndUserId(Long agoraId, Long userId) {
+        return agoraUserRepository.findByAgoraIdAndUserId(agoraId, userId)
+                .orElseThrow(() -> new NotFoundAgoraUserException(agoraId, userId));
     }
 }
