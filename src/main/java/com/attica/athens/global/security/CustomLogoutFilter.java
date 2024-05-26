@@ -1,6 +1,6 @@
 package com.attica.athens.global.security;
 
-import com.attica.athens.domain.token.dao.RefreshRepository;
+import com.attica.athens.global.security.token.dao.RefreshRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;

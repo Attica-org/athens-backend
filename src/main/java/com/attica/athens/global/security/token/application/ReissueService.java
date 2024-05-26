@@ -1,4 +1,4 @@
-package com.attica.athens.domain.token.application;
+package com.attica.athens.global.security.token.application;
 
 import static com.attica.athens.global.security.JWTUtil.getId;
 import static com.attica.athens.global.security.JWTUtil.getRole;
@@ -6,20 +6,20 @@ import static com.attica.athens.global.security.JWTUtil.isExpired;
 
 import com.attica.athens.domain.common.advice.CustomException;
 import com.attica.athens.domain.common.advice.ErrorCode;
-import com.attica.athens.domain.token.dao.RefreshRepository;
-import com.attica.athens.domain.token.domain.RefreshToken;
-import com.attica.athens.domain.token.dto.CreateRefreshTokenRequest;
 import com.attica.athens.global.security.JWTUtil;
+import com.attica.athens.global.security.token.dao.RefreshRepository;
+import com.attica.athens.global.security.token.domain.RefreshToken;
+import com.attica.athens.global.security.token.dto.CreateCookieResponse;
+import com.attica.athens.global.security.token.dto.CreateRefreshTokenRequest;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
-
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Optional;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -34,7 +34,7 @@ public class ReissueService {
     private final RefreshRepository refreshRepository;
 
 
-    public void reissueRefreshToken(HttpServletRequest request, HttpServletResponse response) {
+    public CreateCookieResponse reissueRefreshToken(HttpServletRequest request, HttpServletResponse response) {
 
         String refreshToken = getRefreshToken(request);
 
@@ -58,12 +58,17 @@ public class ReissueService {
 
         createRefreshEntity(new CreateRefreshTokenRequest(userId, newRefresh, REFRESH_TOKEN_EXPIRATION_TIME));
 
-        response.addCookie(createCookie("access", newAccess));
-        response.addCookie(createCookie("refresh", newRefresh));
+        Cookie[] cookies = new Cookie[2];
+
+        cookies[0] = createCookie("access", newAccess);
+        cookies[1] = createCookie("refresh", newRefresh);
+        return new CreateCookieResponse(cookies);
+
     }
 
     private String getRefreshToken(HttpServletRequest request) {
-        return Optional.ofNullable(request.getCookies()).flatMap(cookies -> Arrays.stream(cookies)
+        return Optional.ofNullable(request.getCookies())
+                .flatMap(cookies -> Arrays.stream(cookies)
                         .filter(cookie -> REFRESH_TOKEN_COOKIE_NAME.equals(cookie.getName()))
                         .findFirst()
                         .map(Cookie::getValue))

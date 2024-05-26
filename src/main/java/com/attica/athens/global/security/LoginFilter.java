@@ -2,9 +2,9 @@ package com.attica.athens.global.security;
 
 import static com.attica.athens.global.security.JWTUtil.createJwt;
 
-import com.attica.athens.domain.token.dao.RefreshRepository;
-import com.attica.athens.domain.token.domain.RefreshToken;
-import com.attica.athens.domain.token.dto.CreateRefreshTokenRequest;
+import com.attica.athens.global.security.token.dao.RefreshRepository;
+import com.attica.athens.global.security.token.domain.RefreshToken;
+import com.attica.athens.global.security.token.dto.CreateRefreshTokenRequest;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;

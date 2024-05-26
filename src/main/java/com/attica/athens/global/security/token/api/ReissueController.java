@@ -1,27 +1,29 @@
-package com.attica.athens.domain.token.api;
+package com.attica.athens.global.security.token.api;
 
-import com.attica.athens.domain.token.application.ReissueService;
+import com.attica.athens.global.security.token.application.ReissueService;
+import com.attica.athens.global.security.token.dto.CreateCookieResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/v1")
 public class ReissueController {
 
     private final ReissueService reissueService;
 
-    public ReissueController(ReissueService reissueService) {
-        this.reissueService = reissueService;
-    }
-
     @PostMapping("/reissue")
     public ResponseEntity<?> reissue(HttpServletRequest request, HttpServletResponse response) {
 
-        reissueService.reissueRefreshToken(request, response);
+        CreateCookieResponse createCookieResponse = reissueService.reissueRefreshToken(request, response);
+
+        response.addCookie(createCookieResponse.cookie()[0]);
+        response.addCookie(createCookieResponse.cookie()[1]);
 
         return ResponseEntity.ok().build();
     }

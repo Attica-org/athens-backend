@@ -1,4 +1,4 @@
-package com.attica.athens.domain.token.dto;
+package com.attica.athens.global.security.token.dto;
 
 
 public record CreateRefreshTokenRequest(

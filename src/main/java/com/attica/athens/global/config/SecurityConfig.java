@@ -1,6 +1,6 @@
 package com.attica.athens.global.config;
 
-import com.attica.athens.domain.token.dao.RefreshRepository;
+import com.attica.athens.global.security.token.dao.RefreshRepository;
 import com.attica.athens.global.security.CustomLogoutFilter;
 import com.attica.athens.global.security.JWTFilter;
 import com.attica.athens.global.security.JWTUtil;
