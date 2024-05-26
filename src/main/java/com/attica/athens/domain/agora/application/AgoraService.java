@@ -10,24 +10,27 @@ import com.attica.athens.domain.agora.dto.request.SearchCategoryRequest;
 import com.attica.athens.domain.agora.dto.request.SearchKeywordRequest;
 import com.attica.athens.domain.agora.dto.response.AgoraSlice;
 import com.attica.athens.domain.agora.dto.response.CreateAgoraResponse;
+import com.attica.athens.domain.agora.dto.response.StartAgoraResponse;
+import com.attica.athens.domain.agora.exception.NotFoundAgoraException;
 import com.attica.athens.domain.agora.exception.NotFoundCategoryException;
+import com.attica.athens.domain.agora.exception.UserNotParticipantException;
+import com.attica.athens.domain.agoraUser.dao.AgoraUserRepository;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@RequiredArgsConstructor
 public class AgoraService {
 
     private final AgoraRepository agoraRepository;
     private final CategoryRepository categoryRepository;
+    private final AgoraUserRepository agoraUserRepository;
 
-    public AgoraService(AgoraRepository agoraRepository, CategoryRepository categoryRepository) {
-        this.agoraRepository = agoraRepository;
-        this.categoryRepository = categoryRepository;
-    }
-
-    public AgoraSlice<SimpleAgoraResult> findAgoraByKeyword(final String agoraName, final SearchKeywordRequest request) {
+    public AgoraSlice<SimpleAgoraResult> findAgoraByKeyword(final String agoraName,
+                                                            final SearchKeywordRequest request) {
         return agoraRepository.findAgoraByKeyword(request.next(), request.getStatus(), agoraName);
     }
 
@@ -46,10 +49,10 @@ public class AgoraService {
 
     private Agora createAgora(final AgoraCreateRequest request, final Category category) {
         return new Agora(request.title(),
-            request.capacity(),
-            request.duration(),
-            request.color(),
-            category);
+                request.capacity(),
+                request.duration(),
+                request.color(),
+                category);
     }
 
     private List<Long> findParentCategoryById(final Long categoryId) {
@@ -60,9 +63,9 @@ public class AgoraService {
         while (currentCategory != null) {
             parentCodes.add(currentCategory);
             currentCategory = categoryRepository.findById(currentCategory)
-                .map(Category::getParent)
-                .map(Category::getId)
-                .orElse(null);
+                    .map(Category::getParent)
+                    .map(Category::getId)
+                    .orElse(null);
         }
 
         return parentCodes;
@@ -70,6 +73,29 @@ public class AgoraService {
 
     private Category findByCategory(final Long categoryId) {
         return categoryRepository.findById(categoryId)
-            .orElseThrow(() -> new NotFoundCategoryException(categoryId));
+                .orElseThrow(() -> new NotFoundCategoryException(categoryId));
+    }
+
+    @Transactional
+    public StartAgoraResponse startAgora(Long agoraId, Long userId) {
+        Agora agora = findAgoraById(agoraId);
+
+        boolean isExists = existsByAgoraIdAndUserId(agoraId, userId);
+        if (!isExists) {
+            throw new UserNotParticipantException(agoraId);
+        }
+
+        agora.startAgora();
+
+        return StartAgoraResponse.createAgoraStartResponse(agora);
+    }
+
+    private boolean existsByAgoraIdAndUserId(Long agoraId, Long userId) {
+        return agoraUserRepository.existsByAgoraIdAndUserId(agoraId, userId);
+    }
+
+    private Agora findAgoraById(Long agoraId) {
+        return agoraRepository.findById(agoraId)
+                .orElseThrow(() -> new NotFoundAgoraException(agoraId));
     }
 }

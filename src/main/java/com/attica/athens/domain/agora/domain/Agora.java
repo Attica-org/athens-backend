@@ -1,5 +1,7 @@
 package com.attica.athens.domain.agora.domain;
 
+import com.attica.athens.domain.agora.exception.InvalidAgoraStatusChangeException;
+import com.attica.athens.domain.agora.exception.InvalidAgoraStatusException;
 import com.attica.athens.domain.agoraUser.domain.AgoraUser;
 import com.attica.athens.domain.common.AuditingFields;
 import jakarta.persistence.Column;
@@ -15,23 +17,24 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.springframework.format.annotation.DateTimeFormat;
 
 @Getter
 @ToString(callSuper = true)
 @Table(
-    name = "agora",
-    indexes = {
-        @Index(name = "idx_agora_title", columnList = "title"),
-        @Index(name = "idx_agora_created_at", columnList = "createdAt"),
-        @Index(name = "idx_agora_created_by", columnList = "createdBy")
-})
+        name = "agora",
+        indexes = {
+                @Index(name = "idx_agora_title", columnList = "title"),
+                @Index(name = "idx_agora_created_at", columnList = "createdAt"),
+                @Index(name = "idx_agora_created_by", columnList = "createdBy")
+        })
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Agora extends AuditingFields {
@@ -60,6 +63,10 @@ public class Agora extends AuditingFields {
     @Column(length = 25, nullable = false)
     private AgoraStatus status;
 
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+    @Column(name = "start_time", updatable = false)
+    private LocalDateTime startTime;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
     private Category category;
@@ -72,8 +79,27 @@ public class Agora extends AuditingFields {
         this.capacity = capacity;
         this.duration = duration;
         this.viewCount = 0;
-        this.status = AgoraStatus.RUNNING;
+        this.status = AgoraStatus.QUEUED;
         this.color = color;
         this.category = category;
+    }
+
+    public void changeStatus(AgoraStatus status) {
+        if ((this.status == AgoraStatus.QUEUED && status == AgoraStatus.RUNNING) ||
+                (this.status == AgoraStatus.RUNNING && status == AgoraStatus.CLOSED)
+        ) {
+            this.status = status;
+        } else {
+            throw new InvalidAgoraStatusChangeException(id);
+        }
+    }
+
+    public void startAgora() {
+        if (this.status == AgoraStatus.QUEUED) {
+            this.startTime = LocalDateTime.now();
+            changeStatus(AgoraStatus.RUNNING);
+        } else {
+            throw new InvalidAgoraStatusException(AgoraStatus.QUEUED);
+        }
     }
 }
