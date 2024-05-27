@@ -1,6 +1,6 @@
 package com.attica.athens.global.config;
 
-import com.attica.athens.global.security.CustomUserDetails;
+import com.attica.athens.global.security.userdetail.CustomUserDetails;
 import java.util.Optional;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
