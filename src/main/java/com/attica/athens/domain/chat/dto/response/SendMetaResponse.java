@@ -25,14 +25,16 @@ public record SendMetaResponse(ChatType type, MetaData data) {
             Long id,
             String title,
             LocalDateTime createdAt,
-            Integer duration
+            Integer duration,
+            LocalDateTime startAt
     ) {
         public AgoraInfo(Agora agora) {
             this(
                     agora.getId(),
                     agora.getTitle(),
                     agora.getCreatedAt(),
-                    agora.getDuration()
+                    agora.getDuration(),
+                    agora.getStartTime()
             );
         }
     }

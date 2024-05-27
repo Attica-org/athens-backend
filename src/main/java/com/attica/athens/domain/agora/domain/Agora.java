@@ -104,7 +104,7 @@ public class Agora extends AuditingFields {
         if (this.status == expectedStatus) {
             endVoteCount++;
 
-            if (endVoteCount >= participantsNum / 2) {
+            if (endVoteCount >= participantsNum / 3 * 2) {
                 changeStatus(AgoraStatus.CLOSED);
             }
         } else {
