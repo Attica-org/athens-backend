@@ -1,6 +1,5 @@
-package com.attica.athens.global.security;
+package com.attica.athens.global.security.userdetail;
 
-import com.attica.athens.domain.user.dao.TempUserRepository;
 import com.attica.athens.domain.user.dao.UserRepository;
 import com.attica.athens.domain.user.domain.User;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +13,6 @@ import org.springframework.stereotype.Service;
 public class CustomUserDetailsService implements UserDetailsService {
 
     private final UserRepository userRepository;
-    private final TempUserRepository tempUserRepository;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {

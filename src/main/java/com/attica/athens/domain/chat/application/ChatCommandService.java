@@ -12,7 +12,7 @@ import com.attica.athens.domain.chat.dto.response.SendChatResponse.SendChatData;
 import com.attica.athens.domain.user.dao.BaseUserRepository;
 import com.attica.athens.domain.user.dao.UserRepository;
 import com.attica.athens.domain.user.domain.BaseUser;
-import com.attica.athens.global.security.CustomUserDetails;
+import com.attica.athens.global.security.userdetail.CustomUserDetails;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

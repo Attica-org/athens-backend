@@ -1,14 +1,13 @@
-package com.attica.athens.global.security;
+package com.attica.athens.global.security.jwt;
 
+import com.attica.athens.global.security.userdetail.CustomUserDetails;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.Jwts.SIG;
-import jakarta.servlet.http.HttpServletRequest;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
@@ -16,9 +15,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class JWTUtil {
 
-    private static final long EXPIRED_MS = 60 * 60 * 10000;
-    private static final String AUTHORIZATION = "Authorization";
-    private static final String BEARER = "Bearer ";
 
     private static SecretKey secretKey;
 
@@ -47,27 +43,18 @@ public class JWTUtil {
                 .getExpiration().before(new Date());
     }
 
-    public static String createJwt(Long id, String role) {
+    public static String createJwt(String category, Long id, String role, Long expiredMs) {
 
         return Jwts.builder()
+                .claim("category", category)
                 .claim("id", id)
                 .claim("role", role)
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + EXPIRED_MS))
+                .expiration(new Date(System.currentTimeMillis() + expiredMs))
                 .signWith(secretKey)
                 .compact();
     }
 
-    public static String resolveToken(HttpServletRequest request) {
-
-        String authorization = request.getHeader(AUTHORIZATION);
-
-        if (authorization == null || !authorization.startsWith(BEARER)) {
-            throw new AuthenticationCredentialsNotFoundException("Token not found");
-        }
-
-        return authorization.split(" ")[1];
-    }
 
     public static Authentication createAuthentication(Long id, String role) {
 
