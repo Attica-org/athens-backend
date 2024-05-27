@@ -9,7 +9,7 @@ import com.attica.athens.domain.chat.dto.response.GetChatResponse;
 import com.attica.athens.domain.chat.dto.response.SendChatResponse;
 import com.attica.athens.domain.chat.dto.response.SendMetaResponse;
 import com.attica.athens.domain.common.ApiUtil;
-import com.attica.athens.global.security.userdetail.CustomUserDetails;
+import com.attica.athens.global.auth.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.DestinationVariable;

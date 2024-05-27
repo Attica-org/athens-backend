@@ -1,6 +1,9 @@
 package com.attica.athens.domain.user.api;
 
+import com.attica.athens.domain.common.ApiResponse;
+import com.attica.athens.domain.common.ApiUtil;
 import com.attica.athens.domain.user.application.TempUserService;
+import com.attica.athens.global.auth.dto.response.CreateAccessTokenResponse;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -16,10 +19,10 @@ public class TempUserController {
     private final TempUserService tempUserService;
 
     @PostMapping
-    public ResponseEntity<String> postTempUser(HttpServletResponse response) {
+    public ResponseEntity<ApiResponse<?>> postTempUser(HttpServletResponse response) {
 
-        String token = tempUserService.createTempUser(response);
+        String accessToken = tempUserService.createTempUser(response);
 
-        return ResponseEntity.ok().header("Set-Cookie", token).build();
+        return ResponseEntity.ok(ApiUtil.success(new CreateAccessTokenResponse(accessToken)));
     }
 }

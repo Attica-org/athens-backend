@@ -9,8 +9,10 @@ import com.attica.athens.domain.agora.dto.response.AgoraSlice;
 import com.attica.athens.domain.agora.dto.response.CreateAgoraResponse;
 import com.attica.athens.domain.common.ApiResponse;
 import com.attica.athens.domain.common.ApiUtil;
+import org.springframework.security.core.userdetails.User;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -30,7 +32,7 @@ public class AgoraController {
 
     @PostMapping
     public ResponseEntity<ApiResponse<?>> createAgora(
-        @RequestBody @Valid AgoraCreateRequest request
+            @RequestBody @Valid AgoraCreateRequest request
     ) {
         CreateAgoraResponse response = agoraService.create(request);
 
@@ -39,7 +41,7 @@ public class AgoraController {
 
     @GetMapping(params = {"status", "category", "next"})
     public ResponseEntity<ApiResponse<?>> getAgoraByCategory(
-        @Valid SearchCategoryRequest request
+            @Valid SearchCategoryRequest request
     ) {
         AgoraSlice<SimpleAgoraResult> response = agoraService.findAgoraByCategory(request);
 
@@ -48,11 +50,11 @@ public class AgoraController {
 
     @GetMapping(params = {"agora_name", "status", "next"})
     public ResponseEntity<ApiResponse<?>> getAgoraByKeyword(
-        @RequestParam("agora_name") String agoraName,
-        @Valid SearchKeywordRequest request
+            @RequestParam("agora_name") String agoraName,
+            @Valid SearchKeywordRequest request
     ) {
         AgoraSlice<SimpleAgoraResult> response =
-            agoraService.findAgoraByKeyword(agoraName, new SearchKeywordRequest(request.status(), request.next()));
+                agoraService.findAgoraByKeyword(agoraName, new SearchKeywordRequest(request.status(), request.next()));
 
         return ResponseEntity.ok(ApiUtil.success(response));
     }
