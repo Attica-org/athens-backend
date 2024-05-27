@@ -1,4 +1,3 @@
-
 package com.attica.athens.global.auth;
 
 import com.attica.athens.domain.user.dao.UserRepository;

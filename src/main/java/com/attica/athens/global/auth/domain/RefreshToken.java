@@ -1,6 +1,10 @@
 package com.attica.athens.global.auth.domain;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import java.util.Date;
 import lombok.AccessLevel;
 import lombok.Getter;

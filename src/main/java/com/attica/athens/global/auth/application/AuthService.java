@@ -5,8 +5,6 @@ import static com.attica.athens.global.auth.jwt.Constants.COOKIE_EXPIRATION_TIME
 import static com.attica.athens.global.auth.jwt.Constants.COOKIE_NAME;
 import static com.attica.athens.global.auth.jwt.Constants.REFRESH_TOKEN;
 
-import com.attica.athens.domain.common.advice.CustomException;
-import com.attica.athens.domain.common.advice.ErrorCode;
 import com.attica.athens.global.auth.CustomUserDetails;
 import com.attica.athens.global.auth.dao.RefreshTokenRepository;
 import com.attica.athens.global.auth.domain.RefreshToken;
@@ -16,7 +14,6 @@ import com.attica.athens.global.auth.exception.JwtIllegalArgumentException;
 import com.attica.athens.global.auth.exception.JwtSignatureException;
 import com.attica.athens.global.auth.exception.JwtUnsupportedJwtException;
 import com.attica.athens.global.auth.exception.NotFoundRefreshTokenException;
-import com.attica.athens.global.auth.jwt.Constants;
 import com.attica.athens.global.auth.jwt.JwtUtils;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
@@ -28,7 +25,6 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
@@ -96,7 +92,7 @@ public class AuthService {
         refreshTokenRepository.deleteByRefresh(refreshToken);
         return newAccess;
     }
-    
+
     public String createRefreshTokenAndGetAccessToken(Long userId, String role, HttpServletResponse response) {
         return createRefreshToken(userId, role, response);
     }

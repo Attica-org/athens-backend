@@ -58,7 +58,9 @@ public class CustomLogoutFilter extends GenericFilterBean {
         String access = cookieMap.get(ACCESS_TOKEN);
 
         try {
-            if (!(authService.validateToken(refresh) && authService.validateToken(access))) return;
+            if (!(authService.validateToken(refresh) && authService.validateToken(access))) {
+                return;
+            }
             refreshTokenRepository.existsByRefresh(refresh).orElseThrow(NotFoundRefreshTokenException::new);
         } catch (CustomException e) {
             request.setAttribute("jwt exception", e);

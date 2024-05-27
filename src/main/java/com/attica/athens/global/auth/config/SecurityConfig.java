@@ -101,7 +101,7 @@ public class SecurityConfig {
         // LoginFilter 등록 (/login시 동작)
         http
                 .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), authService),
-                    UsernamePasswordAuthenticationFilter.class);
+                        UsernamePasswordAuthenticationFilter.class);
 
 //        // JWTFilter 등록 (모든 요청에 대해 동작)
         http
