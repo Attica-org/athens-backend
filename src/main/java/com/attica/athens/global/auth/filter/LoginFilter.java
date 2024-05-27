@@ -66,15 +66,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         long userId = customUserDetails.getUserId();
         String role = auth.getAuthority();
 
-        String accessToken = authService.createJwtToken(ACCESS_TOKEN, userId, role);
-        ObjectMapper objectMapper = new ObjectMapper();
-        try {
-            ApiResponse result = ApiUtil.success(new CreateAccessTokenResponse(accessToken));
-            response.getWriter().write(objectMapper.writeValueAsString(result));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
+        createAccessToken(response, userId, role);
         String refreshToken = authService.createJwtToken(REFRESH_TOKEN, userId, role);
         response.addCookie(createCookie(COOKIE_NAME, refreshToken));
 
@@ -86,6 +78,18 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
                                               AuthenticationException failed) {
 
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
+    }
+
+    private void createAccessToken(HttpServletResponse response, long userId, String role) {
+
+        String accessToken = authService.createJwtToken(ACCESS_TOKEN, userId, role);
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            ApiResponse result = ApiUtil.success(new CreateAccessTokenResponse(accessToken));
+            response.getWriter().write(objectMapper.writeValueAsString(result));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private Cookie createCookie(String key, String value) {

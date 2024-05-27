@@ -1,4 +1,4 @@
-package com.attica.athens.global.auth.dto.reqeust;
+package com.attica.athens.global.auth.dto.request;
 
 
 public record CreateRefreshTokenRequest(

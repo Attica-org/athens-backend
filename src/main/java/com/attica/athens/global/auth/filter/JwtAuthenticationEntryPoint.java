@@ -1,5 +1,7 @@
 package com.attica.athens.global.auth.filter;
 
+import static com.attica.athens.global.auth.jwt.Constants.REQUEST_ATTRIBUTE_NAME;
+
 import com.attica.athens.domain.common.ApiResponse;
 import com.attica.athens.domain.common.ApiUtil;
 import com.attica.athens.domain.common.advice.CustomException;
@@ -23,7 +25,7 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
     public void commence(HttpServletRequest request, HttpServletResponse response,
                          AuthenticationException authException) throws IOException {
 
-        Object attribute = request.getAttribute("jwt exception");
+        Object attribute = request.getAttribute(REQUEST_ATTRIBUTE_NAME);
 
         if (attribute instanceof CustomException) {
             CustomException exception = (CustomException) attribute;

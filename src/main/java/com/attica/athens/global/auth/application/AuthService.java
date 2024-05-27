@@ -8,7 +8,7 @@ import static com.attica.athens.global.auth.jwt.Constants.REFRESH_TOKEN;
 import com.attica.athens.global.auth.CustomUserDetails;
 import com.attica.athens.global.auth.dao.RefreshTokenRepository;
 import com.attica.athens.global.auth.domain.RefreshToken;
-import com.attica.athens.global.auth.dto.reqeust.CreateRefreshTokenRequest;
+import com.attica.athens.global.auth.dto.request.CreateRefreshTokenRequest;
 import com.attica.athens.global.auth.exception.JwtExpiredException;
 import com.attica.athens.global.auth.exception.JwtIllegalArgumentException;
 import com.attica.athens.global.auth.exception.JwtSignatureException;
@@ -84,7 +84,8 @@ public class AuthService {
             throw new JwtExpiredException();
         }
 
-        refreshTokenRepository.existsByRefresh(refreshToken).orElseThrow(NotFoundRefreshTokenException::new);
+        refreshTokenRepository.existsByRefresh(refreshToken)
+                .orElseThrow(NotFoundRefreshTokenException::new);
 
         Long userId = Long.parseLong(jwtUtils.getUserId(refreshToken));
         String role = jwtUtils.getRole(refreshToken);

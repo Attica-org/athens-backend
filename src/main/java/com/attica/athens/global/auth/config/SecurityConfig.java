@@ -38,7 +38,6 @@ public class SecurityConfig {
             "/api/v1/user/**",
             "/api/v1/reissue",
             "/api/v1/temp-user/**"
-//            "/api/v1/agoras/**"
     };
 
     private final AuthenticationConfiguration authenticationConfiguration;
