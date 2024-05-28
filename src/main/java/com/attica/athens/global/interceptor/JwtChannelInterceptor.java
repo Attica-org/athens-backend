@@ -1,10 +1,9 @@
 package com.attica.athens.global.interceptor;
 
-import static com.attica.athens.global.security.jwt.JWTUtil.createAuthentication;
-import static com.attica.athens.global.security.jwt.JWTUtil.getId;
-import static com.attica.athens.global.security.jwt.JWTUtil.getRole;
-import static com.attica.athens.global.security.jwt.JWTUtil.isExpired;
+import static com.attica.athens.global.auth.jwt.Constants.AUTHORIZATION;
+import static com.attica.athens.global.auth.jwt.Constants.BEARER_;
 
+import com.attica.athens.global.auth.application.AuthService;
 import java.util.Optional;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
@@ -18,8 +17,11 @@ import org.springframework.stereotype.Component;
 @Component
 public class JwtChannelInterceptor implements ChannelInterceptor {
 
-    public static final String AUTHORIZATION = "Authorization";
-    public static final String BEARER_ = "Bearer ";
+    private final AuthService authService;
+
+    public JwtChannelInterceptor(AuthService authService) {
+        this.authService = authService;
+    }
 
     @Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
@@ -34,13 +36,10 @@ public class JwtChannelInterceptor implements ChannelInterceptor {
         String jwtToken = jwtTokenOptional
                 .filter(token -> token.startsWith(BEARER_))
                 .map(token -> token.substring(BEARER_.length()))
-                .filter(token -> !isExpired(token))
+                .filter(token -> !authService.validateToken(token))
                 .orElseThrow(() -> new RuntimeException("Invalid token"));
 
-        Long userId = getId(jwtToken);
-        String userRole = getRole(jwtToken);
-
-        Authentication authentication = createAuthentication(userId, userRole);
+        Authentication authentication = authService.createAuthenticationByToken(jwtToken);
         accessor.setUser(authentication);
 
         return message;

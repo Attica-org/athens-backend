@@ -1,4 +1,4 @@
-package com.attica.athens.global.security.userdetail;
+package com.attica.athens.global.auth;
 
 import com.attica.athens.domain.user.dao.UserRepository;
 import com.attica.athens.domain.user.domain.User;

@@ -1,10 +1,11 @@
-package com.attica.athens.global.config;
+package com.attica.athens.global.auth.config;
 
-import com.attica.athens.global.security.refresh.dao.RefreshRepository;
-import com.attica.athens.global.security.filter.CustomLogoutFilter;
-import com.attica.athens.global.security.jwt.JWTFilter;
-import com.attica.athens.global.security.jwt.JWTUtil;
-import com.attica.athens.global.security.filter.LoginFilter;
+import com.attica.athens.global.auth.application.AuthService;
+import com.attica.athens.global.auth.dao.RefreshTokenRepository;
+import com.attica.athens.global.auth.filter.CustomLogoutFilter;
+import com.attica.athens.global.auth.filter.JwtAuthenticationEntryPoint;
+import com.attica.athens.global.auth.filter.JwtFilter;
+import com.attica.athens.global.auth.filter.LoginFilter;
 import java.util.Arrays;
 import java.util.Collections;
 import lombok.RequiredArgsConstructor;
@@ -36,13 +37,13 @@ public class SecurityConfig {
             "/login",
             "/api/v1/user/**",
             "/api/v1/reissue",
-            "/api/v1/temp-user/**",
-            "/api/v1/agoras/**"
+            "/api/v1/temp-user/**"
     };
 
     private final AuthenticationConfiguration authenticationConfiguration;
-    private final JWTUtil jwtUtil;
-    private final RefreshRepository refreshRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
+    private final AuthService authService;
+    private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
     @Value("${cors.allowed-origins}")
     private String[] allowedOrigins;
@@ -58,6 +59,7 @@ public class SecurityConfig {
 
         return new BCryptPasswordEncoder();
     }
+
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -92,23 +94,24 @@ public class SecurityConfig {
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers(PUBLIC_URLS).permitAll()
                         .requestMatchers("/api/v1/test/**").hasRole("TEMP_USER")
-                        .anyRequest().permitAll()
+                        .anyRequest().authenticated()
                 );
 
         // LoginFilter 등록 (/login시 동작)
         http
-                .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), refreshRepository),
+                .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), authService),
                         UsernamePasswordAuthenticationFilter.class);
 
 //        // JWTFilter 등록 (모든 요청에 대해 동작)
         http
-                .addFilterBefore(new JWTFilter(), LoginFilter.class);
+                .addFilterBefore(new JwtFilter(authService), LoginFilter.class)
+                .exceptionHandling(handler -> handler.authenticationEntryPoint(jwtAuthenticationEntryPoint));
 
         // 세션 설정 (statelss하도록)
         http
                 .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         http
-                .addFilterBefore(new CustomLogoutFilter(jwtUtil, refreshRepository), LogoutFilter.class);
+                .addFilterBefore(new CustomLogoutFilter(authService, refreshTokenRepository), LogoutFilter.class);
 
         return http.build();
     }

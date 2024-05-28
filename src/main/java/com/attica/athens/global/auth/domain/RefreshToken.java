@@ -1,4 +1,4 @@
-package com.attica.athens.global.security.refresh.domain;
+package com.attica.athens.global.auth.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

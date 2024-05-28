@@ -1,7 +1,12 @@
-package com.attica.athens.global.security.filter;
+package com.attica.athens.global.auth.filter;
 
-import com.attica.athens.global.security.jwt.JWTUtil;
-import com.attica.athens.global.security.refresh.dao.RefreshRepository;
+import static com.attica.athens.global.auth.jwt.Constants.ACCESS_TOKEN;
+import static com.attica.athens.global.auth.jwt.Constants.REFRESH_TOKEN;
+
+import com.attica.athens.domain.common.advice.CustomException;
+import com.attica.athens.global.auth.application.AuthService;
+import com.attica.athens.global.auth.dao.RefreshTokenRepository;
+import com.attica.athens.global.auth.exception.NotFoundRefreshTokenException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
@@ -9,24 +14,19 @@ import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.web.filter.GenericFilterBean;
-
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.filter.GenericFilterBean;
 
-
+@RequiredArgsConstructor
 public class CustomLogoutFilter extends GenericFilterBean {
 
-    private final JWTUtil jwtUtil;
-    private final RefreshRepository refreshRepository;
-
-    public CustomLogoutFilter(JWTUtil jwtUtil, RefreshRepository refreshRepository) {
-        this.jwtUtil = jwtUtil;
-        this.refreshRepository = refreshRepository;
-    }
+    private final AuthService authService;
+    private final RefreshTokenRepository refreshTokenRepository;
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
@@ -54,29 +54,22 @@ public class CustomLogoutFilter extends GenericFilterBean {
 
         Map<String, String> cookieMap = getCookieMap(request);
 
-        String refresh = cookieMap.get("refresh");
-        String access = cookieMap.get("access");
+        String refresh = cookieMap.get(REFRESH_TOKEN);
+        String access = cookieMap.get(ACCESS_TOKEN);
 
-        if (refresh == null || access == null) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            return;
+        try {
+            if (!(authService.validateToken(refresh) && authService.validateToken(access))) {
+                return;
+            }
+            refreshTokenRepository.existsByRefresh(refresh).orElseThrow(NotFoundRefreshTokenException::new);
+        } catch (CustomException e) {
+            request.setAttribute("jwt exception", e);
         }
 
-        if (jwtUtil.isExpired(refresh) || jwtUtil.isExpired(access)) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            return;
-        }
+        refreshTokenRepository.deleteByRefresh(refresh);
 
-        Boolean isExist = refreshRepository.existsByRefresh(refresh);
-        if (!isExist) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            return;
-        }
-
-        refreshRepository.deleteByRefresh(refresh);
-
-        clearCookie(response, "refresh");
-        clearCookie(response, "access");
+        clearCookie(response, REFRESH_TOKEN);
+        clearCookie(response, ACCESS_TOKEN);
 
         response.setStatus(HttpServletResponse.SC_OK);
     }
