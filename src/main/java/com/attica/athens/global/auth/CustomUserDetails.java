@@ -1,4 +1,4 @@
-package com.attica.athens.global.security.userdetail;
+package com.attica.athens.global.auth;
 
 import java.util.ArrayList;
 import java.util.Collection;

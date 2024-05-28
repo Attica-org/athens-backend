@@ -15,7 +15,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.AccessLevel;
@@ -26,12 +25,12 @@ import lombok.ToString;
 @Getter
 @ToString(callSuper = true)
 @Table(
-    name = "agora",
-    indexes = {
-        @Index(name = "idx_agora_title", columnList = "title"),
-        @Index(name = "idx_agora_created_at", columnList = "createdAt"),
-        @Index(name = "idx_agora_created_by", columnList = "createdBy")
-})
+        name = "agora",
+        indexes = {
+                @Index(name = "idx_agora_title", columnList = "title"),
+                @Index(name = "idx_agora_created_at", columnList = "createdAt"),
+                @Index(name = "idx_agora_created_by", columnList = "createdBy")
+        })
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Agora extends AuditingFields {

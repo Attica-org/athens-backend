@@ -1,36 +1,41 @@
-package com.attica.athens.global.security.filter;
+package com.attica.athens.global.auth.filter;
 
-import static com.attica.athens.global.security.jwt.JWTUtil.createJwt;
+import static com.attica.athens.global.auth.jwt.Constants.ACCESS_TOKEN;
+import static com.attica.athens.global.auth.jwt.Constants.COOKIE_EXPIRATION_TIME;
+import static com.attica.athens.global.auth.jwt.Constants.COOKIE_NAME;
+import static com.attica.athens.global.auth.jwt.Constants.REFRESH_TOKEN;
 
-import com.attica.athens.global.security.userdetail.CustomUserDetails;
-import com.attica.athens.global.security.refresh.dao.RefreshRepository;
-import com.attica.athens.global.security.refresh.domain.RefreshToken;
-import com.attica.athens.global.security.refresh.dto.CreateRefreshTokenRequest;
+import com.attica.athens.domain.common.ApiResponse;
+import com.attica.athens.domain.common.ApiUtil;
+import com.attica.athens.global.auth.CustomUserDetails;
+import com.attica.athens.global.auth.application.AuthService;
+import com.attica.athens.global.auth.dto.response.CreateAccessTokenResponse;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.Collection;
-import java.util.Date;
 import java.util.Iterator;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-@RequiredArgsConstructor
 public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
-    private static final long ACCESS_TOKEN_EXPIRATION_TIME = 600000L;
-    private static final long REFRESH_TOKEN_EXPIRATION_TIME = 86400000L;
-    private static final int COOKIE_EXPIRATION_TIME = 24 * 60 * 60;
-
     private final AuthenticationManager authenticationManager;
-    private final RefreshRepository refreshRepository;
+    private final AuthService authService;
+
+    public LoginFilter(AuthenticationManager authenticationManager, AuthService authService) {
+        this.authenticationManager = authenticationManager;
+        this.authService = authService;
+    }
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
@@ -46,38 +51,26 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     }
 
     @Override
-    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
-                                            Authentication authentication) {
+    protected void successfulAuthentication(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            FilterChain chain,
+            Authentication authentication
+    ) {
 
         CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
-
-        Long userId = customUserDetails.getUserId();
-
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
         GrantedAuthority auth = iterator.next();
+
+        long userId = customUserDetails.getUserId();
         String role = auth.getAuthority();
 
-        String access = createJwt("access", userId, role, ACCESS_TOKEN_EXPIRATION_TIME);
-        String refresh = createJwt("refresh", userId, role, REFRESH_TOKEN_EXPIRATION_TIME);
+        createAccessToken(response, userId, role);
+        String refreshToken = authService.createJwtToken(REFRESH_TOKEN, userId, role);
+        response.addCookie(createCookie(COOKIE_NAME, refreshToken));
 
-        createRefreshEntity(new CreateRefreshTokenRequest(userId, refresh, REFRESH_TOKEN_EXPIRATION_TIME));
-
-        response.addCookie(createCookie("access", access));
-        response.addCookie(createCookie("refresh", refresh));
-        response.setStatus(HttpStatus.OK.value());
-    }
-
-    private void createRefreshEntity(CreateRefreshTokenRequest createRefreshTokenRequest) {
-
-        Long userId = createRefreshTokenRequest.userId();
-        String refresh = createRefreshTokenRequest.refresh();
-
-        Date date = new Date(System.currentTimeMillis() + REFRESH_TOKEN_EXPIRATION_TIME);
-
-        RefreshToken refreshEntity = RefreshToken.createRefreshToken(userId, refresh, date);
-
-        refreshRepository.save(refreshEntity);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 
     @Override
@@ -85,6 +78,18 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
                                               AuthenticationException failed) {
 
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
+    }
+
+    private void createAccessToken(HttpServletResponse response, long userId, String role) {
+
+        String accessToken = authService.createJwtToken(ACCESS_TOKEN, userId, role);
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            ApiResponse result = ApiUtil.success(new CreateAccessTokenResponse(accessToken));
+            response.getWriter().write(objectMapper.writeValueAsString(result));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private Cookie createCookie(String key, String value) {
