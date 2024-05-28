@@ -27,7 +27,8 @@ public class AgoraService {
         this.categoryRepository = categoryRepository;
     }
 
-    public AgoraSlice<SimpleAgoraResult> findAgoraByKeyword(final String agoraName, final SearchKeywordRequest request) {
+    public AgoraSlice<SimpleAgoraResult> findAgoraByKeyword(final String agoraName,
+                                                            final SearchKeywordRequest request) {
         return agoraRepository.findAgoraByKeyword(request.next(), request.getStatus(), agoraName);
     }
 
@@ -46,10 +47,10 @@ public class AgoraService {
 
     private Agora createAgora(final AgoraCreateRequest request, final Category category) {
         return new Agora(request.title(),
-            request.capacity(),
-            request.duration(),
-            request.color(),
-            category);
+                request.capacity(),
+                request.duration(),
+                request.color(),
+                category);
     }
 
     private List<Long> findParentCategoryById(final Long categoryId) {
@@ -60,9 +61,9 @@ public class AgoraService {
         while (currentCategory != null) {
             parentCodes.add(currentCategory);
             currentCategory = categoryRepository.findById(currentCategory)
-                .map(Category::getParent)
-                .map(Category::getId)
-                .orElse(null);
+                    .map(Category::getParent)
+                    .map(Category::getId)
+                    .orElse(null);
         }
 
         return parentCodes;
@@ -70,6 +71,6 @@ public class AgoraService {
 
     private Category findByCategory(final Long categoryId) {
         return categoryRepository.findById(categoryId)
-            .orElseThrow(() -> new NotFoundCategoryException(categoryId));
+                .orElseThrow(() -> new NotFoundCategoryException(categoryId));
     }
 }

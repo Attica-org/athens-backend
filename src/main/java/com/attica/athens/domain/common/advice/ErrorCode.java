@@ -16,8 +16,7 @@ public enum ErrorCode {
     AUTHENTICATION_FAILED(1201, "인증 실패"),
     ACCESS_DENIED(1202, "리소스 접근에 대한 권한 부족"),
     RESOURCE_NOT_FOUND(1301, "존재하지 않는 리소스 접근 시도"),
-    INTERNAL_SERVER_ERROR(2000, "서버 내부 오류")
-    ;
+    INTERNAL_SERVER_ERROR(2000, "서버 내부 오류");
 
     private final int code;
     private final String description;
