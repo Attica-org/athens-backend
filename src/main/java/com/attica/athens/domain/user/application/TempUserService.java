@@ -2,8 +2,8 @@ package com.attica.athens.domain.user.application;
 
 import com.attica.athens.domain.user.dao.TempUserRepository;
 import com.attica.athens.domain.user.domain.TempUser;
-import com.attica.athens.domain.user.domain.UserRole;
-import com.attica.athens.global.security.JWTUtil;
+import com.attica.athens.global.auth.application.AuthService;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,15 +13,15 @@ import org.springframework.transaction.annotation.Transactional;
 public class TempUserService {
 
     private final TempUserRepository tempUserRepository;
-    private final JWTUtil jwtUtil;
+    private final AuthService authService;
 
     @Transactional
-    public String createTempUser() {
+    public String createTempUser(HttpServletResponse response) {
 
         TempUser tempUser = TempUser.createTempUser();
 
         tempUserRepository.save(tempUser);
 
-        return jwtUtil.createJwt(tempUser.getUuid().toString(), UserRole.ROLE_TEMP_USER.name());
+        return authService.createRefreshTokenAndGetAccessToken(tempUser.getId(), tempUser.getRole().name(), response);
     }
 }

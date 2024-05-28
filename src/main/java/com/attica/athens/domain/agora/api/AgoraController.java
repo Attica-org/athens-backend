@@ -5,7 +5,6 @@ import com.attica.athens.domain.agora.dto.SimpleAgoraResult;
 import com.attica.athens.domain.agora.dto.request.AgoraCreateRequest;
 import com.attica.athens.domain.agora.dto.request.SearchCategoryRequest;
 import com.attica.athens.domain.agora.dto.request.SearchKeywordRequest;
-import com.attica.athens.domain.agora.dto.response.AgoraResponse;
 import com.attica.athens.domain.agora.dto.response.AgoraSlice;
 import com.attica.athens.domain.agora.dto.response.CreateAgoraResponse;
 import com.attica.athens.domain.common.ApiResponse;
@@ -31,35 +30,29 @@ public class AgoraController {
 
     @PostMapping
     public ResponseEntity<ApiResponse<?>> createAgora(
-        @RequestBody @Valid AgoraCreateRequest request
+            @RequestBody @Valid AgoraCreateRequest request
     ) {
-        CreateAgoraResponse result = agoraService.create(request);
-
-        AgoraResponse<CreateAgoraResponse> response = new AgoraResponse<>(result);
+        CreateAgoraResponse response = agoraService.create(request);
 
         return ResponseEntity.ok(ApiUtil.success(response));
     }
 
     @GetMapping(params = {"status", "category", "next"})
     public ResponseEntity<ApiResponse<?>> getAgoraByCategory(
-        @Valid SearchCategoryRequest request
+            @Valid SearchCategoryRequest request
     ) {
-        AgoraSlice<SimpleAgoraResult> result = agoraService.findAgoraByCategory(request);
-
-        AgoraResponse<AgoraSlice<SimpleAgoraResult>> response = new AgoraResponse<>(result);
+        AgoraSlice<SimpleAgoraResult> response = agoraService.findAgoraByCategory(request);
 
         return ResponseEntity.ok(ApiUtil.success(response));
     }
 
     @GetMapping(params = {"agora_name", "status", "next"})
     public ResponseEntity<ApiResponse<?>> getAgoraByKeyword(
-        @RequestParam("agora_name") String agoraName,
-        @Valid SearchKeywordRequest request
+            @RequestParam("agora_name") String agoraName,
+            @Valid SearchKeywordRequest request
     ) {
-        AgoraSlice<SimpleAgoraResult> result =
-            agoraService.findAgoraByKeyword(agoraName, new SearchKeywordRequest(request.status(), request.next()));
-
-        AgoraResponse<AgoraSlice<SimpleAgoraResult>> response = new AgoraResponse<>(result);
+        AgoraSlice<SimpleAgoraResult> response =
+                agoraService.findAgoraByKeyword(agoraName, new SearchKeywordRequest(request.status(), request.next()));
 
         return ResponseEntity.ok(ApiUtil.success(response));
     }

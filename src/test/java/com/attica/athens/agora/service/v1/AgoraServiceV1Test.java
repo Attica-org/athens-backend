@@ -1,4 +1,4 @@
-//package com.attica.athens.agora.service.v1;
+package com.attica.athens.agora.service.v1;//package com.attica.athens.agora.service.v1;
 //
 //import static org.assertj.core.api.Assertions.assertThat;
 //

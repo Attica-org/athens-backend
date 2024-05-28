@@ -1,62 +1,47 @@
 package com.attica.athens.global.interceptor;
 
-import com.attica.athens.global.security.JWTUtil;
-import io.jsonwebtoken.ExpiredJwtException;
-import java.util.Map;
-import lombok.RequiredArgsConstructor;
+import static com.attica.athens.global.auth.jwt.Constants.AUTHORIZATION;
+import static com.attica.athens.global.auth.jwt.Constants.BEARER_;
+
+import com.attica.athens.global.auth.application.AuthService;
+import java.util.Optional;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
+import org.springframework.messaging.support.MessageHeaderAccessor;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
 @Component
-@RequiredArgsConstructor
 public class JwtChannelInterceptor implements ChannelInterceptor {
 
-    public static final String AUTHORIZATION = "Authorization";
-    public static final String BEARER_ = "Bearer ";
+    private final AuthService authService;
 
-    private final JWTUtil jwtUtil;
+    public JwtChannelInterceptor(AuthService authService) {
+        this.authService = authService;
+    }
 
     @Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
 
-        StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
+        StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
 
         if (!StompCommand.CONNECT.equals(accessor.getCommand())) {
-            checkUserIdAndRoleInSessionAttributes(accessor);
             return message;
         }
 
-        String jwtToken = accessor.getFirstNativeHeader(AUTHORIZATION);
+        Optional<String> jwtTokenOptional = Optional.ofNullable(accessor.getFirstNativeHeader(AUTHORIZATION));
+        String jwtToken = jwtTokenOptional
+                .filter(token -> token.startsWith(BEARER_))
+                .map(token -> token.substring(BEARER_.length()))
+                .filter(token -> !authService.validateToken(token))
+                .orElseThrow(() -> new RuntimeException("Invalid token"));
 
-        if (jwtToken == null || !jwtToken.startsWith(BEARER_)) {
-            throw new RuntimeException("Invalid token");
-        }
-
-        jwtToken = jwtToken.substring(BEARER_.length());
-
-        if (jwtUtil.isExpired(jwtToken)) {
-            throw new ExpiredJwtException(null, null, "Token has expired");
-        }
-
-        String userId = jwtUtil.getId(jwtToken);
-        String userRole = jwtUtil.getRole(jwtToken);
-
-        accessor.getSessionAttributes().put("userId", userId);
-        accessor.getSessionAttributes().put("userRole", userRole);
+        Authentication authentication = authService.createAuthenticationByToken(jwtToken);
+        accessor.setUser(authentication);
 
         return message;
-    }
-
-    private void checkUserIdAndRoleInSessionAttributes(StompHeaderAccessor accessor) {
-        Map<String, Object> sessionAttributes = accessor.getSessionAttributes();
-        if (sessionAttributes == null ||
-                !sessionAttributes.containsKey("userId") ||
-                !sessionAttributes.containsKey("userRole")) {
-            throw new IllegalStateException("Session attributes : userId or userRole is missing");
-        }
     }
 }

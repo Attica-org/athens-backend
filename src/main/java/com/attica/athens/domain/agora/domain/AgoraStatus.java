@@ -8,8 +8,7 @@ import lombok.RequiredArgsConstructor;
 public enum AgoraStatus {
     QUEUED("active"),
     RUNNING("active"),
-    CLOSED("closed")
-    ;
+    CLOSED("closed");
 
     private final String type;
 }

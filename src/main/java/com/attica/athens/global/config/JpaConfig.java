@@ -1,7 +1,5 @@
 package com.attica.athens.global.config;
 
-import com.attica.athens.global.security.CustomUserDetails;
-import com.attica.athens.global.utils.WebSocketUtils;
 import java.util.Optional;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -9,6 +7,7 @@ import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 
 @EnableJpaAuditing
 @Configuration
@@ -16,8 +15,7 @@ public class JpaConfig {
 
     @Bean
     public AuditorAware<String> auditorAware() {
-        return () -> getWebSocketUserId()
-                .or(this::getPrinciple);
+        return this::getPrinciple;
     }
 
     private Optional<String> getPrinciple() {
@@ -28,16 +26,10 @@ public class JpaConfig {
         }
 
         Object principal = authentication.getPrincipal();
-        if (principal instanceof CustomUserDetails) {
-            return Optional.of(((CustomUserDetails) principal).getUsername());
+        if (principal instanceof UserDetails) {
+            return Optional.of(((UserDetails) principal).getUsername());
         }
 
         return Optional.of(principal.toString());
-    }
-
-    private Optional<String> getWebSocketUserId() {
-
-        return Optional.ofNullable(WebSocketUtils.getSessionAttributes())
-                .map(sessionAttributes -> (String) sessionAttributes.get("userId"));
     }
 }

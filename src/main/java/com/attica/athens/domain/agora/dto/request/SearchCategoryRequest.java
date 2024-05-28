@@ -7,16 +7,16 @@ import java.util.Arrays;
 import java.util.List;
 
 public record SearchCategoryRequest(
-    @Pattern(regexp = "^(active|closed)$", message = "허용되지 않는 Status 입니다.")
-    String status,
-    @NotNull
-    Long category,
-    Long next
+        @Pattern(regexp = "^(active|closed)$", message = "허용되지 않는 Status 입니다.")
+        String status,
+        @NotNull
+        Long category,
+        Long next
 ) {
 
     public List<AgoraStatus> getStatus() {
         return Arrays.stream(AgoraStatus.values())
-            .filter(agoraStatus -> agoraStatus.getType().equals("active"))
-            .toList();
+                .filter(agoraStatus -> agoraStatus.getType().equals("active"))
+                .toList();
     }
 }

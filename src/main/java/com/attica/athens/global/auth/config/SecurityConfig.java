@@ -1,8 +1,11 @@
-package com.attica.athens.global.config;
+package com.attica.athens.global.auth.config;
 
-import com.attica.athens.global.security.JWTFilter;
-import com.attica.athens.global.security.JWTUtil;
-import com.attica.athens.global.security.LoginFilter;
+import com.attica.athens.global.auth.application.AuthService;
+import com.attica.athens.global.auth.dao.RefreshTokenRepository;
+import com.attica.athens.global.auth.filter.CustomLogoutFilter;
+import com.attica.athens.global.auth.filter.JwtAuthenticationEntryPoint;
+import com.attica.athens.global.auth.filter.JwtFilter;
+import com.attica.athens.global.auth.filter.LoginFilter;
 import java.util.Arrays;
 import java.util.Collections;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +21,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.web.cors.CorsConfiguration;
 
 @Configuration
@@ -32,11 +36,14 @@ public class SecurityConfig {
             "/ws/**",
             "/login",
             "/api/v1/user/**",
+            "/api/v1/reissue",
             "/api/v1/temp-user/**"
     };
 
     private final AuthenticationConfiguration authenticationConfiguration;
-    private final JWTUtil jwtUtil;
+    private final RefreshTokenRepository refreshTokenRepository;
+    private final AuthService authService;
+    private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
     @Value("${cors.allowed-origins}")
     private String[] allowedOrigins;
@@ -87,21 +94,24 @@ public class SecurityConfig {
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers(PUBLIC_URLS).permitAll()
                         .requestMatchers("/api/v1/test/**").hasRole("TEMP_USER")
-                        .anyRequest().permitAll()
+                        .anyRequest().authenticated()
                 );
 
         // LoginFilter 등록 (/login시 동작)
         http
-                .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil),
+                .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), authService),
                         UsernamePasswordAuthenticationFilter.class);
 
 //        // JWTFilter 등록 (모든 요청에 대해 동작)
         http
-                .addFilterBefore(new JWTFilter(jwtUtil), LoginFilter.class);
+                .addFilterBefore(new JwtFilter(authService), LoginFilter.class)
+                .exceptionHandling(handler -> handler.authenticationEntryPoint(jwtAuthenticationEntryPoint));
 
         // 세션 설정 (statelss하도록)
         http
                 .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+        http
+                .addFilterBefore(new CustomLogoutFilter(authService, refreshTokenRepository), LogoutFilter.class);
 
         return http.build();
     }

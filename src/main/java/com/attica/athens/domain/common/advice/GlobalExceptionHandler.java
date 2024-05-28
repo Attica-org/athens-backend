@@ -1,6 +1,5 @@
 package com.attica.athens.domain.common.advice;
 
-import com.attica.athens.domain.common.ApiResponse;
 import com.attica.athens.domain.common.ApiUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -25,20 +24,20 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(CustomException.class)
     public ResponseEntity<?> handleCustomException(
-        CustomException exception
+            CustomException exception
     ) {
         ErrorResponse response = new ErrorResponse(
-            exception.getErrorCode(),
-            exception.getMessage()
+                exception.getErrorCode(),
+                exception.getMessage()
         );
 
         return ResponseEntity.status(exception.getHttpStatus())
-            .body(ApiUtil.failure(response));
+                .body(ApiUtil.failure(response));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<?> handleMethodArgumentValidException(
-        MethodArgumentNotValidException exception
+            MethodArgumentNotValidException exception
     ) throws JsonProcessingException {
         BindingResult br = exception.getBindingResult();
         Map<String, String> map = new HashMap<>();
@@ -49,24 +48,25 @@ public class GlobalExceptionHandler {
         String message = objectMapper.writeValueAsString(map);
 
         ErrorResponse response = new ErrorResponse(
-            ErrorCode.VALIDATION_FAILED.getCode(),
-            message
+                ErrorCode.VALIDATION_FAILED.getCode(),
+                message
         );
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-            .body(ApiUtil.failure(response));
+                .body(ApiUtil.failure(response));
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
     ResponseEntity<?> handleIllegalArgumentException(
-        IllegalArgumentException exception
+            IllegalArgumentException exception
     ) {
         ErrorResponse response = new ErrorResponse(
-            ErrorCode.WRONG_REQUEST_TRANSMISSION.getCode(),
-            exception.getMessage()
+                ErrorCode.WRONG_REQUEST_TRANSMISSION.getCode(),
+                exception.getMessage()
         );
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-            .body(ApiUtil.failure(response));
+                .body(ApiUtil.failure(response));
     }
+
 }
