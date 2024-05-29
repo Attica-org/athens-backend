@@ -1,7 +1,7 @@
 package com.attica.athens.global.auth.filter;
 
-import static com.attica.athens.global.auth.jwt.Constants.ACCESS_TOKEN;
-import static com.attica.athens.global.auth.jwt.Constants.REFRESH_TOKEN;
+import static com.attica.athens.global.auth.jwt.Constants.COOKIE_NAME;
+import static com.attica.athens.global.auth.jwt.Constants.REQUEST_ATTRIBUTE_NAME;
 
 import com.attica.athens.domain.common.advice.CustomException;
 import com.attica.athens.global.auth.application.AuthService;
@@ -16,9 +16,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.filter.GenericFilterBean;
 
@@ -52,32 +50,32 @@ public class CustomLogoutFilter extends GenericFilterBean {
             return;
         }
 
-        Map<String, String> cookieMap = getCookieMap(request);
-
-        String refresh = cookieMap.get(REFRESH_TOKEN);
-        String access = cookieMap.get(ACCESS_TOKEN);
+        String refreshToken = getRefreshToken(request);
 
         try {
-            if (!(authService.validateToken(refresh) && authService.validateToken(access))) {
+            if (!(authService.validateToken(refreshToken))) {
                 return;
             }
-            refreshTokenRepository.existsByRefresh(refresh).orElseThrow(NotFoundRefreshTokenException::new);
+            refreshTokenRepository.existsByRefresh(refreshToken).orElseThrow(NotFoundRefreshTokenException::new);
         } catch (CustomException e) {
-            request.setAttribute("jwt exception", e);
+            request.setAttribute(REQUEST_ATTRIBUTE_NAME, e);
         }
 
-        refreshTokenRepository.deleteByRefresh(refresh);
+        refreshTokenRepository.deleteByRefresh(refreshToken);
 
-        clearCookie(response, REFRESH_TOKEN);
-        clearCookie(response, ACCESS_TOKEN);
+        clearCookie(response, COOKIE_NAME);
 
         response.setStatus(HttpServletResponse.SC_OK);
     }
 
-    private static Map<String, String> getCookieMap(HttpServletRequest request) {
-        return Optional.ofNullable(request.getCookies()).stream().flatMap(Arrays::stream)
-                .filter(cookie -> "refresh".equals(cookie.getName()) || "access".equals(cookie.getName()))
-                .collect(Collectors.toMap(Cookie::getName, Cookie::getValue));
+    private String getRefreshToken(HttpServletRequest request) {
+
+        return Optional.ofNullable(request.getCookies())
+                .flatMap(cookies -> Arrays.stream(cookies)
+                        .filter(cookie -> COOKIE_NAME.equals(cookie.getName()))
+                        .findFirst()
+                        .map(Cookie::getValue))
+                .orElseThrow(NotFoundRefreshTokenException::new);
     }
 
     private void clearCookie(HttpServletResponse response, String cookieName) {
