@@ -7,8 +7,10 @@ import com.attica.athens.domain.agora.domain.AgoraStatus;
 import com.attica.athens.domain.agora.domain.Category;
 import com.attica.athens.domain.agora.dto.SimpleAgoraResult;
 import com.attica.athens.domain.agora.dto.request.AgoraCreateRequest;
+import com.attica.athens.domain.agora.dto.request.AgoraParticipateRequest;
 import com.attica.athens.domain.agora.dto.request.SearchCategoryRequest;
 import com.attica.athens.domain.agora.dto.request.SearchKeywordRequest;
+import com.attica.athens.domain.agora.dto.response.AgoraParticipateResponse;
 import com.attica.athens.domain.agora.dto.response.AgoraSlice;
 import com.attica.athens.domain.agora.dto.response.CreateAgoraResponse;
 import com.attica.athens.domain.agora.dto.response.EndVoteAgoraResponse;
@@ -18,6 +20,8 @@ import com.attica.athens.domain.agora.exception.NotFoundAgoraException;
 import com.attica.athens.domain.agora.exception.NotFoundCategoryException;
 import com.attica.athens.domain.agoraUser.dao.AgoraUserRepository;
 import com.attica.athens.domain.agoraUser.domain.AgoraUser;
+import com.attica.athens.domain.user.dao.UserRepository;
+import com.attica.athens.domain.user.domain.User;
 import com.attica.athens.domain.agoraUser.exception.AlreadyVotedException;
 import com.attica.athens.domain.agoraUser.exception.NotFoundAgoraUserException;
 import java.util.ArrayList;
@@ -32,6 +36,7 @@ public class AgoraService {
 
     private final AgoraRepository agoraRepository;
     private final CategoryRepository categoryRepository;
+    private final UserRepository userRepository;
     private final AgoraUserRepository agoraUserRepository;
 
     public AgoraSlice<SimpleAgoraResult> findAgoraByKeyword(final String agoraName,
@@ -52,12 +57,37 @@ public class AgoraService {
         return new CreateAgoraResponse(created.getId());
     }
 
+    public AgoraParticipateResponse participate(final Long userId, final Long agoraId, final AgoraParticipateRequest request) {
+        Agora agora = findAgoraById(agoraId);
+        AgoraUser created = createAgoraUser(userId, agoraId, request);
+        AgoraUser agoraUser = agoraUserRepository.save(created);
+        agora.addUser(agoraUser);
+
+        String userUuid = agoraUser.getUuid();
+
+        return new AgoraParticipateResponse(created.getAgora().getId(), userUuid, created.getType());
+    }
+
     private Agora createAgora(final AgoraCreateRequest request, final Category category) {
         return new Agora(request.title(),
                 request.capacity(),
                 request.duration(),
                 request.color(),
                 category);
+    }
+
+    private AgoraUser createAgoraUser(final Long userId, final Long agoraId, final AgoraParticipateRequest request) {
+        return new AgoraUser(
+                request.getAgoraUserType(),
+                request.nickname(),
+                request.photoNum(),
+                findAgoraById(agoraId),
+                findUserById(userId)
+        );
+    }
+
+    private User findUserById(final Long userId) {
+        return userRepository.findById(userId).orElseThrow(() -> new NotFoundUserException(userId));
     }
 
     private List<Long> findParentCategoryById(final Long categoryId) {

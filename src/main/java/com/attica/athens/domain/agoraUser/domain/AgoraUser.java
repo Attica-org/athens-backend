@@ -57,6 +57,10 @@ public class AgoraUser extends AuditingFields {
         this.user = user;
     }
 
+    public String getUuid() {
+        return user.getUuid().toString();
+    }
+
     public void markEndVoted() {
         this.endVoted = true;
     }

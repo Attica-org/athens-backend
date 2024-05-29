@@ -87,6 +87,10 @@ public class Agora extends AuditingFields {
         this.category = category;
     }
 
+    public void addUser(AgoraUser user) {
+        this.agoraUsers.add(user);
+    }
+
     public void startAgora() {
         AgoraStatus expectedStatus = AgoraStatus.QUEUED;
 
