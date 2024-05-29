@@ -9,6 +9,7 @@ import com.attica.athens.domain.common.ApiResponse;
 import com.attica.athens.domain.common.ApiUtil;
 import com.attica.athens.global.auth.CustomUserDetails;
 import com.attica.athens.global.auth.application.AuthService;
+import com.attica.athens.global.auth.dao.RefreshTokenRepository;
 import com.attica.athens.global.auth.dto.response.CreateAccessTokenResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
@@ -30,10 +31,13 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
     private final AuthenticationManager authenticationManager;
+    private final RefreshTokenRepository refreshTokenRepository;
     private final AuthService authService;
 
-    public LoginFilter(AuthenticationManager authenticationManager, AuthService authService) {
+    public LoginFilter(AuthenticationManager authenticationManager, RefreshTokenRepository refreshTokenRepository,
+                       AuthService authService) {
         this.authenticationManager = authenticationManager;
+        this.refreshTokenRepository = refreshTokenRepository;
         this.authService = authService;
     }
 
@@ -69,6 +73,8 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         createAccessToken(response, userId, role);
         String refreshToken = authService.createJwtToken(REFRESH_TOKEN, userId, role);
         response.addCookie(createCookie(COOKIE_NAME, refreshToken));
+
+        authService.createRefreshTokenAndGetAccessToken(userId, role, response);
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
     }

@@ -1,16 +1,32 @@
-name: 
+name: Athens-CD
+
 on:
   push:
     branches:
       - "main"
-     
+
 jobs:
   server-deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-        
+
+      - name: Add file
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.AWS_IP }}
+          username: ubuntu
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: ${{ secrets.SOURCE_FILE }}
+          target: ${{ secrets.TARGET_PATH }}
+
+      - name: Login Docker Hub
+        uses: docker/login-action@v3.0.0
+        with:
+          username: ${{ secrets.DOCKER_ID }}
+          password: ${{ secrets.DOCKER_PASSWD }}
+
       - name: Deploy using docker-compose
         uses: appleboy/ssh-action@master
         with:
@@ -18,7 +34,6 @@ jobs:
           username: ubuntu
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            cd ~/athens-backend
-            sudo git pull
+            sudo docker pull ${{ secrets.DOCKER_N }}/${{ secrets.DOCKER_R }}
             sudo docker-compose down
             sudo docker-compose up --build -d
