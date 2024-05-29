@@ -2,7 +2,8 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.2.5'
     id 'io.spring.dependency-management' version '1.1.4'
-    //id 'checkstyle'
+    id 'com.google.cloud.tools.jib' version '3.4.2'
+    // id 'checkstyle'
 }
 
 group = 'com.attica'
@@ -50,6 +51,29 @@ dependencies {
 
 tasks.named('test') {
     useJUnitPlatform()
+}
+
+tasks.bootJar {
+    enabled = false
+}
+
+tasks.jar {
+    enabled = true
+}
+
+jib {
+    from {
+        image = "eclipse-temurin:17-jdk"
+    }
+    to {
+        image = System.getProperty('jib.to.image')
+        tags = ["latest"]
+    }
+    container {
+        creationTime = "USE_CURRENT_TIMESTAMP"
+        jvmFlags = ["-Dspring.profiles.active=prod" ]
+        setAllowInsecureRegistries(true)
+    }
 }
 
 //compileJava.options.encoding = 'UTF-8'
