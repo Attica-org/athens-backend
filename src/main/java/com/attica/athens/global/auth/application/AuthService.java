@@ -80,12 +80,7 @@ public class AuthService {
 
         String refreshToken = getRefreshToken(request);
 
-        if (jwtUtils.isExpired(refreshToken)) {
-            throw new JwtExpiredException();
-        }
-
-        refreshTokenRepository.existsByRefresh(refreshToken)
-                .orElseThrow(NotFoundRefreshTokenException::new);
+        validateToken(refreshToken);
 
         Long userId = Long.parseLong(jwtUtils.getUserId(refreshToken));
         String role = jwtUtils.getRole(refreshToken);
@@ -111,6 +106,7 @@ public class AuthService {
     }
 
     private String getRefreshToken(HttpServletRequest request) {
+
         return Optional.ofNullable(request.getCookies())
                 .flatMap(cookies -> Arrays.stream(cookies)
                         .filter(cookie -> COOKIE_NAME.equals(cookie.getName()))
