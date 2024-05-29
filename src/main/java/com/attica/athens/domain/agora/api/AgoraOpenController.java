@@ -11,7 +11,10 @@ import com.attica.athens.domain.common.ApiResponse;
 import com.attica.athens.domain.common.ApiUtil;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -37,6 +40,18 @@ public class AgoraOpenController {
         return ResponseEntity.ok(ApiUtil.success(response));
     }
 
+    @PostMapping("/{agora-id}/participants")
+    public ResponseEntity<ApiResponse<?>> participateAgora(
+            @AuthenticationPrincipal UserDetails user,
+            @PathVariable("agora-id") Long agoraId,
+            @RequestBody @Valid AgoraParticipateRequest request
+    ) {
+        Long userId = Long.parseLong(user.getUsername());
+        AgoraParticipateResponse response = agoraService.participate(userId, agoraId, request);
+
+        return ResponseEntity.ok(ApiUtil.success(response));
+    }
+
     @GetMapping(params = {"status", "category", "next"})
     public ResponseEntity<ApiResponse<?>> getAgoraByCategory(
             @Valid SearchCategoryRequest request
@@ -46,9 +61,9 @@ public class AgoraOpenController {
         return ResponseEntity.ok(ApiUtil.success(response));
     }
 
-    @GetMapping(params = {"agora-name", "status", "next"})
+    @GetMapping(params = {"agora_name", "status", "next"})
     public ResponseEntity<ApiResponse<?>> getAgoraByKeyword(
-            @RequestParam String agoraName,
+            @RequestParam("agora_name") String agoraName,
             @Valid SearchKeywordRequest request
     ) {
         AgoraSlice<SimpleAgoraResult> response =
