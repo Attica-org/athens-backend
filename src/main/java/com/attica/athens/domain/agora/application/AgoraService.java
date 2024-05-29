@@ -13,15 +13,16 @@ import com.attica.athens.domain.agora.dto.request.SearchKeywordRequest;
 import com.attica.athens.domain.agora.dto.response.AgoraParticipateResponse;
 import com.attica.athens.domain.agora.dto.response.AgoraSlice;
 import com.attica.athens.domain.agora.dto.response.CreateAgoraResponse;
+import com.attica.athens.domain.agora.exception.NotFoundAgoraException;
 import com.attica.athens.domain.agora.dto.response.EndVoteAgoraResponse;
 import com.attica.athens.domain.agora.dto.response.StartAgoraResponse;
 import com.attica.athens.domain.agora.exception.InvalidAgoraStatusChangeException;
-import com.attica.athens.domain.agora.exception.NotFoundAgoraException;
 import com.attica.athens.domain.agora.exception.NotFoundCategoryException;
 import com.attica.athens.domain.agoraUser.dao.AgoraUserRepository;
 import com.attica.athens.domain.agoraUser.domain.AgoraUser;
 import com.attica.athens.domain.user.dao.UserRepository;
 import com.attica.athens.domain.user.domain.User;
+import com.attica.athens.domain.user.exception.NotFoundUserException;
 import com.attica.athens.domain.agoraUser.exception.AlreadyVotedException;
 import com.attica.athens.domain.agoraUser.exception.NotFoundAgoraUserException;
 import java.util.ArrayList;
@@ -57,6 +58,7 @@ public class AgoraService {
         return new CreateAgoraResponse(created.getId());
     }
 
+    @Transactional
     public AgoraParticipateResponse participate(final Long userId, final Long agoraId, final AgoraParticipateRequest request) {
         Agora agora = findAgoraById(agoraId);
         AgoraUser created = createAgoraUser(userId, agoraId, request);
