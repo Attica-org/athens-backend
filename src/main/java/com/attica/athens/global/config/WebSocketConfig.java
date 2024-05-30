@@ -51,6 +51,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         registry.enableSimpleBroker(SIMPLE_BROKER)
                 .setTaskScheduler(taskScheduler())
                 .setHeartbeatValue(new long[]{SERVER_HEARTBEAT, CLIENT_HEARTBEAT});
+        registry.setPreservePublishOrder(true);
     }
 
     @Override
