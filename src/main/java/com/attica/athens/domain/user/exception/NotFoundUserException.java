@@ -10,7 +10,7 @@ public class NotFoundUserException extends CustomException {
         super(
                 HttpStatus.NOT_FOUND,
                 ErrorCode.RESOURCE_NOT_FOUND,
-                "Not found user. categoryId: " + userId
+                "Not found user. userId: " + userId
         );
     }
 }

@@ -91,6 +91,10 @@ public class Agora extends AuditingFields {
         this.agoraUsers.add(user);
     }
 
+    public boolean isFull() {
+        return this.capacity == this.agoraUsers.size();
+    }
+
     public void startAgora() {
         AgoraStatus expectedStatus = AgoraStatus.QUEUED;
 

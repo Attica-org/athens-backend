@@ -6,6 +6,7 @@ import com.attica.athens.domain.agora.dto.response.StartAgoraResponse;
 import com.attica.athens.domain.common.ApiResponse;
 import com.attica.athens.domain.common.ApiUtil;
 import com.attica.athens.global.auth.CustomUserDetails;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -15,13 +16,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/v1/auth/agoras")
+@RequiredArgsConstructor
 public class AgoraAuthController {
 
     private final AgoraService agoraService;
-
-    public AgoraAuthController(AgoraService agoraService) {
-        this.agoraService = agoraService;
-    }
 
     @PatchMapping("/{agora-id}/start")
     public ResponseEntity<ApiResponse<StartAgoraResponse>> startAgora(@PathVariable("agora-id") Long agoraId,

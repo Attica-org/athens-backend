@@ -1,5 +1,6 @@
 package com.attica.athens.domain.agora.application;
 
+import com.attica.athens.domain.agora.exception.FullAgoraCapacityException;
 import com.attica.athens.domain.agora.dao.AgoraRepository;
 import com.attica.athens.domain.agora.dao.CategoryRepository;
 import com.attica.athens.domain.agora.domain.Agora;
@@ -40,6 +41,14 @@ public class AgoraService {
     private final UserRepository userRepository;
     private final AgoraUserRepository agoraUserRepository;
 
+    @Transactional
+    public CreateAgoraResponse create(final AgoraCreateRequest request) {
+        Category category = findByCategory(request.categoryId());
+        Agora created = agoraRepository.save(createAgora(request, category));
+
+        return new CreateAgoraResponse(created.getId());
+    }
+
     public AgoraSlice<SimpleAgoraResult> findAgoraByKeyword(final String agoraName,
                                                             final SearchKeywordRequest request) {
         return agoraRepository.findAgoraByKeyword(request.next(), request.getStatus(), agoraName);
@@ -52,16 +61,11 @@ public class AgoraService {
     }
 
     @Transactional
-    public CreateAgoraResponse create(final AgoraCreateRequest request) {
-        Category category = findByCategory(request.categoryId());
-        Agora created = agoraRepository.save(createAgora(request, category));
-
-        return new CreateAgoraResponse(created.getId());
-    }
-
-    @Transactional
     public AgoraParticipateResponse participate(final Long userId, final Long agoraId, final AgoraParticipateRequest request) {
         Agora agora = findAgoraById(agoraId);
+        if (agora.isFull()) {
+            throw new FullAgoraCapacityException(agora.getId());
+        }
 
         AgoraUser created = createAgoraUser(userId, agoraId, request);
         AgoraUser agoraUser = agoraUserRepository.save(created);
