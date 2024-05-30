@@ -19,7 +19,8 @@ import org.springframework.web.socket.config.annotation.WebSocketTransportRegist
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     private static final String ENDPOINT = "/ws";
-    private static final String SIMPLE_BROKER = "/topic";
+    private static final String TOPIC = "/topic";
+    private static final String QUEUE = "/queue";
     private static final String PUBLISH = "/app";
     public static final int POOL_SIZE = 10;
     public static final int SERVER_HEARTBEAT = 10000;
@@ -48,7 +49,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
         registry.setApplicationDestinationPrefixes(PUBLISH);
-        registry.enableSimpleBroker(SIMPLE_BROKER)
+        registry.enableSimpleBroker(QUEUE, TOPIC)
                 .setTaskScheduler(taskScheduler())
                 .setHeartbeatValue(new long[]{SERVER_HEARTBEAT, CLIENT_HEARTBEAT});
         registry.setPreservePublishOrder(true);
