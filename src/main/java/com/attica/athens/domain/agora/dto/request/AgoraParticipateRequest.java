@@ -11,10 +11,10 @@ public record AgoraParticipateRequest(
     @NotNull
     Integer photoNum,
     @Pattern(regexp = "^(PROS|CONS|OBSERVER)$", message = "허용되지 않는 role 입니다.")
-    String role
+    String type
 ) {
 
     public AgoraUserType getAgoraUserType() {
-        return AgoraUserType.valueOf(role);
+        return AgoraUserType.valueOf(type);
     }
 }
