@@ -47,20 +47,22 @@ public class AgoraService {
 
     public AgoraSlice<SimpleAgoraResult> findAgoraByCategory(final SearchCategoryRequest request) {
         List<Long> categoryIds = findParentCategoryById(request.category());
+
         return agoraRepository.findAgoraByCategory(request.next(), request.getStatus(), categoryIds);
     }
 
     @Transactional
     public CreateAgoraResponse create(final AgoraCreateRequest request) {
         Category category = findByCategory(request.categoryId());
-
         Agora created = agoraRepository.save(createAgora(request, category));
+
         return new CreateAgoraResponse(created.getId());
     }
 
     @Transactional
     public AgoraParticipateResponse participate(final Long userId, final Long agoraId, final AgoraParticipateRequest request) {
         Agora agora = findAgoraById(agoraId);
+
         AgoraUser created = createAgoraUser(userId, agoraId, request);
         AgoraUser agoraUser = agoraUserRepository.save(created);
         agora.addUser(agoraUser);
