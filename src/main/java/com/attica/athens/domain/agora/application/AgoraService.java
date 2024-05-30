@@ -1,5 +1,6 @@
 package com.attica.athens.domain.agora.application;
 
+import com.attica.athens.domain.agora.exception.AlreadyParticipateException;
 import com.attica.athens.domain.agora.exception.FullAgoraCapacityException;
 import com.attica.athens.domain.agora.dao.AgoraRepository;
 import com.attica.athens.domain.agora.dao.CategoryRepository;
@@ -67,10 +68,15 @@ public class AgoraService {
             throw new FullAgoraCapacityException(agora.getId());
         }
 
+        agoraUserRepository.findByAgoraIdAndUserId(agora.getId(), userId)
+                .ifPresent(agoraUser -> {
+                    throw new AlreadyParticipateException(agora.getId(), userId);
+                }
+        );
+
         AgoraUser created = createAgoraUser(userId, agoraId, request);
         AgoraUser agoraUser = agoraUserRepository.save(created);
         agora.addUser(agoraUser);
-
         String userUuid = agoraUser.getUuid();
 
         return new AgoraParticipateResponse(created.getAgora().getId(), userUuid, created.getType());
