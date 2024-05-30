@@ -10,7 +10,7 @@ public class NotFoundAgoraException extends CustomException {
         super(
                 HttpStatus.NOT_FOUND,
                 ErrorCode.RESOURCE_NOT_FOUND,
-                "Agora not found with id: " + agoraId
+                "Not found agora. agoraId: " + agoraId
         );
     }
 }
