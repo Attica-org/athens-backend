@@ -25,8 +25,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1")
-public class ChatController {
+@RequestMapping("/api/v1/auth")
+public class ChatAuthController {
 
     private final ChatCommandService chatCommandService;
     private final ChatQueryService chatQueryService;
