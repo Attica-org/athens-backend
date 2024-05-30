@@ -13,11 +13,11 @@ public record SendMetaResponse(ChatType type, MetaData data) {
     }
 
     public record MetaData(
-            AgoraInfo agora,
-            List<ParticipantsInfo> participants
+            List<ParticipantsInfo> participants,
+            AgoraInfo agora
     ) {
-        public MetaData(Agora agora, List<ParticipantsInfo> participants) {
-            this(new AgoraInfo(agora), participants);
+        public MetaData(List<ParticipantsInfo> participants, Agora agora) {
+            this(participants, new AgoraInfo(agora));
         }
     }
 
