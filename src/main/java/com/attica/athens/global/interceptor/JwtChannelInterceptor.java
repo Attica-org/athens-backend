@@ -36,7 +36,7 @@ public class JwtChannelInterceptor implements ChannelInterceptor {
         String jwtToken = jwtTokenOptional
                 .filter(token -> token.startsWith(BEARER_))
                 .map(token -> token.substring(BEARER_.length()))
-                .filter(token -> !authService.validateToken(token))
+                .filter(authService::validateToken)
                 .orElseThrow(() -> new RuntimeException("Invalid token"));
 
         Authentication authentication = authService.createAuthenticationByToken(jwtToken);
