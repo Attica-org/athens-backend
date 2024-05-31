@@ -24,7 +24,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     private static final String PUBLISH = "/app";
     public static final int POOL_SIZE = 10;
     public static final int SERVER_HEARTBEAT = 10000;
-    public static final int CLIENT_HEARTBEAT = 2;
+    public static final int CLIENT_HEARTBEAT = 20000;
     public static final int TIME_LIMIT = 15 * 1000;
     public static final int SEND_BUFFER_SIZE_LIMIT = 512 * 1024;
     public static final int MESSAGE_SIZE_LIMIT = 128 * 1024;
