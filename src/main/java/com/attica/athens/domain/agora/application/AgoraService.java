@@ -92,7 +92,7 @@ public class AgoraService {
 
         agora.startAgora();
 
-        return StartAgoraResponse.createAgoraStartResponse(agora);
+        return new StartAgoraResponse(agora);
     }
 
     private boolean existsByAgoraIdAndUserId(Long agoraId, Long userId) {
@@ -116,7 +116,7 @@ public class AgoraService {
         int participantCount = agoraUserRepository.countByAgoraId(agoraId);
         agora.incrementEndVoteCountAndCheckTermination(participantCount);
 
-        return EndVoteAgoraResponse.createEndVoteAgoraResponse(agora);
+        return new EndVoteAgoraResponse(agora);
     }
 
     private void findAgoraUserAndMarkEndVoted(Long agoraId, Long userId) {

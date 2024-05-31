@@ -37,7 +37,7 @@ public class ChatCommandService {
 
         return new SendChatResponse(
                 chat.getType(),
-                SendChatData.createSendChatData(chat, agoraUser)
+                new SendChatData(chat, agoraUser)
         );
     }
 

@@ -15,7 +15,7 @@ public record GetChatResponse(List<ChatData> chats, Cursor meta) {
             LocalDateTime createdAt
     ) {
         public ChatData(Chat chat, AgoraUser agoraUser) {
-            this(chat.getId(), UserData.from(agoraUser), chat.getContent(),
+            this(chat.getId(), new UserData(agoraUser), chat.getContent(),
                     chat.getCreatedAt());
         }
     }

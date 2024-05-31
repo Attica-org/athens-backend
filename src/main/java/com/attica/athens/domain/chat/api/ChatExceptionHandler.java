@@ -19,7 +19,7 @@ public class ChatExceptionHandler {
     public ErrorResponse handleSocketException(SocketException exception) {
         log.warn(exception.getMessage());
 
-        return ErrorResponse.from(exception.getMessage(), "SOCKET_ERROR");
+        return new ErrorResponse(exception.getMessage(), "SOCKET_ERROR");
     }
 
     @MessageExceptionHandler
@@ -27,14 +27,14 @@ public class ChatExceptionHandler {
     public ErrorResponse handleIllegalArgumentException(IllegalArgumentException exception) {
         log.warn(exception.getMessage());
 
-        return ErrorResponse.from("ILLEGAL_ARGUMENT", exception.getMessage());
+        return new ErrorResponse("ILLEGAL_ARGUMENT", exception.getMessage());
     }
 
     @MessageExceptionHandler
     @SendToUser("/queue/errors")
     public ErrorResponse handleValidationE현xception(MethodArgumentNotValidException ex) {
 
-        return ErrorResponse.from(
+        return new ErrorResponse(
                 "VALIDATION_ERROR",
                 ex.getBindingResult()
                         .getAllErrors()

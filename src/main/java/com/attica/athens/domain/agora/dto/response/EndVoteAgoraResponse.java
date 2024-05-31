@@ -5,8 +5,7 @@ import com.attica.athens.domain.agora.domain.AgoraStatus;
 
 public record EndVoteAgoraResponse(Long agoraId, Integer endVoteCount, Boolean isClosed) {
 
-    public static EndVoteAgoraResponse createEndVoteAgoraResponse(Agora agora) {
-        return new EndVoteAgoraResponse(agora.getId(), agora.getEndVoteCount(),
-                agora.getStatus() == AgoraStatus.CLOSED);
+    public EndVoteAgoraResponse(Agora agora) {
+        this(agora.getId(), agora.getEndVoteCount(), agora.getStatus() == AgoraStatus.CLOSED);
     }
 }
