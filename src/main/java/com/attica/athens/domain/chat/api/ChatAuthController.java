@@ -73,34 +73,4 @@ public class ChatAuthController {
 
         return ResponseEntity.ok(ApiUtil.success(response));
     }
-
-    @MessageExceptionHandler
-    @SendToUser("/queue/errors")
-    public ErrorResponse handleException(SocketException exception) {
-        log.warn(exception.getMessage());
-
-        return ErrorResponse.from(exception.getMessage(), "SOCKET_ERROR");
-    }
-
-    @MessageExceptionHandler
-    @SendToUser("/queue/errors")
-    public ErrorResponse handleIllegalArgumentException(IllegalArgumentException exception) {
-        log.warn(exception.getMessage());
-
-        return ErrorResponse.from("ILLEGAL_ARGUMENT", exception.getMessage());
-    }
-
-    @MessageExceptionHandler
-    @SendToUser("/queue/errors")
-    public ErrorResponse handleValidationE현xception(MethodArgumentNotValidException ex) {
-
-        return ErrorResponse.from(
-                "VALIDATION_ERROR",
-                ex.getBindingResult()
-                        .getAllErrors()
-                        .stream()
-                        .map(DefaultMessageSourceResolvable::getDefaultMessage)
-                        .collect(Collectors.joining(", "))
-        );
-    }
 }
