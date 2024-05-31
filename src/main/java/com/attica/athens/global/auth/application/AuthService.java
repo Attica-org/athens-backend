@@ -43,6 +43,7 @@ public class AuthService {
     public boolean validateToken(String token) {
         try {
             jwtUtils.getClaims(token);
+            jwtUtils.isExpired(token);
             return true;
         } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
             throw new JwtSignatureException();

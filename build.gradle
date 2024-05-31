@@ -3,7 +3,7 @@ plugins {
     id 'org.springframework.boot' version '3.2.5'
     id 'io.spring.dependency-management' version '1.1.4'
     id 'com.google.cloud.tools.jib' version '3.4.2'
-    // id 'checkstyle'
+    id 'checkstyle'
 }
 
 group = 'com.attica'
@@ -47,6 +47,8 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
 
+    implementation 'com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.9.0'
+
 }
 
 tasks.named('test') {
@@ -61,32 +63,34 @@ tasks.jar {
     enabled = true
 }
 
-jib {
-    from {
-        image = "eclipse-temurin:17-jdk"
-    }
-    to {
-        image = System.getProperty('jib.to.image')
-        tags = ["latest"]
-    }
-    container {
-        creationTime = "USE_CURRENT_TIMESTAMP"
-        jvmFlags = ["-Dspring.profiles.active=prod" ]
-        setAllowInsecureRegistries(true)
+if (project.hasProperty('prod')) {
+    jib {
+        from {
+            image = "eclipse-temurin:17-jdk"
+        }
+        to {
+            image = System.getProperty('jib.to.image')
+            tags = ["latest"]
+        }
+        container {
+            creationTime = "USE_CURRENT_TIMESTAMP"
+            jvmFlags = ["-Dspring.profiles.active=prod" ]
+            setAllowInsecureRegistries(true)
+        }
     }
 }
 
-//compileJava.options.encoding = 'UTF-8'
-//compileTestJava.options.encoding = 'UTF-8'
-//
-//tasks.withType(Checkstyle) {
-//    reports {
-//        xml.required = true
-//        html.required = true
-//    }
-//}
-//
-//checkstyle {
-//    configFile = file("config/checkstyle/google-checkstyle.xml")
-//    configProperties = ["suppressionFile": "config/checkstyle/google-checkstyle.xml"]
-//}
+compileJava.options.encoding = 'UTF-8'
+compileTestJava.options.encoding = 'UTF-8'
+
+tasks.withType(Checkstyle) {
+    reports {
+        xml.required = true
+        html.required = true
+    }
+}
+
+checkstyle {
+    configFile = file("config/checkstyle/google-checkstyle.xml")
+    configProperties = ["suppressionFile": "config/checkstyle/google-checkstyle.xml"]
+}

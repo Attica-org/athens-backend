@@ -74,8 +74,6 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         String refreshToken = authService.createJwtToken(REFRESH_TOKEN, userId, role);
         response.addCookie(createCookie(COOKIE_NAME, refreshToken));
 
-        authService.createRefreshTokenAndGetAccessToken(userId, role, response);
-
         SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 
