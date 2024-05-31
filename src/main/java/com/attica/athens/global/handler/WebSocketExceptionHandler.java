@@ -1,4 +1,4 @@
-package com.attica.athens.domain.chat.api;
+package com.attica.athens.global.handler;
 
 import com.attica.athens.domain.chat.dto.response.ErrorResponse;
 import java.net.SocketException;
@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 
 @Slf4j
 @ControllerAdvice
-public class ChatExceptionHandler {
+public class WebSocketExceptionHandler {
 
     @MessageExceptionHandler
     @SendToUser("/queue/errors")
@@ -24,10 +24,10 @@ public class ChatExceptionHandler {
 
     @MessageExceptionHandler
     @SendToUser("/queue/errors")
-    public ErrorResponse handleIllegalArgumentException(IllegalArgumentException exception) {
+    public ErrorResponse handleIllegalArgumentException(RuntimeException exception) {
         log.warn(exception.getMessage());
 
-        return new ErrorResponse("ILLEGAL_ARGUMENT", exception.getMessage());
+        return new ErrorResponse(exception.getMessage(), "RUNTIME_ERROR");
     }
 
     @MessageExceptionHandler
