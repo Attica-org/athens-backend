@@ -25,23 +25,22 @@ public class JwtChannelInterceptor implements ChannelInterceptor {
 
     @Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
-
         StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
 
-        if (!StompCommand.CONNECT.equals(accessor.getCommand())) {
-            return message;
+        if (accessor != null && StompCommand.CONNECT.equals(accessor.getCommand())) {
+            String jwtToken = extractJwtToken(accessor);
+            Authentication authentication = authService.createAuthenticationByToken(jwtToken);
+            accessor.setUser(authentication);
         }
 
-        Optional<String> jwtTokenOptional = Optional.ofNullable(accessor.getFirstNativeHeader(AUTHORIZATION));
-        String jwtToken = jwtTokenOptional
+        return message;
+    }
+
+    private String extractJwtToken(StompHeaderAccessor accessor) {
+        return Optional.ofNullable(accessor.getFirstNativeHeader(AUTHORIZATION))
                 .filter(token -> token.startsWith(BEARER_))
                 .map(token -> token.substring(BEARER_.length()))
                 .filter(authService::validateToken)
                 .orElseThrow(() -> new RuntimeException("Invalid token"));
-
-        Authentication authentication = authService.createAuthenticationByToken(jwtToken);
-        accessor.setUser(authentication);
-
-        return message;
     }
 }
