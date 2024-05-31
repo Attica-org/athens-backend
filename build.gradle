@@ -61,18 +61,20 @@ tasks.jar {
     enabled = true
 }
 
-jib {
-    from {
-        image = "eclipse-temurin:17-jdk"
-    }
-    to {
-        image = System.getProperty('jib.to.image')
-        tags = ["latest"]
-    }
-    container {
-        creationTime = "USE_CURRENT_TIMESTAMP"
-        jvmFlags = ["-Dspring.profiles.active=prod" ]
-        setAllowInsecureRegistries(true)
+if (project.hasProperty('prod')) {
+    jib {
+        from {
+            image = "eclipse-temurin:17-jdk"
+        }
+        to {
+            image = System.getProperty('jib.to.image')
+            tags = ["latest"]
+        }
+        container {
+            creationTime = "USE_CURRENT_TIMESTAMP"
+            jvmFlags = ["-Dspring.profiles.active=prod" ]
+            setAllowInsecureRegistries(true)
+        }
     }
 }
 
