@@ -5,6 +5,7 @@ import static com.attica.athens.global.auth.jwt.Constants.BEARER_;
 
 import com.attica.athens.global.auth.application.AuthService;
 import java.util.Optional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.simp.stomp.StompCommand;
@@ -15,13 +16,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class JwtChannelInterceptor implements ChannelInterceptor {
 
     private final AuthService authService;
-
-    public JwtChannelInterceptor(AuthService authService) {
-        this.authService = authService;
-    }
 
     @Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
@@ -29,6 +27,10 @@ public class JwtChannelInterceptor implements ChannelInterceptor {
 
         if (accessor != null && StompCommand.CONNECT.equals(accessor.getCommand())) {
             String jwtToken = extractJwtToken(accessor);
+            if (jwtToken == null) {
+                return message;
+            }
+
             Authentication authentication = authService.createAuthenticationByToken(jwtToken);
             accessor.setUser(authentication);
         }
@@ -41,6 +43,6 @@ public class JwtChannelInterceptor implements ChannelInterceptor {
                 .filter(token -> token.startsWith(BEARER_))
                 .map(token -> token.substring(BEARER_.length()))
                 .filter(authService::validateToken)
-                .orElseThrow(() -> new RuntimeException("Invalid token"));
+                .orElse(null);
     }
 }
