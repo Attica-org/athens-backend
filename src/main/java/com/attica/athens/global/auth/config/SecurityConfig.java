@@ -37,7 +37,8 @@ public class SecurityConfig {
             "/login",
             "/api/v1/user/**",
             "/api/v1/reissue",
-            "/api/v1/temp-user/**"
+            "/api/v1/temp-user/**",
+            "/api/v1/agoras"
     };
 
     private final AuthenticationConfiguration authenticationConfiguration;
@@ -99,7 +100,8 @@ public class SecurityConfig {
 
         // LoginFilter 등록 (/login시 동작)
         http
-                .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), authService),
+                .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), refreshTokenRepository,
+                                authService),
                         UsernamePasswordAuthenticationFilter.class);
 
 //        // JWTFilter 등록 (모든 요청에 대해 동작)
@@ -112,6 +114,8 @@ public class SecurityConfig {
                 .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         http
                 .addFilterBefore(new CustomLogoutFilter(authService, refreshTokenRepository), LogoutFilter.class);
+
+        // TODO: X-Frame-Options 설정
 
         return http.build();
     }

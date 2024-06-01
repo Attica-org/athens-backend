@@ -19,12 +19,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1/agoras")
-public class AgoraController {
+@RequestMapping("/api/v1/open/agoras")
+public class AgoraOpenController {
 
     private final AgoraService agoraService;
 
-    public AgoraController(AgoraService agoraService) {
+    public AgoraOpenController(AgoraService agoraService) {
         this.agoraService = agoraService;
     }
 
@@ -46,9 +46,9 @@ public class AgoraController {
         return ResponseEntity.ok(ApiUtil.success(response));
     }
 
-    @GetMapping(params = {"agora_name", "status", "next"})
+    @GetMapping(params = {"agora-name", "status", "next"})
     public ResponseEntity<ApiResponse<?>> getAgoraByKeyword(
-            @RequestParam("agora_name") String agoraName,
+            @RequestParam String agoraName,
             @Valid SearchKeywordRequest request
     ) {
         AgoraSlice<SimpleAgoraResult> response =

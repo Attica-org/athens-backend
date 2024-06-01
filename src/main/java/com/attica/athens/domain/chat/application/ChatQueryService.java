@@ -33,29 +33,30 @@ public class ChatQueryService {
 
     public SendMetaResponse sendMeta(Long agoraId) {
 
-        Agora agora = findAgoraById(agoraId);
-
-        List<ParticipantsInfo> participantsInfos = agoraUserRepository.countAgoraUsersByType(agoraId);
-        MetaData metaData = new MetaData(agora, participantsInfos);
+        MetaData metaData = new MetaData(
+                findAgoraUserByType(agoraId),
+                findAgoraById(agoraId)
+        );
 
         return new SendMetaResponse(metaData);
     }
 
-    public GetChatResponse getChatHistory(Long agoraId, Cursor cursor) {
+    private List<ParticipantsInfo> findAgoraUserByType(Long agoraId) {
+        return agoraUserRepository.countAgoraUsersByType(agoraId);
+    }
 
-        Agora agora = findAgoraById(agoraId);
+    public GetChatResponse getChatHistory(Long agoraId, Cursor cursor) {
 
         List<AgoraUser> agoraUsers = findAgoraUsersByAgoraId(agoraId);
 
-        List<Long> agoraUserIds = extractAgoraUserIds(agoraUsers);
-        List<Chat> chats = findChatsByCursor(cursor, agoraUserIds);
+        List<Chat> chats = findChatsByCursor(cursor, extractAgoraUserIds(agoraUsers));
 
         Map<Long, AgoraUser> agoraUserMap = mapAgoraUserIdToAgoraUser(agoraUsers);
         List<ChatData> chatData = mapChatsToChatData(agoraUserMap, chats);
 
         Long nextKey = getNextCursor(chats);
 
-        return new GetChatResponse(agora.getId(), chatData, cursor.next(nextKey));
+        return new GetChatResponse(chatData, cursor.next(nextKey));
     }
 
     private List<Chat> findChatsByCursor(Cursor cursor, List<Long> agoraUserIds) {
@@ -65,9 +66,8 @@ public class ChatQueryService {
         if (cursor.hasKey()) {
             return chatRepository.findByAgoraUserIdInAndIdLessThanOrderByIdDesc(agoraUserIds, cursor.key(),
                     pageable);
-        } else {
-            return chatRepository.findByAgoraUserIdInOrderByIdDesc(agoraUserIds, pageable);
         }
+        return chatRepository.findByAgoraUserIdInOrderByIdDesc(agoraUserIds, pageable);
     }
 
     private Long getNextCursor(List<Chat> chats) {
@@ -108,9 +108,8 @@ public class ChatQueryService {
     }
 
     public GetChatParticipants getChatParticipants(Long agoraId) {
-        List<AgoraUser> agoraUsers = findAgoraUsersByAgoraId(agoraId);
 
-        return new GetChatParticipants(agoraUsers, agoraId);
+        return new GetChatParticipants(findAgoraUsersByAgoraId(agoraId), agoraId);
     }
 
     private List<AgoraUser> findAgoraUsersByAgoraId(Long agoraId) {

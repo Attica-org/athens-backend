@@ -12,7 +12,7 @@ public record GetChatParticipants(Long agoraId, List<UserData> participants) {
 
     private static List<UserData> getParticipants(List<AgoraUser> agoraUsers) {
         return agoraUsers.stream()
-                .map(UserData::from)
+                .map(UserData::new)
                 .collect(Collectors.toList());
     }
 }
