@@ -2,6 +2,7 @@ package com.attica.athens.global.config;
 
 import com.attica.athens.global.interceptor.JwtChannelInterceptor;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.ChannelRegistration;
@@ -31,11 +32,13 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     private final JwtChannelInterceptor jwtChannelInterceptor;
 
+    @Value("${cors.allowed-origins}")
+    private String[] allowedOrigins;
+
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint(ENDPOINT)
-                .setAllowedOriginPatterns("*");
-//                .withSockJS();
+                .setAllowedOriginPatterns(allowedOrigins);
     }
 
     @Bean
