@@ -23,6 +23,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsUtils;
 
 @Configuration
 @EnableWebSecurity
@@ -95,6 +96,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers(PUBLIC_URLS).permitAll()
                         .requestMatchers("/api/v1/test/**").hasRole("TEMP_USER")
+                        .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
                         .anyRequest().authenticated()
                 );
 
