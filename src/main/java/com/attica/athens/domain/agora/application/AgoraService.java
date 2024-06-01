@@ -50,6 +50,7 @@ public class AgoraService {
                 request.capacity(),
                 request.duration(),
                 request.color(),
+                0L,0L,
                 category);
     }
 
