@@ -1,7 +1,5 @@
 package com.attica.athens.domain.agora.application;
 
-import com.attica.athens.domain.agora.exception.AlreadyParticipateException;
-import com.attica.athens.domain.agora.exception.FullAgoraCapacityException;
 import com.attica.athens.domain.agora.dao.AgoraRepository;
 import com.attica.athens.domain.agora.dao.CategoryRepository;
 import com.attica.athens.domain.agora.domain.Agora;
@@ -15,18 +13,20 @@ import com.attica.athens.domain.agora.dto.request.SearchKeywordRequest;
 import com.attica.athens.domain.agora.dto.response.AgoraParticipateResponse;
 import com.attica.athens.domain.agora.dto.response.AgoraSlice;
 import com.attica.athens.domain.agora.dto.response.CreateAgoraResponse;
-import com.attica.athens.domain.agora.exception.NotFoundAgoraException;
 import com.attica.athens.domain.agora.dto.response.EndVoteAgoraResponse;
 import com.attica.athens.domain.agora.dto.response.StartAgoraResponse;
+import com.attica.athens.domain.agora.exception.AlreadyParticipateException;
+import com.attica.athens.domain.agora.exception.FullAgoraCapacityException;
 import com.attica.athens.domain.agora.exception.InvalidAgoraStatusChangeException;
+import com.attica.athens.domain.agora.exception.NotFoundAgoraException;
 import com.attica.athens.domain.agora.exception.NotFoundCategoryException;
 import com.attica.athens.domain.agoraUser.dao.AgoraUserRepository;
 import com.attica.athens.domain.agoraUser.domain.AgoraUser;
-import com.attica.athens.domain.user.dao.UserRepository;
-import com.attica.athens.domain.user.domain.User;
-import com.attica.athens.domain.user.exception.NotFoundUserException;
 import com.attica.athens.domain.agoraUser.exception.AlreadyVotedException;
 import com.attica.athens.domain.agoraUser.exception.NotFoundAgoraUserException;
+import com.attica.athens.domain.user.dao.BaseUserRepository;
+import com.attica.athens.domain.user.domain.BaseUser;
+import com.attica.athens.domain.user.exception.NotFoundUserException;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -39,7 +39,7 @@ public class AgoraService {
 
     private final AgoraRepository agoraRepository;
     private final CategoryRepository categoryRepository;
-    private final UserRepository userRepository;
+    private final BaseUserRepository baseUserRepository;
     private final AgoraUserRepository agoraUserRepository;
 
     @Transactional
@@ -62,7 +62,8 @@ public class AgoraService {
     }
 
     @Transactional
-    public AgoraParticipateResponse participate(final Long userId, final Long agoraId, final AgoraParticipateRequest request) {
+    public AgoraParticipateResponse participate(final Long userId, final Long agoraId,
+                                                final AgoraParticipateRequest request) {
         Agora agora = findAgoraById(agoraId);
         if (agora.isFull()) {
             throw new FullAgoraCapacityException(agora.getId());
@@ -70,16 +71,15 @@ public class AgoraService {
 
         agoraUserRepository.findByAgoraIdAndUserId(agora.getId(), userId)
                 .ifPresent(agoraUser -> {
-                    throw new AlreadyParticipateException(agora.getId(), userId);
-                }
-        );
+                            throw new AlreadyParticipateException(agora.getId(), userId);
+                        }
+                );
 
         AgoraUser created = createAgoraUser(userId, agoraId, request);
         AgoraUser agoraUser = agoraUserRepository.save(created);
         agora.addUser(agoraUser);
-        String userUuid = agoraUser.getUuid();
 
-        return new AgoraParticipateResponse(created.getAgora().getId(), userUuid, created.getType());
+        return new AgoraParticipateResponse(created.getAgora().getId(), userId, created.getType());
     }
 
     private Agora createAgora(final AgoraCreateRequest request, final Category category) {
@@ -100,8 +100,8 @@ public class AgoraService {
         );
     }
 
-    private User findUserById(final Long userId) {
-        return userRepository.findById(userId).orElseThrow(() -> new NotFoundUserException(userId));
+    private BaseUser findUserById(final Long userId) {
+        return baseUserRepository.findById(userId).orElseThrow(() -> new NotFoundUserException(userId));
     }
 
     private List<Long> findParentCategoryById(final Long categoryId) {

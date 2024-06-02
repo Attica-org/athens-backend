@@ -27,8 +27,8 @@ spring:
 auth:
   jwt:
     secret-key: ${JWT_SECRET_KEY}
-    access-expired: 360000000
-    refresh-expired: 8640000000
+    access-expired: 1200000
+    refresh-expired: 86400000
 
 
 logging:
