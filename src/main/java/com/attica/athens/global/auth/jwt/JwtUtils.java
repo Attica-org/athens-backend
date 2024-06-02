@@ -84,17 +84,6 @@ public class JwtUtils {
                 .get(AUTHORITY_ROLE, String.class);
     }
 
-    public Boolean isExpired(String token) {
-
-        return Jwts.parser()
-                .verifyWith(secretKey)
-                .build()
-                .parseSignedClaims(token)
-                .getPayload()
-                .getExpiration()
-                .before(new Date());
-    }
-
     public Claims getClaims(String token) {
         return Jwts.parser()
                 .verifyWith(secretKey)

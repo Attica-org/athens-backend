@@ -17,6 +17,7 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer.FrameOptionsConfig;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -102,7 +103,7 @@ public class SecurityConfig {
 
         // LoginFilter 등록 (/login시 동작)
         http
-                .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), refreshTokenRepository,
+                .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration),
                                 authService),
                         UsernamePasswordAuthenticationFilter.class);
 
@@ -117,7 +118,11 @@ public class SecurityConfig {
         http
                 .addFilterBefore(new CustomLogoutFilter(authService, refreshTokenRepository), LogoutFilter.class);
 
-        // TODO: X-Frame-Options 설정
+        http
+                // ...
+                .headers(headers -> headers
+                        .frameOptions(FrameOptionsConfig::sameOrigin)
+                );
 
         return http.build();
     }

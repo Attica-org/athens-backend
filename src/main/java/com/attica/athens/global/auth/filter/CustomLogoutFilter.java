@@ -56,7 +56,8 @@ public class CustomLogoutFilter extends GenericFilterBean {
             if (!(authService.validateToken(refreshToken))) {
                 return;
             }
-            refreshTokenRepository.existsByRefresh(refreshToken).orElseThrow(NotFoundRefreshTokenException::new);
+            refreshTokenRepository.existsByRefresh(refreshToken)
+                    .orElseThrow(NotFoundRefreshTokenException::new);
         } catch (CustomException e) {
             request.setAttribute(REQUEST_ATTRIBUTE_NAME, e);
         }

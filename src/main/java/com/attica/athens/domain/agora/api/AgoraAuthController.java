@@ -1,8 +1,10 @@
 package com.attica.athens.domain.agora.api;
 
 import com.attica.athens.domain.agora.application.AgoraService;
+import com.attica.athens.domain.agora.dto.request.AgoraCreateRequest;
 import com.attica.athens.domain.agora.dto.request.AgoraParticipateRequest;
 import com.attica.athens.domain.agora.dto.response.AgoraParticipateResponse;
+import com.attica.athens.domain.agora.dto.response.CreateAgoraResponse;
 import com.attica.athens.domain.agora.dto.response.EndVoteAgoraResponse;
 import com.attica.athens.domain.agora.dto.response.StartAgoraResponse;
 import com.attica.athens.domain.common.ApiResponse;
@@ -50,6 +52,15 @@ public class AgoraAuthController {
     ) {
         Long userId = Long.parseLong(user.getUsername());
         AgoraParticipateResponse response = agoraService.participate(userId, agoraId, request);
+
+        return ResponseEntity.ok(ApiUtil.success(response));
+    }
+
+    @PostMapping
+    public ResponseEntity<ApiResponse<?>> createAgora(
+            @RequestBody @Valid AgoraCreateRequest request
+    ) {
+        CreateAgoraResponse response = agoraService.create(request);
 
         return ResponseEntity.ok(ApiUtil.success(response));
     }
