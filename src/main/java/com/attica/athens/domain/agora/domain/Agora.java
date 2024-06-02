@@ -84,6 +84,7 @@ public class Agora extends AuditingFields {
         this.viewCount = 0;
         this.status = AgoraStatus.QUEUED;
         this.color = color;
+        this.endVoteCount = 0;
         this.category = category;
     }
 
