@@ -4,7 +4,7 @@ import com.attica.athens.domain.agoraUser.domain.AgoraUserType;
 
 public record AgoraParticipateResponse(
         Long agoraId,
-        String userId,
+        Long userId,
         AgoraUserType type
 ) {
 }
