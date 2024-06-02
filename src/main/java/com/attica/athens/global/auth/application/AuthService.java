@@ -18,6 +18,7 @@ import com.attica.athens.global.auth.jwt.JwtUtils;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
+import io.jsonwebtoken.security.SecurityException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -43,7 +44,7 @@ public class AuthService {
     public boolean validateToken(String token) {
         try {
             jwtUtils.getClaims(token);
-        } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
+        } catch (SecurityException | MalformedJwtException e) {
             throw new JwtSignatureException();
         } catch (ExpiredJwtException e) {
             throw new JwtExpiredException();
@@ -69,7 +70,8 @@ public class AuthService {
         Long userId = createRefreshTokenRequest.userId();
         String refresh = createRefreshTokenRequest.refresh();
 
-        Date expiration = jwtUtils.getClaims(createRefreshTokenRequest.refresh()).getExpiration();
+        Date expiration = jwtUtils.getClaims(createRefreshTokenRequest.refresh())
+                .getExpiration();
 
         RefreshToken refreshEntity = RefreshToken.createRefreshToken(userId, refresh, expiration);
 
@@ -84,16 +86,13 @@ public class AuthService {
 
         Long userId = Long.parseLong(jwtUtils.getUserId(refreshToken));
         String role = jwtUtils.getRole(refreshToken);
-        String newAccess = createRefreshToken(userId, role, response);
+
+        String newAccess = createRefreshTokenAndGetAccessToken(userId, role, response);
         refreshTokenRepository.deleteByRefresh(refreshToken);
         return newAccess;
     }
 
     public String createRefreshTokenAndGetAccessToken(Long userId, String role, HttpServletResponse response) {
-        return createRefreshToken(userId, role, response);
-    }
-
-    private String createRefreshToken(Long userId, String role, HttpServletResponse response) {
         String newAccess = jwtUtils.createJwtToken(ACCESS_TOKEN, userId, role);
         String newRefresh = jwtUtils.createJwtToken(REFRESH_TOKEN, userId, role);
 
