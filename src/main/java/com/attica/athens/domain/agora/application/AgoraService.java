@@ -16,7 +16,6 @@ import com.attica.athens.domain.agora.exception.NotFoundAgoraException;
 import com.attica.athens.domain.agora.exception.NotFoundCategoryException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -54,7 +53,7 @@ public class AgoraService {
                 request.capacity(),
                 request.duration(),
                 request.color(),
-                0L,0L,
+                0L, 0L,
                 category);
     }
 
@@ -79,14 +78,14 @@ public class AgoraService {
                 .orElseThrow(() -> new NotFoundCategoryException(categoryId));
     }
 
-    public AgoraTitleResponse getAgoraTitle(final Long agoraId){
+    public AgoraTitleResponse getAgoraTitle(final Long agoraId) {
         Agora agora = agoraRepository.findById(agoraId)
                 .orElseThrow(() -> new NotFoundAgoraException(agoraId));
 
-        return new AgoraTitleResponse(agora.getTitle(),agora.getStatus());
+        return new AgoraTitleResponse(agora.getTitle(), agora.getStatus());
     }
 
-    public AgoraIdResponse getAgoraIdList(){
+    public AgoraIdResponse getAgoraIdList() {
         List<Long> agoraIdList = agoraRepository.getAgoraIdList();
 
         return new AgoraIdResponse(agoraIdList);

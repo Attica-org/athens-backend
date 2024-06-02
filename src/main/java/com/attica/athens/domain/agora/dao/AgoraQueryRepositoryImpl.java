@@ -6,14 +6,12 @@ import static com.attica.athens.domain.agoraUser.domain.QAgoraUser.agoraUser;
 import com.attica.athens.domain.agora.domain.AgoraStatus;
 import com.attica.athens.domain.agora.dto.SimpleAgoraResult;
 import com.attica.athens.domain.agora.dto.SimpleParticipants;
-import com.attica.athens.domain.agora.dto.response.AgoraIdResponse;
 import com.attica.athens.domain.agora.dto.response.AgoraSlice;
 import com.attica.athens.domain.agoraUser.domain.AgoraUserType;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import java.util.ArrayList;
 import java.util.List;
 import org.springframework.stereotype.Repository;
 
@@ -110,7 +108,7 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
     }
 
     @Override
-    public List<Long> getAgoraIdList(){
+    public List<Long> getAgoraIdList() {
 
         final int size = 30;
 
@@ -120,7 +118,7 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
                 .limit(size + 1L)
                 .fetch();
 
-            return agoraIdList;
+        return agoraIdList;
     }
 
 

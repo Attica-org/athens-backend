@@ -5,7 +5,6 @@ public record AgoraVoteResultResponse(
         Long prosCount,
         Long consCount
 ) {
-
 }
 
 
