@@ -61,6 +61,8 @@ public class AgoraVoteRepositoryImpl implements AgoraVoteRepository {
                 .groupBy(agoraUser.voteType)
                 .fetch();
 
+        if(prosResult.isEmpty()) return 0L;
+
         return prosResult.get(0);
     }
 
@@ -71,6 +73,8 @@ public class AgoraVoteRepositoryImpl implements AgoraVoteRepository {
                 .where(agora.id.eq(agoraid).and(agoraUser.voteType.eq(AgoraVoteType.CONS)))
                 .groupBy(agoraUser.voteType)
                 .fetch();
+
+        if(consResult.isEmpty()) return 0L;
 
         return consResult.get(0);
     }

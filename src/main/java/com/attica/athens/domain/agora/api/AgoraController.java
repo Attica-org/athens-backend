@@ -5,6 +5,7 @@ import com.attica.athens.domain.agora.dto.SimpleAgoraResult;
 import com.attica.athens.domain.agora.dto.request.AgoraCreateRequest;
 import com.attica.athens.domain.agora.dto.request.SearchCategoryRequest;
 import com.attica.athens.domain.agora.dto.request.SearchKeywordRequest;
+import com.attica.athens.domain.agora.dto.response.AgoraIdResponse;
 import com.attica.athens.domain.agora.dto.response.AgoraSlice;
 import com.attica.athens.domain.agora.dto.response.AgoraTitleResponse;
 import com.attica.athens.domain.agora.dto.response.CreateAgoraResponse;
@@ -62,9 +63,18 @@ public class AgoraController {
     @GetMapping("/{agora-id}/title")
     public ResponseEntity<ApiResponse<?>> getAgoraTitle(
             @PathVariable("agora-id") Long agoraId
-    ){
+    ) {
         AgoraTitleResponse agoraTitle = agoraService.getAgoraTitle(agoraId);
 
         return ResponseEntity.ok(ApiUtil.success(agoraTitle));
     }
+
+    @GetMapping("/agoraIdList")
+    public ResponseEntity<ApiResponse<?>> getAgoraIdList() {
+
+        AgoraIdResponse agoraIdList = agoraService.getAgoraIdList();
+
+        return ResponseEntity.ok(ApiUtil.success(agoraIdList));
+    }
+
 }

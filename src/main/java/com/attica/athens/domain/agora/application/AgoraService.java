@@ -8,6 +8,7 @@ import com.attica.athens.domain.agora.dto.SimpleAgoraResult;
 import com.attica.athens.domain.agora.dto.request.AgoraCreateRequest;
 import com.attica.athens.domain.agora.dto.request.SearchCategoryRequest;
 import com.attica.athens.domain.agora.dto.request.SearchKeywordRequest;
+import com.attica.athens.domain.agora.dto.response.AgoraIdResponse;
 import com.attica.athens.domain.agora.dto.response.AgoraSlice;
 import com.attica.athens.domain.agora.dto.response.AgoraTitleResponse;
 import com.attica.athens.domain.agora.dto.response.CreateAgoraResponse;
@@ -82,6 +83,12 @@ public class AgoraService {
         Agora agora = agoraRepository.findById(agoraId)
                 .orElseThrow(() -> new NotFoundAgoraException(agoraId));
 
-        return new AgoraTitleResponse(agora.getTitle());
+        return new AgoraTitleResponse(agora.getTitle(),agora.getStatus());
+    }
+
+    public AgoraIdResponse getAgoraIdList(){
+        List<Long> agoraIdList = agoraRepository.getAgoraIdList();
+
+        return new AgoraIdResponse(agoraIdList);
     }
 }

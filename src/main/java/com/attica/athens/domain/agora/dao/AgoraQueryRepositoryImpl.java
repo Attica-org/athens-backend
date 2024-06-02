@@ -6,12 +6,14 @@ import static com.attica.athens.domain.agoraUser.domain.QAgoraUser.agoraUser;
 import com.attica.athens.domain.agora.domain.AgoraStatus;
 import com.attica.athens.domain.agora.dto.SimpleAgoraResult;
 import com.attica.athens.domain.agora.dto.SimpleParticipants;
+import com.attica.athens.domain.agora.dto.response.AgoraIdResponse;
 import com.attica.athens.domain.agora.dto.response.AgoraSlice;
 import com.attica.athens.domain.agoraUser.domain.AgoraUserType;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import java.util.ArrayList;
 import java.util.List;
 import org.springframework.stereotype.Repository;
 
@@ -107,6 +109,21 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
         return getSimpleAgoraResultAgoraSlice(size, result);
     }
 
+    @Override
+    public List<Long> getAgoraIdList(){
+
+        final int size = 30;
+
+        List<Long> agoraIdList = jpaQueryFactory
+                .select(agora.id)
+                .from(agora)
+                .limit(size + 1L)
+                .fetch();
+
+            return agoraIdList;
+    }
+
+
     private AgoraSlice<SimpleAgoraResult> getSimpleAgoraResultAgoraSlice(final int size,
                                                                          final List<SimpleAgoraResult> result) {
         boolean hasNext = false;
@@ -131,4 +148,6 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
         }
         return agora.id.lt(agoraId);
     }
+
+
 }
