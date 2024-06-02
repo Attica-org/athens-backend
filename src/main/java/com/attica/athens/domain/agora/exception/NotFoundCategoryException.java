@@ -10,7 +10,7 @@ public class NotFoundCategoryException extends CustomException {
         super(
                 HttpStatus.NOT_FOUND,
                 ErrorCode.RESOURCE_NOT_FOUND,
-                "존재하지 않는 카테고리입니다. categoryId: " + categoryId
+                "Not found category. categoryId: " + categoryId
         );
     }
 }
