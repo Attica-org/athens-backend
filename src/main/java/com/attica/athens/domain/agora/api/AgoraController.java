@@ -6,12 +6,14 @@ import com.attica.athens.domain.agora.dto.request.AgoraCreateRequest;
 import com.attica.athens.domain.agora.dto.request.SearchCategoryRequest;
 import com.attica.athens.domain.agora.dto.request.SearchKeywordRequest;
 import com.attica.athens.domain.agora.dto.response.AgoraSlice;
+import com.attica.athens.domain.agora.dto.response.AgoraTitleResponse;
 import com.attica.athens.domain.agora.dto.response.CreateAgoraResponse;
 import com.attica.athens.domain.common.ApiResponse;
 import com.attica.athens.domain.common.ApiUtil;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,7 +21,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1/agoras")
+@RequestMapping("/api/v1/auth/agoras")
 public class AgoraController {
 
     private final AgoraService agoraService;
@@ -55,5 +57,14 @@ public class AgoraController {
                 agoraService.findAgoraByKeyword(agoraName, new SearchKeywordRequest(request.status(), request.next()));
 
         return ResponseEntity.ok(ApiUtil.success(response));
+    }
+
+    @GetMapping("/{agora-id}/title")
+    public ResponseEntity<ApiResponse<?>> getAgoraTitle(
+            @PathVariable("agora-id") Long agoraId
+    ){
+        AgoraTitleResponse agoraTitle = agoraService.getAgoraTitle(agoraId);
+
+        return ResponseEntity.ok(ApiUtil.success(agoraTitle));
     }
 }

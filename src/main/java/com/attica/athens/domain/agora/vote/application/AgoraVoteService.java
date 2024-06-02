@@ -10,9 +10,6 @@ import com.attica.athens.domain.agora.vote.dto.response.AgoraVoteResultResponse;
 import com.attica.athens.domain.agora.vote.exception.NotFoundUserException;
 import com.attica.athens.domain.agoraUser.dao.AgoraUserRepository;
 import com.attica.athens.domain.agoraUser.domain.AgoraUser;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,8 +29,6 @@ public class AgoraVoteService {
                 .orElseThrow(() -> new NotFoundUserException(userId));
 
         AgoraUser updatedAgoraUser = agoraVoteRepository.updateVoteType(agoraUser, agoraVoteRequest);
-
-        System.out.println("+++++++++"+ updatedAgoraUser.getVoteType());
 
         return new AgoraVoteResponse(updatedAgoraUser.getId(), updatedAgoraUser.getVoteType());
     }
