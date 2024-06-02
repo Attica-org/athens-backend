@@ -40,14 +40,14 @@ public class JwtFilter extends OncePerRequestFilter {
         try {
             String header = request.getHeader(Constants.AUTHORIZATION);
 
-            String token;
             if (!Objects.equals(header, null) && header.startsWith(BEARER_)) {
-                token = header.split(" ")[1];
+                String token = header.split(" ")[1];
                 authService.validateToken(token);
                 Authentication authentication = authService.createAuthenticationByToken(token);
                 SecurityContextHolder.getContext().setAuthentication(authentication);
+            } else {
+                throw new InvalidAuthorizationHeaderException();
             }
-            throw new InvalidAuthorizationHeaderException();
         } catch (CustomException e) {
             request.setAttribute(REQUEST_ATTRIBUTE_NAME, e);
         }
