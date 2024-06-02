@@ -43,7 +43,6 @@ public class AuthService {
     public boolean validateToken(String token) {
         try {
             jwtUtils.getClaims(token);
-            return true;
         } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
             throw new JwtSignatureException();
         } catch (ExpiredJwtException e) {
@@ -53,6 +52,7 @@ public class AuthService {
         } catch (IllegalArgumentException e) {
             throw new JwtIllegalArgumentException();
         }
+        return true;
     }
 
     public Authentication createAuthenticationByToken(String token) {

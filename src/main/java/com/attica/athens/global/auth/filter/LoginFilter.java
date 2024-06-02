@@ -9,7 +9,6 @@ import com.attica.athens.domain.common.ApiResponse;
 import com.attica.athens.domain.common.ApiUtil;
 import com.attica.athens.global.auth.CustomUserDetails;
 import com.attica.athens.global.auth.application.AuthService;
-import com.attica.athens.global.auth.dao.RefreshTokenRepository;
 import com.attica.athens.global.auth.dto.response.CreateAccessTokenResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
@@ -19,6 +18,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -28,18 +28,11 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+@RequiredArgsConstructor
 public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
     private final AuthenticationManager authenticationManager;
-    private final RefreshTokenRepository refreshTokenRepository;
     private final AuthService authService;
-
-    public LoginFilter(AuthenticationManager authenticationManager, RefreshTokenRepository refreshTokenRepository,
-                       AuthService authService) {
-        this.authenticationManager = authenticationManager;
-        this.refreshTokenRepository = refreshTokenRepository;
-        this.authService = authService;
-    }
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
