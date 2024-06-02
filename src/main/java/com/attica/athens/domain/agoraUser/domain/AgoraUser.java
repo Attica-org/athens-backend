@@ -31,10 +31,10 @@ public class AgoraUser extends AuditingFields {
     @Column(length = 50, nullable = false)
     private AgoraUserType type;
 
-    @Column(length = 25, nullable = false)
+    @Column(length = 25)
     private String nickname;
 
-    @Column(name = "photo_number", nullable = false)
+    @Column(name = "photo_number")
     private Integer photoNumber;
 
     @Column(name = "end_voted", nullable = false)
@@ -55,6 +55,10 @@ public class AgoraUser extends AuditingFields {
         this.endVoted = false;
         this.agora = agora;
         this.user = user;
+    }
+
+    public String getUuid() {
+        return user.getUuid().toString();
     }
 
     public void markEndVoted() {
