@@ -26,13 +26,15 @@ public class AgoraVoteController {
         this.agoraVoteService = agoraVoteService;
     }
 
-    @PatchMapping("vote")
+    @PatchMapping("/{agora-id}/vote")
     public ResponseEntity<ApiResponse<?>> vote(
             @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable("agora-id") Long agoraId,
             @RequestBody AgoraVoteRequest agoraVoteRequest
     ) {
 
-        AgoraVoteResponse agoraVoteProsResponse = agoraVoteService.vote(userDetails.getUserId(), agoraVoteRequest);
+        AgoraVoteResponse agoraVoteProsResponse = agoraVoteService.vote(userDetails.getUserId(), agoraVoteRequest,
+                agoraId);
 
         return ResponseEntity.ok(ApiUtil.success(agoraVoteProsResponse));
     }

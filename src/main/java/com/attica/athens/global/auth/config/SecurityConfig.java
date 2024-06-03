@@ -17,12 +17,14 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer.FrameOptionsConfig;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsUtils;
 
 @Configuration
 @EnableWebSecurity
@@ -38,7 +40,7 @@ public class SecurityConfig {
             "/api/v1/user/**",
             "/api/v1/reissue",
             "/api/v1/temp-user/**",
-            "/api/v1/agoras"
+            "/api/v1/open/**"
     };
 
     private final AuthenticationConfiguration authenticationConfiguration;
@@ -95,12 +97,14 @@ public class SecurityConfig {
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers(PUBLIC_URLS).permitAll()
                         .requestMatchers("/api/v1/test/**").hasRole("TEMP_USER")
+                        .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
                         .anyRequest().authenticated()
                 );
 
         // LoginFilter 등록 (/login시 동작)
         http
-                .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration),refreshTokenRepository, authService),
+                .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration),
+                                authService),
                         UsernamePasswordAuthenticationFilter.class);
 
 //        // JWTFilter 등록 (모든 요청에 대해 동작)
@@ -113,6 +117,12 @@ public class SecurityConfig {
                 .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         http
                 .addFilterBefore(new CustomLogoutFilter(authService, refreshTokenRepository), LogoutFilter.class);
+
+        http
+                // ...
+                .headers(headers -> headers
+                        .frameOptions(FrameOptionsConfig::sameOrigin)
+                );
 
         return http.build();
     }

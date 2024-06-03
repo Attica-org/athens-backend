@@ -10,6 +10,7 @@ import com.attica.athens.domain.agora.vote.dto.response.AgoraVoteResultResponse;
 import com.attica.athens.domain.agora.vote.exception.NotFoundUserException;
 import com.attica.athens.domain.agoraUser.dao.AgoraUserRepository;
 import com.attica.athens.domain.agoraUser.domain.AgoraUser;
+import com.attica.athens.domain.agoraUser.exception.NotFoundAgoraUserException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,14 +24,17 @@ public class AgoraVoteService {
     private final AgoraUserRepository agoraUserRepository;
 
     @Transactional
-    public AgoraVoteResponse vote(Long userId, AgoraVoteRequest agoraVoteRequest) {
+    public AgoraVoteResponse vote(Long userId, AgoraVoteRequest agoraVoteRequest, Long agoraId) {
 
-        AgoraUser agoraUser = agoraUserRepository.findByUserId(userId)
+        agoraUserRepository.findByUserId(userId)
                 .orElseThrow(() -> new NotFoundUserException(userId));
 
-        AgoraUser updatedAgoraUser = agoraVoteRepository.updateVoteType(agoraUser, agoraVoteRequest);
+        agoraVoteRepository.updateVoteType(userId, agoraVoteRequest, agoraId);
 
-        return new AgoraVoteResponse(updatedAgoraUser.getId(), updatedAgoraUser.getVoteType());
+        AgoraUser agoraUser = agoraUserRepository.findByAgoraIdAndUserId(agoraId, userId)
+                .orElseThrow(() -> new NotFoundAgoraUserException(agoraId, userId));
+
+        return new AgoraVoteResponse(agoraUser.getId(), agoraUser.getVoteType());
     }
 
     @Transactional

@@ -22,10 +22,6 @@ public class JpaConfig {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        if (authentication == null || !authentication.isAuthenticated()) {
-            throw new IllegalStateException("AuditorAware : principal is missing");
-        }
-
         Object principal = authentication.getPrincipal();
         if (principal instanceof UserDetails) {
             return Optional.of(((UserDetails) principal).getUsername());

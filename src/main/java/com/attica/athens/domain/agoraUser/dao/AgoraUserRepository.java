@@ -15,7 +15,7 @@ public interface AgoraUserRepository extends JpaRepository<AgoraUser, Integer> {
 
     Optional<AgoraUser> findByAgoraIdAndUserId(Long agoraId, Long userId);
 
-    Optional<AgoraUser> findByUserId(Long id);
+    Optional<List<AgoraUser>> findByUserId(Long id);
 
     @Query("SELECT new com.attica.athens.domain.chat.dto.response.SendMetaResponse$ParticipantsInfo(au.type, COUNT(au)) "
             +
@@ -25,4 +25,6 @@ public interface AgoraUserRepository extends JpaRepository<AgoraUser, Integer> {
     List<SendMetaResponse.ParticipantsInfo> countAgoraUsersByType(@Param("agoraId") Long agoraId);
 
     List<AgoraUser> findByAgoraId(Long agoraId);
+
+    int countByAgoraId(Long agoraId);
 }

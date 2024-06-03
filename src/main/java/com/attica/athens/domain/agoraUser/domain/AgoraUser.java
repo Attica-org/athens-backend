@@ -35,11 +35,14 @@ public class AgoraUser extends AuditingFields {
     @Column(length = 50, nullable = false)
     private AgoraVoteType voteType;
 
-    @Column(length = 25, nullable = false)
+    @Column(length = 25)
     private String nickname;
 
-    @Column(name = "photo_number", nullable = false)
+    @Column(name = "photo_number")
     private Integer photoNumber;
+
+    @Column(name = "end_voted", nullable = false)
+    private boolean endVoted;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "agora_id")
@@ -55,7 +58,12 @@ public class AgoraUser extends AuditingFields {
         this.voteType = voteType;
         this.nickname = nickname;
         this.photoNumber = photoNumber;
+        this.endVoted = false;
         this.agora = agora;
         this.user = user;
+    }
+
+    public void markEndVoted() {
+        this.endVoted = true;
     }
 }

@@ -10,7 +10,9 @@ import com.attica.athens.domain.chat.dto.response.SendChatResponse;
 import com.attica.athens.domain.chat.dto.response.SendMetaResponse;
 import com.attica.athens.domain.common.ApiUtil;
 import com.attica.athens.global.auth.CustomUserDetails;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -23,10 +25,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1")
-public class ChatController {
+@RequestMapping("/api/v1/auth")
+public class ChatAuthController {
 
     private final ChatCommandService chatCommandService;
     private final ChatQueryService chatQueryService;
@@ -34,7 +37,7 @@ public class ChatController {
     @MessageMapping("/agoras/{agora-id}/chats")
     @SendTo(value = "/topic/agoras/{agora-id}/chats")
     public SendChatResponse sendChat(@DestinationVariable("agora-id") Long agoraId,
-                                     @Payload SendChatRequest sendChatRequest,
+                                     @Payload @Valid SendChatRequest sendChatRequest,
                                      @AuthenticationPrincipal CustomUserDetails userDetails) {
 
         return chatCommandService.sendChat(userDetails, agoraId, sendChatRequest);
