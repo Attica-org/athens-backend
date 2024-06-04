@@ -3,7 +3,6 @@ package com.attica.athens.domain.agora.vote.dao;
 import static com.attica.athens.domain.agora.domain.QAgora.agora;
 import static com.attica.athens.domain.agoraUser.domain.QAgoraUser.agoraUser;
 
-import com.attica.athens.domain.agora.domain.Agora;
 import com.attica.athens.domain.agora.vote.dto.request.AgoraVoteRequest;
 import com.attica.athens.domain.agoraUser.domain.AgoraVoteType;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -37,11 +36,11 @@ public class AgoraVoteRepositoryImpl implements AgoraVoteRepository {
     }
 
     @Override
-    public void updateVoteResult(Agora agoraResult, Long prosVoteResult, Long consVoteResult) {
+    public void updateVoteResult(Long agoraId, Integer prosVoteResult, Integer consVoteResult) {
         JPAUpdateClause jpaUpdateClause = new JPAUpdateClause(em, agora);
 
         jpaUpdateClause
-                .where(agora.id.eq(agoraResult.getId()))
+                .where(agora.id.eq(agoraId))
                 .set(agora.prosCount, prosVoteResult)
                 .set(agora.consCount, consVoteResult)
                 .execute();
@@ -49,33 +48,24 @@ public class AgoraVoteRepositoryImpl implements AgoraVoteRepository {
     }
 
     @Override
-    public Long getProsVoteResult(Long agoraid) {
+    public Integer getProsVoteResult(Long agoraid) {
         List<Long> prosResult = queryFactory.select(agoraUser.voteType.count())
                 .from(agoraUser)
                 .where(agora.id.eq(agoraid).and(agoraUser.voteType.eq(AgoraVoteType.PROS)))
                 .groupBy(agoraUser.voteType)
                 .fetch();
 
-        if (prosResult.isEmpty()) {
-            return 0L;
-        }
-
-        return prosResult.get(0);
+        return prosResult.isEmpty() ? 0 : prosResult.get(0).intValue();
     }
 
     @Override
-    public Long getConsVoteResult(Long agoraid) {
+    public Integer getConsVoteResult(Long agoraid) {
         List<Long> consResult = queryFactory.select(agoraUser.voteType.count())
                 .from(agoraUser)
                 .where(agora.id.eq(agoraid).and(agoraUser.voteType.eq(AgoraVoteType.CONS)))
                 .groupBy(agoraUser.voteType)
                 .fetch();
 
-        if (consResult.isEmpty()) {
-            return 0L;
-        }
-
-        return consResult.get(0);
+        return consResult.isEmpty() ? 0 : consResult.get(0).intValue();
     }
-
 }

@@ -54,14 +54,11 @@ public class AgoraOpenController {
         return ResponseEntity.ok(ApiUtil.success(agoraTitle));
     }
 
-    @GetMapping("/agoraIdList")
+    @GetMapping("/ids")
     public ResponseEntity<ApiResponse<?>> getAgoraIdList() {
 
         AgoraIdResponse agoraIdList = agoraService.getAgoraIdList();
 
         return ResponseEntity.ok(ApiUtil.success(agoraIdList));
     }
-
 }
-
-

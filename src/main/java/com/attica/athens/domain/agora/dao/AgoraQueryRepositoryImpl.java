@@ -121,7 +121,6 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
         return agoraIdList;
     }
 
-
     private AgoraSlice<SimpleAgoraResult> getSimpleAgoraResultAgoraSlice(final int size,
                                                                          final List<SimpleAgoraResult> result) {
         boolean hasNext = false;
@@ -146,6 +145,4 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
         }
         return agora.id.lt(agoraId);
     }
-
-
 }

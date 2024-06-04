@@ -39,6 +39,9 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class AgoraService {
 
+    private static final Integer PROS_COUNT = 0;
+    private static final Integer CONS_COUNT = 0;
+
     private final AgoraRepository agoraRepository;
     private final CategoryRepository categoryRepository;
     private final BaseUserRepository baseUserRepository;
@@ -89,7 +92,7 @@ public class AgoraService {
                 request.capacity(),
                 request.duration(),
                 request.color(),
-                0L, 0L,
+                PROS_COUNT, CONS_COUNT,
                 category);
     }
 
@@ -130,8 +133,8 @@ public class AgoraService {
     }
 
     public AgoraTitleResponse getAgoraTitle(final Long agoraId) {
-        Agora agora = agoraRepository.findById(agoraId)
-                .orElseThrow(() -> new NotFoundAgoraException(agoraId));
+
+        Agora agora = findAgoraById(agoraId);
 
         return new AgoraTitleResponse(agora.getTitle(), agora.getStatus());
     }
@@ -193,4 +196,3 @@ public class AgoraService {
                 .orElseThrow(() -> new NotFoundAgoraUserException(agoraId, userId));
     }
 }
-

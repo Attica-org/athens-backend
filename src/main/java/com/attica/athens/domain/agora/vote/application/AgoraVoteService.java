@@ -2,12 +2,13 @@ package com.attica.athens.domain.agora.vote.application;
 
 import com.attica.athens.domain.agora.dao.AgoraRepository;
 import com.attica.athens.domain.agora.domain.Agora;
+import com.attica.athens.domain.agora.domain.AgoraStatus;
+import com.attica.athens.domain.agora.exception.InvalidAgoraStatusException;
 import com.attica.athens.domain.agora.exception.NotFoundAgoraException;
 import com.attica.athens.domain.agora.vote.dao.AgoraVoteRepository;
 import com.attica.athens.domain.agora.vote.dto.request.AgoraVoteRequest;
 import com.attica.athens.domain.agora.vote.dto.response.AgoraVoteResponse;
 import com.attica.athens.domain.agora.vote.dto.response.AgoraVoteResultResponse;
-import com.attica.athens.domain.agora.vote.exception.NotFoundUserException;
 import com.attica.athens.domain.agoraUser.dao.AgoraUserRepository;
 import com.attica.athens.domain.agoraUser.domain.AgoraUser;
 import com.attica.athens.domain.agoraUser.exception.NotFoundAgoraUserException;
@@ -26,13 +27,12 @@ public class AgoraVoteService {
     @Transactional
     public AgoraVoteResponse vote(Long userId, AgoraVoteRequest agoraVoteRequest, Long agoraId) {
 
-        agoraUserRepository.findByUserId(userId)
-                .orElseThrow(() -> new NotFoundUserException(userId));
+        Agora agora = findAgoraById(agoraId);
+
+        checkAgoraStatus(agora);
+        AgoraUser agoraUser = findAgoraUserByAgoraIdAndUserId(userId, agoraId);
 
         agoraVoteRepository.updateVoteType(userId, agoraVoteRequest, agoraId);
-
-        AgoraUser agoraUser = agoraUserRepository.findByAgoraIdAndUserId(agoraId, userId)
-                .orElseThrow(() -> new NotFoundAgoraUserException(agoraId, userId));
 
         return new AgoraVoteResponse(agoraUser.getId(), agoraUser.getVoteType());
     }
@@ -40,12 +40,12 @@ public class AgoraVoteService {
     @Transactional
     public AgoraVoteResultResponse voteResult(Long agoraId) {
 
-        Agora agoraResult = findAgoraById(agoraId);
+        findAgoraById(agoraId);
 
-        Long prosVoteResult = agoraVoteRepository.getProsVoteResult(agoraId);
-        Long consVoteResult = agoraVoteRepository.getConsVoteResult(agoraId);
+        Integer prosVoteResult = agoraVoteRepository.getProsVoteResult(agoraId);
+        Integer consVoteResult = agoraVoteRepository.getConsVoteResult(agoraId);
 
-        agoraVoteRepository.updateVoteResult(agoraResult, prosVoteResult, consVoteResult);
+        agoraVoteRepository.updateVoteResult(agoraId, prosVoteResult, consVoteResult);
 
         return new AgoraVoteResultResponse(agoraId, prosVoteResult, consVoteResult);
 
@@ -56,4 +56,14 @@ public class AgoraVoteService {
                 .orElseThrow(() -> new NotFoundAgoraException(agoraId));
     }
 
+    private AgoraUser findAgoraUserByAgoraIdAndUserId(Long agoraId, Long userId) {
+        return agoraUserRepository.findByAgoraIdAndUserId(agoraId, userId)
+                .orElseThrow(() -> new NotFoundAgoraUserException(agoraId, userId));
+    }
+
+    private void checkAgoraStatus(Agora agora) {
+        if (agora.getStatus().equals("QUEUED") || agora.getStatus().equals("RUNNING")) {
+            throw new InvalidAgoraStatusException(AgoraStatus.CLOSED);
+        }
+    }
 }
