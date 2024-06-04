@@ -1,7 +1,10 @@
 package com.attica.athens.global.config;
 
+import com.attica.athens.global.decorator.CustomWebSocketHandlerDecorator;
+import com.attica.athens.global.handler.StompErrorHandler;
 import com.attica.athens.global.interceptor.JwtChannelInterceptor;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -9,10 +12,12 @@ import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
+import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketTransportRegistration;
+import org.springframework.web.socket.handler.WebSocketHandlerDecorator;
 
 @Configuration
 @EnableWebSocketMessageBroker
@@ -31,6 +36,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     public static final int MESSAGE_SIZE_LIMIT = 128 * 1024;
 
     private final JwtChannelInterceptor jwtChannelInterceptor;
+    private final StompErrorHandler stompErrorHandler;
 
     @Value("${cors.allowed-origins}")
     private String[] allowedOrigins;
@@ -40,6 +46,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         registry.addEndpoint(ENDPOINT)
                 .setAllowedOriginPatterns(allowedOrigins);
 //                .withSockJS();
+        registry.setErrorHandler(stompErrorHandler);
     }
 
     @Bean
@@ -69,5 +76,12 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         registration.setSendTimeLimit(TIME_LIMIT)
                 .setSendBufferSizeLimit(SEND_BUFFER_SIZE_LIMIT);
         registration.setMessageSizeLimit(MESSAGE_SIZE_LIMIT);
+        registration.addDecoratorFactory(this::customDecorator);
+    }
+
+    @Bean
+    public WebSocketHandlerDecorator customDecorator(
+            @Qualifier("subProtocolWebSocketHandler") WebSocketHandler webSocketHandler) {
+        return new CustomWebSocketHandlerDecorator(webSocketHandler);
     }
 }
