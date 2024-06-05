@@ -30,9 +30,9 @@ public class AgoraVoteService {
         Agora agora = findAgoraById(agoraId);
 
         checkAgoraStatus(agora);
-        AgoraUser agoraUser = findAgoraUserByAgoraIdAndUserId(userId, agoraId);
+        findAgoraUserByAgoraIdAndUserId(agoraId, userId);
 
-        agoraVoteRepository.updateVoteType(userId, agoraVoteRequest, agoraId);
+        AgoraUser agoraUser = agoraVoteRepository.updateVoteType(userId, agoraVoteRequest.voteType(), agoraId);
 
         return new AgoraVoteResponse(agoraUser.getId(), agoraUser.getVoteType());
     }

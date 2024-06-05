@@ -3,7 +3,7 @@ package com.attica.athens.domain.agora.vote.dao;
 import static com.attica.athens.domain.agora.domain.QAgora.agora;
 import static com.attica.athens.domain.agoraUser.domain.QAgoraUser.agoraUser;
 
-import com.attica.athens.domain.agora.vote.dto.request.AgoraVoteRequest;
+import com.attica.athens.domain.agoraUser.domain.AgoraUser;
 import com.attica.athens.domain.agoraUser.domain.AgoraVoteType;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.querydsl.jpa.impl.JPAUpdateClause;
@@ -22,17 +22,21 @@ public class AgoraVoteRepositoryImpl implements AgoraVoteRepository {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public void updateVoteType(Long userId, AgoraVoteRequest agoraVoteRequest, Long agoraId) {
+    public AgoraUser updateVoteType(Long userId, AgoraVoteType voteType, Long agoraId) {
 
         JPAUpdateClause jpaUpdateClause = new JPAUpdateClause(em, agoraUser);
 
         jpaUpdateClause
                 .where(agora.id.eq(agoraId).and(agoraUser.id.eq(userId)))
-                .set(agoraUser.voteType, agoraVoteRequest.voteType())
+                .set(agoraUser.voteType, voteType)
                 .execute();
 
         em.flush();
         em.clear();
+
+        AgoraUser updatedAgoraUser = em.find(AgoraUser.class, userId);
+
+        return updatedAgoraUser;
     }
 
     @Override

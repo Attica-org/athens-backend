@@ -1,10 +1,11 @@
 package com.attica.athens.domain.agora.vote.dao;
 
-import com.attica.athens.domain.agora.vote.dto.request.AgoraVoteRequest;
+import com.attica.athens.domain.agoraUser.domain.AgoraUser;
+import com.attica.athens.domain.agoraUser.domain.AgoraVoteType;
 
 public interface AgoraVoteRepository {
 
-    void updateVoteType(Long userId, AgoraVoteRequest agoraVoteRequest, Long agoraId);
+    AgoraUser updateVoteType(Long userId, AgoraVoteType voteType, Long agoraId);
 
     void updateVoteResult(Long agoraId, Integer prosVoteResult, Integer consVoteResult);
 
