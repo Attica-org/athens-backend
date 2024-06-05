@@ -11,9 +11,9 @@ import org.springframework.data.repository.query.Param;
 
 public interface AgoraUserRepository extends JpaRepository<AgoraUser, Integer> {
 
-    Optional<AgoraUser> findByAgoraIdAndUserId(Long agoraId, Long userId);
-
     boolean existsByAgoraIdAndUserId(Long agoraId, Long userId);
+
+    Optional<AgoraUser> findByAgoraIdAndUserId(Long agoraId, Long userId);
 
     @Query("SELECT new com.attica.athens.domain.chat.dto.response.SendMetaResponse$ParticipantsInfo(au.type, COUNT(au)) "
             +

@@ -59,6 +59,12 @@ public class Agora extends AuditingFields {
     @Column(nullable = false)
     private String color;
 
+    @Column(name = "pros_count", nullable = false)
+    private Integer prosCount;
+
+    @Column(name = "cons_count", nullable = false)
+    private Integer consCount;
+
     @Enumerated(EnumType.STRING)
     @Column(length = 25, nullable = false)
     private AgoraStatus status;
@@ -77,13 +83,16 @@ public class Agora extends AuditingFields {
     @OneToMany(mappedBy = "agora")
     private final List<AgoraUser> agoraUsers = new ArrayList<>();
 
-    public Agora(String title, Integer capacity, Integer duration, String color, Category category) {
+    public Agora(String title, Integer capacity, Integer duration, String color, Integer prosCount, Integer consCount,
+                 Category category) {
         this.title = title;
         this.capacity = capacity;
         this.duration = duration;
         this.viewCount = 0;
         this.status = AgoraStatus.QUEUED;
         this.color = color;
+        this.prosCount = prosCount;
+        this.consCount = consCount;
         this.endVoteCount = 0;
         this.category = category;
     }

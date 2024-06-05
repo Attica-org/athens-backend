@@ -31,6 +31,10 @@ public class AgoraUser extends AuditingFields {
     @Column(length = 50, nullable = false)
     private AgoraUserType type;
 
+    @Enumerated(EnumType.STRING)
+    @Column(length = 50, nullable = false)
+    private AgoraVoteType voteType;
+
     @Column(length = 25)
     private String nickname;
 
@@ -40,6 +44,9 @@ public class AgoraUser extends AuditingFields {
     @Column(name = "end_voted", nullable = false)
     private boolean endVoted;
 
+    @Column(name = "is_opinion_voted", nullable = false)
+    private boolean isOpinionVoted;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "agora_id")
     private Agora agora;
@@ -48,11 +55,14 @@ public class AgoraUser extends AuditingFields {
     @JoinColumn(name = "user_id")
     private BaseUser user;
 
-    public AgoraUser(AgoraUserType type, String nickname, Integer photoNumber, Agora agora, BaseUser user) {
+    public AgoraUser(AgoraUserType type, String nickname, Integer photoNumber, Agora agora,
+                     BaseUser user) {
         this.type = type;
+        this.voteType = AgoraVoteType.DEFAULT;
         this.nickname = nickname;
         this.photoNumber = photoNumber;
         this.endVoted = false;
+        this.isOpinionVoted = false;
         this.agora = agora;
         this.user = user;
     }

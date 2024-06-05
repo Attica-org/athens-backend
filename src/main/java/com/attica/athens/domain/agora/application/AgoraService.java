@@ -10,8 +10,10 @@ import com.attica.athens.domain.agora.dto.request.AgoraCreateRequest;
 import com.attica.athens.domain.agora.dto.request.AgoraParticipateRequest;
 import com.attica.athens.domain.agora.dto.request.SearchCategoryRequest;
 import com.attica.athens.domain.agora.dto.request.SearchKeywordRequest;
+import com.attica.athens.domain.agora.dto.response.AgoraIdResponse;
 import com.attica.athens.domain.agora.dto.response.AgoraParticipateResponse;
 import com.attica.athens.domain.agora.dto.response.AgoraSlice;
+import com.attica.athens.domain.agora.dto.response.AgoraTitleResponse;
 import com.attica.athens.domain.agora.dto.response.CreateAgoraResponse;
 import com.attica.athens.domain.agora.dto.response.EndVoteAgoraResponse;
 import com.attica.athens.domain.agora.dto.response.StartAgoraResponse;
@@ -22,7 +24,7 @@ import com.attica.athens.domain.agora.exception.NotFoundAgoraException;
 import com.attica.athens.domain.agora.exception.NotFoundCategoryException;
 import com.attica.athens.domain.agoraUser.dao.AgoraUserRepository;
 import com.attica.athens.domain.agoraUser.domain.AgoraUser;
-import com.attica.athens.domain.agoraUser.exception.AlreadyVotedException;
+import com.attica.athens.domain.agoraUser.exception.AlreadyEndVotedException;
 import com.attica.athens.domain.agoraUser.exception.NotFoundAgoraUserException;
 import com.attica.athens.domain.user.dao.BaseUserRepository;
 import com.attica.athens.domain.user.domain.BaseUser;
@@ -36,6 +38,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class AgoraService {
+
+    private static final Integer PROS_COUNT = 0;
+    private static final Integer CONS_COUNT = 0;
 
     private final AgoraRepository agoraRepository;
     private final CategoryRepository categoryRepository;
@@ -87,6 +92,7 @@ public class AgoraService {
                 request.capacity(),
                 request.duration(),
                 request.color(),
+                PROS_COUNT, CONS_COUNT,
                 category);
     }
 
@@ -123,6 +129,19 @@ public class AgoraService {
     private Category findByCategory(final Long categoryId) {
         return categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new NotFoundCategoryException(categoryId));
+    }
+
+    public AgoraTitleResponse getAgoraTitle(final Long agoraId) {
+
+        Agora agora = findAgoraById(agoraId);
+
+        return new AgoraTitleResponse(agora);
+    }
+
+    public AgoraIdResponse getAgoraIdList() {
+        List<Long> agoraIdList = agoraRepository.getAgoraIdList();
+
+        return new AgoraIdResponse(agoraIdList);
     }
 
     @Transactional
@@ -166,7 +185,7 @@ public class AgoraService {
     private void findAgoraUserAndMarkEndVoted(Long agoraId, Long userId) {
         AgoraUser agoraUser = findAgoraUserByAgoraIdAndUserId(agoraId, userId);
         if (agoraUser.isEndVoted()) {
-            throw new AlreadyVotedException();
+            throw new AlreadyEndVotedException();
         }
         agoraUser.markEndVoted();
     }
