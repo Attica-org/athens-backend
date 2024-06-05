@@ -10,4 +10,6 @@ public interface AgoraQueryRepository {
     AgoraSlice<SimpleAgoraResult> findAgoraByKeyword(Long agoraId, List<AgoraStatus> status, String keyword);
 
     AgoraSlice<SimpleAgoraResult> findAgoraByCategory(Long agoraId, List<AgoraStatus> status, List<Long> categoryIds);
+
+    List<Long> getAgoraIdList();
 }

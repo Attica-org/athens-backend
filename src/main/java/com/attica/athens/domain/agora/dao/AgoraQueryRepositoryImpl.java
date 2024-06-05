@@ -107,6 +107,20 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
         return getSimpleAgoraResultAgoraSlice(size, result);
     }
 
+    @Override
+    public List<Long> getAgoraIdList() {
+
+        final int size = 30;
+
+        List<Long> agoraIdList = jpaQueryFactory
+                .select(agora.id)
+                .from(agora)
+                .limit(size + 1L)
+                .fetch();
+
+        return agoraIdList;
+    }
+
     private AgoraSlice<SimpleAgoraResult> getSimpleAgoraResultAgoraSlice(final int size,
                                                                          final List<SimpleAgoraResult> result) {
         boolean hasNext = false;
