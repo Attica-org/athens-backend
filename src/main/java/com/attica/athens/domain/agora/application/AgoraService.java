@@ -135,7 +135,7 @@ public class AgoraService {
 
         Agora agora = findAgoraById(agoraId);
 
-        return new AgoraTitleResponse(agora.getTitle(), agora.getStatus());
+        return new AgoraTitleResponse(agora);
     }
 
     public AgoraIdResponse getAgoraIdList() {

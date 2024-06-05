@@ -5,7 +5,7 @@ import com.attica.athens.domain.agoraUser.domain.AgoraVoteType;
 
 public interface AgoraVoteRepository {
 
-    AgoraUser updateVoteType(Long userId, AgoraVoteType voteType,Boolean opinionVoted, Long agoraId);
+    AgoraUser updateVoteType(Long userId, AgoraVoteType voteType, Boolean isOpinionVoted, Long agoraId);
 
     void updateVoteResult(Long agoraId, Integer prosVoteResult, Integer consVoteResult);
 

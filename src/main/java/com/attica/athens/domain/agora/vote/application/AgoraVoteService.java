@@ -36,7 +36,7 @@ public class AgoraVoteService {
         findAgoraUserByAgoraIdAndUserId(agoraId, userId);
 
         AgoraUser agoraUser = agoraVoteRepository.updateVoteType(userId, agoraVoteRequest.voteType(),
-                agoraVoteRequest.opinionVoted(), agoraId);
+                agoraVoteRequest.isOpinionVoted(), agoraId);
 
         return new AgoraVoteResponse(agoraUser.getId(), agoraUser.getVoteType());
     }
