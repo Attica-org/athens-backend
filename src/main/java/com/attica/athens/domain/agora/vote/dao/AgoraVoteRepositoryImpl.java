@@ -22,13 +22,14 @@ public class AgoraVoteRepositoryImpl implements AgoraVoteRepository {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public AgoraUser updateVoteType(Long userId, AgoraVoteType voteType, Long agoraId) {
+    public AgoraUser updateVoteType(Long userId, AgoraVoteType voteType, Boolean opinionVoted, Long agoraId) {
 
         JPAUpdateClause jpaUpdateClause = new JPAUpdateClause(em, agoraUser);
 
         jpaUpdateClause
                 .where(agora.id.eq(agoraId).and(agoraUser.id.eq(userId)))
                 .set(agoraUser.voteType, voteType)
+                .set(agoraUser.opinionVoted, opinionVoted)
                 .execute();
 
         em.flush();

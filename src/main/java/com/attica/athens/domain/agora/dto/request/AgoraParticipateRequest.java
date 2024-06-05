@@ -6,10 +6,9 @@ import com.attica.athens.domain.agoraUser.domain.AgoraVoteType;
 
 @ValidAgoraParticipateRequest
 public record AgoraParticipateRequest(
-    String nickname,
-    Integer photoNum,
-    String type,
-    AgoraVoteType voteType
+        String nickname,
+        Integer photoNum,
+        String type
 
 ) {
 

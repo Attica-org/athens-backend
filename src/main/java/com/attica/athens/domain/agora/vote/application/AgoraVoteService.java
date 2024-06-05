@@ -9,6 +9,7 @@ import com.attica.athens.domain.agora.vote.dao.AgoraVoteRepository;
 import com.attica.athens.domain.agora.vote.dto.request.AgoraVoteRequest;
 import com.attica.athens.domain.agora.vote.dto.response.AgoraVoteResponse;
 import com.attica.athens.domain.agora.vote.dto.response.AgoraVoteResultResponse;
+import com.attica.athens.domain.agora.vote.exception.AlreadyOpinionVotedException;
 import com.attica.athens.domain.agoraUser.dao.AgoraUserRepository;
 import com.attica.athens.domain.agoraUser.domain.AgoraUser;
 import com.attica.athens.domain.agoraUser.exception.NotFoundAgoraUserException;
@@ -27,12 +28,15 @@ public class AgoraVoteService {
     @Transactional
     public AgoraVoteResponse vote(Long userId, AgoraVoteRequest agoraVoteRequest, Long agoraId) {
 
+        checkAgoraUserVoted(agoraId, userId);
+
         Agora agora = findAgoraById(agoraId);
 
         checkAgoraStatus(agora);
         findAgoraUserByAgoraIdAndUserId(agoraId, userId);
 
-        AgoraUser agoraUser = agoraVoteRepository.updateVoteType(userId, agoraVoteRequest.voteType(), agoraId);
+        AgoraUser agoraUser = agoraVoteRepository.updateVoteType(userId, agoraVoteRequest.voteType(),
+                agoraVoteRequest.opinionVoted(), agoraId);
 
         return new AgoraVoteResponse(agoraUser.getId(), agoraUser.getVoteType());
     }
@@ -49,6 +53,14 @@ public class AgoraVoteService {
 
         return new AgoraVoteResultResponse(agoraId, prosVoteResult, consVoteResult);
 
+    }
+
+    private void checkAgoraUserVoted(Long agoraId, Long userId) {
+        AgoraUser agoraUser = findAgoraUserByAgoraIdAndUserId(agoraId, userId);
+
+        if (agoraUser.isOpinionVoted()) {
+            throw new AlreadyOpinionVotedException();
+        }
     }
 
     private Agora findAgoraById(Long agoraId) {

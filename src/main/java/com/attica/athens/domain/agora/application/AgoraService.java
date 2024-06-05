@@ -24,7 +24,7 @@ import com.attica.athens.domain.agora.exception.NotFoundAgoraException;
 import com.attica.athens.domain.agora.exception.NotFoundCategoryException;
 import com.attica.athens.domain.agoraUser.dao.AgoraUserRepository;
 import com.attica.athens.domain.agoraUser.domain.AgoraUser;
-import com.attica.athens.domain.agoraUser.exception.AlreadyVotedException;
+import com.attica.athens.domain.agoraUser.exception.AlreadyEndVotedException;
 import com.attica.athens.domain.agoraUser.exception.NotFoundAgoraUserException;
 import com.attica.athens.domain.user.dao.BaseUserRepository;
 import com.attica.athens.domain.user.domain.BaseUser;
@@ -99,7 +99,6 @@ public class AgoraService {
     private AgoraUser createAgoraUser(final Long userId, final Long agoraId, final AgoraParticipateRequest request) {
         return new AgoraUser(
                 request.getAgoraUserType(),
-                request.voteType(),
                 request.nickname(),
                 request.photoNum(),
                 findAgoraById(agoraId),
@@ -186,7 +185,7 @@ public class AgoraService {
     private void findAgoraUserAndMarkEndVoted(Long agoraId, Long userId) {
         AgoraUser agoraUser = findAgoraUserByAgoraIdAndUserId(agoraId, userId);
         if (agoraUser.isEndVoted()) {
-            throw new AlreadyVotedException();
+            throw new AlreadyEndVotedException();
         }
         agoraUser.markEndVoted();
     }
