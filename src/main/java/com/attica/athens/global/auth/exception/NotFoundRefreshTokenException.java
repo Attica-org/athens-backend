@@ -8,7 +8,7 @@ public class NotFoundRefreshTokenException extends CustomException {
     public NotFoundRefreshTokenException() {
         super(
                 HttpStatus.BAD_REQUEST,
-                ErrorCode.AUTHENTICATION_FAILED,
+                ErrorCode.ACCESS_DENIED,
                 "Refresh Token Not Exist."
         );
     }

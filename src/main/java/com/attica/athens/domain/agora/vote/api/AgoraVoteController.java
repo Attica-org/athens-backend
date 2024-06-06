@@ -24,10 +24,10 @@ public class AgoraVoteController {
 
     private final AgoraVoteService agoraVoteService;
 
-    @PatchMapping("/{agora-id}/vote")
+    @PatchMapping("/{agoraId}/vote")
     public ResponseEntity<ApiResponse<?>> vote(
             @AuthenticationPrincipal CustomUserDetails userDetails,
-            @PathVariable("agora-id") Long agoraId,
+            @PathVariable("agoraId") Long agoraId,
             @RequestBody AgoraVoteRequest agoraVoteRequest
     ) {
 
@@ -37,9 +37,9 @@ public class AgoraVoteController {
         return ResponseEntity.ok(ApiUtil.success(agoraVoteProsResponse));
     }
 
-    @GetMapping("/{agora-id}/results")
+    @GetMapping("/{agoraId}/results")
     public ResponseEntity<ApiResponse<?>> voteResult(
-            @PathVariable("agora-id") Long agoraId
+            @PathVariable("agoraId") Long agoraId
     ) {
         AgoraVoteResultResponse agoraVoteResultResponse = agoraVoteService.voteResult(agoraId);
 
