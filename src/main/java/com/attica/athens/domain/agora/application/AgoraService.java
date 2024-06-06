@@ -64,6 +64,10 @@ public class AgoraService {
     }
 
     public AgoraSlice<SimpleAgoraResult> findAgoraByCategory(final SearchCategoryRequest request) {
+        if (request.category() == 1) {
+            return agoraRepository.findAgoraByAllCategory(request.next(), request.getStatus());
+        }
+
         List<Long> categoryIds = findParentCategoryById(request.category());
 
         return agoraRepository.findAgoraByCategory(request.next(), request.getStatus(), categoryIds);
