@@ -6,11 +6,11 @@ import org.springframework.http.HttpStatus;
 
 public class InvalidAgoraStatusChangeException extends CustomException {
 
-    public InvalidAgoraStatusChangeException(Long agoraId) {
+    public InvalidAgoraStatusChangeException() {
         super(
                 HttpStatus.BAD_REQUEST,
                 ErrorCode.WRONG_REQUEST_TRANSMISSION,
-                "Invalid status transition" + agoraId
+                "Invalid agora status transition."
         );
     }
 }

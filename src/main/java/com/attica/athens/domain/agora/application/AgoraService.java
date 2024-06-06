@@ -3,7 +3,6 @@ package com.attica.athens.domain.agora.application;
 import com.attica.athens.domain.agora.dao.AgoraRepository;
 import com.attica.athens.domain.agora.dao.CategoryRepository;
 import com.attica.athens.domain.agora.domain.Agora;
-import com.attica.athens.domain.agora.domain.AgoraStatus;
 import com.attica.athens.domain.agora.domain.Category;
 import com.attica.athens.domain.agora.dto.SimpleAgoraResult;
 import com.attica.athens.domain.agora.dto.request.AgoraCreateRequest;
@@ -19,7 +18,6 @@ import com.attica.athens.domain.agora.dto.response.EndVoteAgoraResponse;
 import com.attica.athens.domain.agora.dto.response.StartAgoraResponse;
 import com.attica.athens.domain.agora.exception.AlreadyParticipateException;
 import com.attica.athens.domain.agora.exception.FullAgoraCapacityException;
-import com.attica.athens.domain.agora.exception.InvalidAgoraStatusChangeException;
 import com.attica.athens.domain.agora.exception.NotFoundAgoraException;
 import com.attica.athens.domain.agora.exception.NotFoundCategoryException;
 import com.attica.athens.domain.agoraUser.dao.AgoraUserRepository;
@@ -170,15 +168,13 @@ public class AgoraService {
 
     @Transactional
     public EndVoteAgoraResponse endVoteAgora(Long agoraId, Long userId) {
+
         Agora agora = findAgoraById(agoraId);
-        if (!(agora.getStatus() == AgoraStatus.RUNNING || agora.getStatus() == AgoraStatus.CLOSED)) {
-            throw new InvalidAgoraStatusChangeException(agoraId);
-        }
 
         findAgoraUserAndMarkEndVoted(agoraId, userId);
 
         int participantCount = agoraUserRepository.countByAgoraId(agoraId);
-        agora.incrementEndVoteCountAndCheckTermination(participantCount);
+        agora.endVoteAgora(participantCount);
 
         return new EndVoteAgoraResponse(agora);
     }
