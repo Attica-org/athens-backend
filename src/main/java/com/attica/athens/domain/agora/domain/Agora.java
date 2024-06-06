@@ -116,7 +116,7 @@ public class Agora extends AuditingFields {
         }
     }
 
-    public void incrementEndVoteCountAndCheckTermination(int participantsNum) {
+    public void endVoteAgora(int participantsNum) {
         AgoraStatus expectedStatus = AgoraStatus.RUNNING;
 
         if (this.status == expectedStatus) {
@@ -136,7 +136,7 @@ public class Agora extends AuditingFields {
         ) {
             this.status = status;
         } else {
-            throw new InvalidAgoraStatusChangeException(id);
+            throw new InvalidAgoraStatusChangeException();
         }
     }
 
