@@ -28,16 +28,16 @@ public class AgoraAuthController {
 
     private final AgoraService agoraService;
 
-    @PatchMapping("/{agora-id}/start")
-    public ResponseEntity<ApiResponse<StartAgoraResponse>> startAgora(@PathVariable("agora-id") Long agoraId,
+    @PatchMapping("/{agoraId}/start")
+    public ResponseEntity<ApiResponse<StartAgoraResponse>> startAgora(@PathVariable("agoraId") Long agoraId,
                                                                       @AuthenticationPrincipal CustomUserDetails userDetails) {
         StartAgoraResponse response = agoraService.startAgora(agoraId, userDetails.getUserId());
 
         return ResponseEntity.ok(ApiUtil.success(response));
     }
 
-    @PatchMapping("/{agora-id}/close")
-    public ResponseEntity<ApiResponse<EndVoteAgoraResponse>> endVoteAgora(@PathVariable("agora-id") Long agoraId,
+    @PatchMapping("/{agoraId}/close")
+    public ResponseEntity<ApiResponse<EndVoteAgoraResponse>> endVoteAgora(@PathVariable("agoraId") Long agoraId,
                                                                           @AuthenticationPrincipal CustomUserDetails userDetails) {
         EndVoteAgoraResponse response = agoraService.endVoteAgora(agoraId, userDetails.getUserId());
 

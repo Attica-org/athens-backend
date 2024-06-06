@@ -34,24 +34,24 @@ public class ChatAuthController {
     private final ChatCommandService chatCommandService;
     private final ChatQueryService chatQueryService;
 
-    @MessageMapping("/agoras/{agora-id}/chats")
-    @SendTo(value = "/topic/agoras/{agora-id}/chats")
-    public SendChatResponse sendChat(@DestinationVariable("agora-id") Long agoraId,
+    @MessageMapping("/agoras/{agoraId}/chats")
+    @SendTo(value = "/topic/agoras/{agoraId}/chats")
+    public SendChatResponse sendChat(@DestinationVariable("agoraId") Long agoraId,
                                      @Payload @Valid SendChatRequest sendChatRequest,
                                      @AuthenticationPrincipal CustomUserDetails userDetails) {
 
         return chatCommandService.sendChat(userDetails, agoraId, sendChatRequest);
     }
 
-    @MessageMapping("/agoras/{agora-id}")
-    @SendTo(value = "/topic/agoras/{agora-id}")
-    public SendMetaResponse sendMeta(@DestinationVariable("agora-id") Long agoraId) {
+    @MessageMapping("/agoras/{agoraId}")
+    @SendTo(value = "/topic/agoras/{agoraId}")
+    public SendMetaResponse sendMeta(@DestinationVariable("agoraId") Long agoraId) {
 
         return chatQueryService.sendMeta(agoraId);
     }
 
-    @GetMapping("/agoras/{agora-id}/chats")
-    public ResponseEntity getChatHistory(@PathVariable("agora-id") Long agoraId,
+    @GetMapping("/agoras/{agoraId}/chats")
+    public ResponseEntity getChatHistory(@PathVariable("agoraId") Long agoraId,
                                          @RequestBody Cursor cursor) {
 
         GetChatResponse response = chatQueryService.getChatHistory(agoraId, cursor);
@@ -59,8 +59,8 @@ public class ChatAuthController {
         return ResponseEntity.ok(ApiUtil.success(response));
     }
 
-    @GetMapping("/agoras/{agora-id}/users")
-    public ResponseEntity getChatParticipants(@PathVariable("agora-id") Long agoraId) {
+    @GetMapping("/agoras/{agoraId}/users")
+    public ResponseEntity getChatParticipants(@PathVariable("agoraId") Long agoraId) {
 
         GetChatParticipants response = chatQueryService.getChatParticipants(agoraId);
 
