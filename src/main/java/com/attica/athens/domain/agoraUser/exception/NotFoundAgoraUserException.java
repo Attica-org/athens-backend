@@ -11,7 +11,7 @@ public class NotFoundAgoraUserException extends CustomException {
                 HttpStatus.NOT_FOUND,
                 ErrorCode.RESOURCE_NOT_FOUND,
                 "Agora user not found with agora id: " + agoraId +
-                        "user id: " + userId
+                        " user id: " + userId
         );
     }
 }
