@@ -5,13 +5,14 @@ import com.attica.athens.domain.chat.dto.Cursor;
 import com.attica.athens.domain.chat.dto.response.GetChatParticipants;
 import com.attica.athens.domain.chat.dto.response.GetChatResponse;
 import com.attica.athens.domain.common.ApiUtil;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
@@ -24,9 +25,10 @@ public class ChatOpenController {
 
     @GetMapping("/agoras/{agoraId}/chats")
     public ResponseEntity getChatHistory(@PathVariable("agoraId") Long agoraId,
-                                         @RequestBody Cursor cursor) {
+                                         @RequestParam(value = "key", required = false) Long key,
+                                         @RequestParam(value = "size", required = false) Optional<Integer> size) {
 
-        GetChatResponse response = chatQueryService.getChatHistory(agoraId, cursor);
+        GetChatResponse response = chatQueryService.getChatHistory(agoraId, new Cursor(key, size));
 
         return ResponseEntity.ok(ApiUtil.success(response));
     }
