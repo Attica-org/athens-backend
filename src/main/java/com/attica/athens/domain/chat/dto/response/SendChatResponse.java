@@ -1,10 +1,11 @@
 package com.attica.athens.domain.chat.dto.response;
 
+import static com.attica.athens.global.utils.TimeFormatter.format;
+
 import com.attica.athens.domain.agoraUser.domain.AgoraUser;
 import com.attica.athens.domain.agoraUser.domain.AgoraUserType;
 import com.attica.athens.domain.chat.domain.Chat;
 import com.attica.athens.domain.chat.domain.ChatType;
-import java.time.LocalDateTime;
 
 public record SendChatResponse(ChatType type, SendChatData data) {
 
@@ -12,11 +13,11 @@ public record SendChatResponse(ChatType type, SendChatData data) {
             Long chatId,
             UserData user,
             String content,
-            LocalDateTime createdAt
+            String createdAt
     ) {
         public SendChatData(Chat chat, AgoraUser agoraUser) {
             this(chat.getId(), new UserData(agoraUser), chat.getContent(),
-                    chat.getCreatedAt());
+                    format(chat.getCreatedAt()));
         }
     }
 

@@ -2,6 +2,7 @@ package com.attica.athens.domain.chat.application;
 
 import com.attica.athens.domain.agora.dao.AgoraRepository;
 import com.attica.athens.domain.agora.exception.NotFoundAgoraException;
+import com.attica.athens.domain.agora.exception.NotParticipateException;
 import com.attica.athens.domain.agoraUser.dao.AgoraUserRepository;
 import com.attica.athens.domain.agoraUser.domain.AgoraUser;
 import com.attica.athens.domain.chat.dao.ChatRepository;
@@ -43,7 +44,7 @@ public class ChatCommandService {
 
     private AgoraUser findAgoraUserByAgoraIdAndUserId(Long agoraId, Long userId) {
         return agoraUserRepository.findByAgoraIdAndUserId(agoraId, userId)
-                .orElseThrow(() -> new IllegalArgumentException("User is not in the agora."));
+                .orElseThrow(NotParticipateException::new);
     }
 
     private boolean existsById(Long agoraId) {
