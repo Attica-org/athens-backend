@@ -5,7 +5,7 @@ import com.attica.athens.domain.agora.domain.Agora;
 import com.attica.athens.domain.agora.domain.AgoraStatus;
 import com.attica.athens.domain.agora.exception.InvalidAgoraStatusException;
 import com.attica.athens.domain.agora.exception.NotFoundAgoraException;
-import com.attica.athens.domain.agora.vote.dao.AgoraVoteRepository;
+import com.attica.athens.domain.agora.vote.dao.AgoraQueryVoteRepository;
 import com.attica.athens.domain.agora.vote.dto.request.AgoraVoteRequest;
 import com.attica.athens.domain.agora.vote.dto.response.AgoraVoteResponse;
 import com.attica.athens.domain.agora.vote.dto.response.AgoraVoteResultResponse;
@@ -21,7 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class AgoraVoteService {
 
-    private final AgoraVoteRepository agoraVoteRepository;
+    private final AgoraQueryVoteRepository agoraVoteRepository;
     private final AgoraRepository agoraRepository;
     private final AgoraUserRepository agoraUserRepository;
 
@@ -33,23 +33,23 @@ public class AgoraVoteService {
         Agora agora = findAgoraById(agoraId);
 
         checkAgoraStatus(agora);
-        findAgoraUserByAgoraIdAndUserId(agoraId, userId);
 
-        AgoraUser agoraUser = agoraVoteRepository.updateVoteType(userId, agoraVoteRequest.voteType(),
-                agoraVoteRequest.isOpinionVoted(), agoraId);
+        AgoraUser agoraUser = findAgoraUserByAgoraIdAndUserId(agoraId, userId);
 
-        return new AgoraVoteResponse(agoraUser.getId(), agoraUser.getVoteType());
+        agoraUser.updateIsOpinionVotedAndVoteType(agoraVoteRequest.voteType(), agoraVoteRequest.isOpinionVoted());
+
+        return new AgoraVoteResponse(agoraUser);
     }
 
     @Transactional
     public AgoraVoteResultResponse voteResult(Long agoraId) {
 
-        findAgoraById(agoraId);
+        Agora agora = findAgoraById(agoraId);
 
         Integer prosVoteResult = agoraVoteRepository.getProsVoteResult(agoraId);
         Integer consVoteResult = agoraVoteRepository.getConsVoteResult(agoraId);
 
-        agoraVoteRepository.updateVoteResult(agoraId, prosVoteResult, consVoteResult);
+        agora.updateProsCountAndConsCount(prosVoteResult, consVoteResult);
 
         return new AgoraVoteResultResponse(agoraId, prosVoteResult, consVoteResult);
 

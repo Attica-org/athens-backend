@@ -7,7 +7,7 @@ public class JwtIllegalArgumentException extends JwtException {
     public JwtIllegalArgumentException() {
         super(
                 HttpStatus.UNAUTHORIZED,
-                ErrorCode.AUTHENTICATION_FAILED,
+                ErrorCode.WRONG_REQUEST_TRANSMISSION,
                 "Invalid JWT token."
         );
     }
