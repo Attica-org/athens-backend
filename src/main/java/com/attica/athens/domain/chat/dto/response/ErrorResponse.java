@@ -1,10 +1,12 @@
 package com.attica.athens.domain.chat.dto.response;
 
+import static com.attica.athens.global.utils.TimeFormatter.format;
+
 import java.time.LocalDateTime;
 
-public record ErrorResponse(String status, String message, String code, String timestamp) {
+public record ErrorResponse(String status, Integer code, String message, String timestamp) {
 
-    public ErrorResponse(String message, String code) {
-        this("ERROR", message, code, LocalDateTime.now().toString());
+    public ErrorResponse(Integer code, String message) {
+        this("ERROR", code, message, format(LocalDateTime.now()));
     }
 }
