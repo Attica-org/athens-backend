@@ -16,6 +16,7 @@ import com.attica.athens.domain.agora.dto.response.AgoraTitleResponse;
 import com.attica.athens.domain.agora.dto.response.CreateAgoraResponse;
 import com.attica.athens.domain.agora.dto.response.EndVoteAgoraResponse;
 import com.attica.athens.domain.agora.dto.response.StartAgoraResponse;
+import com.attica.athens.domain.agora.dto.response.StartNotificationResponse;
 import com.attica.athens.domain.agora.exception.AlreadyParticipateException;
 import com.attica.athens.domain.agora.exception.FullAgoraCapacityException;
 import com.attica.athens.domain.agora.exception.NotFoundAgoraException;
@@ -24,12 +25,14 @@ import com.attica.athens.domain.agoraUser.dao.AgoraUserRepository;
 import com.attica.athens.domain.agoraUser.domain.AgoraUser;
 import com.attica.athens.domain.agoraUser.exception.AlreadyEndVotedException;
 import com.attica.athens.domain.agoraUser.exception.NotFoundAgoraUserException;
+import com.attica.athens.domain.chat.domain.ChatType;
 import com.attica.athens.domain.user.dao.BaseUserRepository;
 import com.attica.athens.domain.user.domain.BaseUser;
 import com.attica.athens.domain.user.exception.NotFoundUserException;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,6 +47,7 @@ public class AgoraService {
     private final CategoryRepository categoryRepository;
     private final BaseUserRepository baseUserRepository;
     private final AgoraUserRepository agoraUserRepository;
+    private final SimpMessagingTemplate messagingTemplate;
 
     @Transactional
     public CreateAgoraResponse create(final AgoraCreateRequest request) {
@@ -155,6 +159,8 @@ public class AgoraService {
 
         agora.startAgora();
 
+        sendAgoraStartMessage(agora);
+
         return new StartAgoraResponse(agora);
     }
 
@@ -165,6 +171,13 @@ public class AgoraService {
     private Agora findAgoraById(Long agoraId) {
         return agoraRepository.findById(agoraId)
                 .orElseThrow(() -> new NotFoundAgoraException(agoraId));
+    }
+
+    private void sendAgoraStartMessage(Agora agora) {
+        StartNotificationResponse notification = new StartNotificationResponse(ChatType.DISCUSSION_START,
+                new StartNotificationResponse.StartAgoraData(agora));
+
+        messagingTemplate.convertAndSend("/topic/agoras/" + agora.getId(), notification);
     }
 
     @Transactional
