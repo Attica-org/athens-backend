@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 public record AgoraCreateRequest(
+        @NotBlank
         String title,
         @Min(1)
         Integer capacity,
