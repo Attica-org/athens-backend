@@ -1,11 +1,12 @@
 package com.attica.athens.domain.agora.dto.response;
 
-import com.attica.athens.domain.agora.domain.Agora;
-import java.time.LocalDateTime;
+import static com.attica.athens.global.utils.TimeFormatter.format;
 
-public record StartAgoraResponse(Long agoraId, LocalDateTime startTime) {
+import com.attica.athens.domain.agora.domain.Agora;
+
+public record StartAgoraResponse(Long agoraId, String startTime) {
 
     public StartAgoraResponse(Agora agora) {
-        this(agora.getId(), agora.getStartTime());
+        this(agora.getId(), format(agora.getStartTime()));
     }
 }
