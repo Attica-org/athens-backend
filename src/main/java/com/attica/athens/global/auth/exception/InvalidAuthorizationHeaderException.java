@@ -8,7 +8,7 @@ public class InvalidAuthorizationHeaderException extends CustomException {
 
     public InvalidAuthorizationHeaderException() {
         super(HttpStatus.BAD_REQUEST,
-                ErrorCode.WRONG_REQUEST_TRANSMISSION,
+                ErrorCode.MISSING_PART,
                 "Authorization header is missing or does not start with Bearer"
         );
     }

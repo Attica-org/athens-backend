@@ -45,9 +45,9 @@ public class AgoraOpenController {
         return ResponseEntity.ok(ApiUtil.success(response));
     }
 
-    @GetMapping("/{agora-id}/title")
+    @GetMapping("/{agoraId}/title")
     public ResponseEntity<ApiResponse<?>> getAgoraTitle(
-            @PathVariable("agora-id") Long agoraId
+            @PathVariable("agoraId") Long agoraId
     ) {
         AgoraTitleResponse agoraTitle = agoraService.getAgoraTitle(agoraId);
 

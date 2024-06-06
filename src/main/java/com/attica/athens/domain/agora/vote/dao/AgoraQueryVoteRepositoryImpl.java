@@ -3,54 +3,17 @@ package com.attica.athens.domain.agora.vote.dao;
 import static com.attica.athens.domain.agora.domain.QAgora.agora;
 import static com.attica.athens.domain.agoraUser.domain.QAgoraUser.agoraUser;
 
-import com.attica.athens.domain.agoraUser.domain.AgoraUser;
 import com.attica.athens.domain.agoraUser.domain.AgoraVoteType;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import com.querydsl.jpa.impl.JPAUpdateClause;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 @Repository
 @RequiredArgsConstructor
-public class AgoraVoteRepositoryImpl implements AgoraVoteRepository {
+public class AgoraQueryVoteRepositoryImpl implements AgoraQueryVoteRepository {
 
-    @PersistenceContext
-    private final EntityManager em;
     private final JPAQueryFactory queryFactory;
-
-    @Override
-    public AgoraUser updateVoteType(Long userId, AgoraVoteType voteType, Boolean isOpinionVoted, Long agoraId) {
-
-        JPAUpdateClause jpaUpdateClause = new JPAUpdateClause(em, agoraUser);
-
-        jpaUpdateClause
-                .where(agora.id.eq(agoraId).and(agoraUser.id.eq(userId)))
-                .set(agoraUser.voteType, voteType)
-                .set(agoraUser.isOpinionVoted, isOpinionVoted)
-                .execute();
-
-        em.flush();
-        em.clear();
-
-        AgoraUser updatedAgoraUser = em.find(AgoraUser.class, userId);
-
-        return updatedAgoraUser;
-    }
-
-    @Override
-    public void updateVoteResult(Long agoraId, Integer prosVoteResult, Integer consVoteResult) {
-        JPAUpdateClause jpaUpdateClause = new JPAUpdateClause(em, agora);
-
-        jpaUpdateClause
-                .where(agora.id.eq(agoraId))
-                .set(agora.prosCount, prosVoteResult)
-                .set(agora.consCount, consVoteResult)
-                .execute();
-
-    }
 
     @Override
     public Integer getProsVoteResult(Long agoraid) {
