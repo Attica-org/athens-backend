@@ -109,6 +109,44 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
     }
 
     @Override
+    public AgoraSlice<SimpleAgoraResult> findAgoraByAllCategory(Long agoraId, List<AgoraStatus> status) {
+        final int size = 10;
+
+        List<SimpleAgoraResult> result = jpaQueryFactory
+                .select(Projections.constructor(
+                        SimpleAgoraResult.class,
+                        agora.id,
+                        agora.title,
+                        agora.color,
+                        Projections.constructor(SimpleParticipants.class,
+                                new CaseBuilder()
+                                        .when(agoraUser.type.eq(AgoraUserType.PROS)).then(agoraUser.count())
+                                        .otherwise(0L)
+                                        .intValue(),
+                                new CaseBuilder()
+                                        .when(agoraUser.type.eq(AgoraUserType.CONS)).then(agoraUser.count())
+                                        .otherwise(0L)
+                                        .intValue(),
+                                new CaseBuilder()
+                                        .when(agoraUser.type.eq(AgoraUserType.OBSERVER)).then(agoraUser.count())
+                                        .otherwise(0L)
+                                        .intValue()
+                        ),
+                        agora.createdAt,
+                        agora.status
+                ))
+                .from(agora)
+                .leftJoin(agora.agoraUsers, agoraUser)
+                .where(agora.status.in(status))
+                .groupBy(agora.id, agoraUser.type)
+                .orderBy(agora.id.desc())
+                .limit(size + 1L)
+                .fetch();
+
+        return getSimpleAgoraResultAgoraSlice(size, result);
+    }
+
+    @Override
     public List<Long> getAgoraIdList() {
 
         final int size = 30;
