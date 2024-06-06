@@ -11,5 +11,7 @@ public interface AgoraQueryRepository {
 
     AgoraSlice<SimpleAgoraResult> findAgoraByCategory(Long agoraId, List<AgoraStatus> status, List<Long> categoryIds);
 
+    AgoraSlice<SimpleAgoraResult> findAgoraByAllCategory(Long agoraId, List<AgoraStatus> status);
+
     List<Long> getAgoraIdList();
 }
