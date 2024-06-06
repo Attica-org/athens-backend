@@ -80,7 +80,7 @@ public class AgoraService {
                                                 final AgoraParticipateRequest request) {
         Agora agora = findAgoraById(agoraId);
         if (!Objects.equals(AgoraUserType.OBSERVER, request.type())) {
-            int typeCount = agoraUserRepository.countCapacityByAgoraUserType(request.type());
+            int typeCount = agoraUserRepository.countCapacityByAgoraUserType(agora.getId(), request.type());
             if (typeCount >= agora.getMaxCapacity()) {
                 throw new FullAgoraCapacityException(agora.getId(), request.type());
             }

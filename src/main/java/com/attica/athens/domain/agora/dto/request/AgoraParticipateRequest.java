@@ -11,7 +11,4 @@ public record AgoraParticipateRequest(
         AgoraUserType type
 ) {
 
-//    public AgoraUserType getAgoraUserType() {
-//        return AgoraUserType.valueOf(type);
-//    }
 }
