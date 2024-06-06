@@ -14,6 +14,7 @@ import com.attica.athens.domain.agora.dto.response.AgoraParticipateResponse;
 import com.attica.athens.domain.agora.dto.response.AgoraSlice;
 import com.attica.athens.domain.agora.dto.response.AgoraTitleResponse;
 import com.attica.athens.domain.agora.dto.response.CreateAgoraResponse;
+import com.attica.athens.domain.agora.dto.response.EndNotificationResponse;
 import com.attica.athens.domain.agora.dto.response.EndVoteAgoraResponse;
 import com.attica.athens.domain.agora.dto.response.StartAgoraResponse;
 import com.attica.athens.domain.agora.dto.response.StartNotificationResponse;
@@ -189,6 +190,8 @@ public class AgoraService {
         int participantCount = agoraUserRepository.countByAgoraId(agoraId);
         agora.endVoteAgora(participantCount);
 
+        sendAgoraEndMessage(agora);
+
         return new EndVoteAgoraResponse(agora);
     }
 
@@ -203,5 +206,12 @@ public class AgoraService {
     private AgoraUser findAgoraUserByAgoraIdAndUserId(Long agoraId, Long userId) {
         return agoraUserRepository.findByAgoraIdAndUserId(agoraId, userId)
                 .orElseThrow(() -> new NotFoundAgoraUserException(agoraId, userId));
+    }
+
+    private void sendAgoraEndMessage(Agora agora) {
+        EndNotificationResponse notification = new EndNotificationResponse(ChatType.DISCUSSION_END,
+                new EndNotificationResponse.EndAgoraData(agora));
+
+        messagingTemplate.convertAndSend("/topic/agoras/" + agora.getId(), notification);
     }
 }

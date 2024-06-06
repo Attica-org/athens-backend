@@ -73,6 +73,10 @@ public class Agora extends AuditingFields {
     @Column(name = "start_time", updatable = false)
     private LocalDateTime startTime;
 
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+    @Column(name = "end_time", updatable = false)
+    private LocalDateTime endTime;
+
     @Column(name = "end_vote_count", nullable = false)
     private Integer endVoteCount;
 
@@ -124,6 +128,7 @@ public class Agora extends AuditingFields {
 
             if (endVoteCount >= participantsNum / 3 * 2) {
                 changeStatus(AgoraStatus.CLOSED);
+                this.endTime = LocalDateTime.now();
             }
         } else {
             throw new InvalidAgoraStatusException(expectedStatus);
