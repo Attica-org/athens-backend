@@ -107,8 +107,8 @@ public class Agora extends AuditingFields {
         this.agoraUsers.add(user);
     }
 
-    public boolean isFull() {
-        return this.capacity == this.agoraUsers.size();
+    public int getMaxCapacity() {
+        return this.capacity / 2;
     }
 
     public void startAgora() {
