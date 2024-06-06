@@ -1,6 +1,7 @@
 package com.attica.athens.global.handler;
 
 import com.attica.athens.domain.chat.dto.response.ErrorResponse;
+import com.attica.athens.domain.common.advice.CustomException;
 import com.attica.athens.global.decorator.CustomWebSocketHandlerDecorator;
 import java.io.IOException;
 import java.net.SocketException;
@@ -27,7 +28,16 @@ public class WebSocketExceptionHandler {
     public ErrorResponse handleSocketException(SocketException exception, Message<?> message) throws IOException {
         removeSession(message);
 
-        return new ErrorResponse(exception.getMessage(), "SOCKET_ERROR");
+        return new ErrorResponse(3000, "SOCKET_ERROR");
+    }
+
+    @MessageExceptionHandler
+    @SendToUser("/queue/errors")
+    public ErrorResponse handleCustomException(CustomException exception, Message<?> message)
+            throws IOException {
+        removeSession(message);
+
+        return new ErrorResponse(exception.getErrorCode(), exception.getMessage());
     }
 
     @MessageExceptionHandler
@@ -36,7 +46,7 @@ public class WebSocketExceptionHandler {
             throws IOException {
         removeSession(message);
 
-        return new ErrorResponse(exception.getMessage(), "RUNTIME_ERROR");
+        return new ErrorResponse(2000, "Runtime Exception");
     }
 
     @MessageExceptionHandler
@@ -46,7 +56,7 @@ public class WebSocketExceptionHandler {
         removeSession(message);
 
         return new ErrorResponse(
-                "VALIDATION_ERROR",
+                1001,
                 ex.getBindingResult()
                         .getAllErrors()
                         .stream()

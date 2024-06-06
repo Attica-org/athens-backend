@@ -32,23 +32,23 @@ public class StompErrorHandler extends StompSubProtocolErrorHandler {
         if (ex instanceof MessageDeliveryException) {
             Throwable cause = ex.getCause();
             if (cause instanceof AccessDeniedException) {
-                return sendErrorMessage(new ErrorResponse("Access Denied", "ACCESS_DENIED"));
+                return sendErrorMessage(new ErrorResponse(1201, "Access denied"));
             }
 
             if (cause instanceof InvalidAuthorizationHeaderException) {
-                return sendErrorMessage(new ErrorResponse(cause.getMessage(), "INVALID_AUTH_HEADER"));
+                return sendErrorMessage(new ErrorResponse(1003, cause.getMessage()));
             }
             if (cause instanceof JwtSignatureException) {
-                return sendErrorMessage(new ErrorResponse(cause.getMessage(), "JWT_SIGNATURE_ERROR"));
+                return sendErrorMessage(new ErrorResponse(1201, cause.getMessage()));
             }
             if (cause instanceof JwtExpiredException) {
-                return sendErrorMessage(new ErrorResponse(cause.getMessage(), "JWT_EXPIRED"));
+                return sendErrorMessage(new ErrorResponse(1201, cause.getMessage()));
             }
             if (cause instanceof JwtUnsupportedJwtException) {
-                return sendErrorMessage(new ErrorResponse(cause.getMessage(), "JWT_UNSUPPORTED"));
+                return sendErrorMessage(new ErrorResponse(1201, cause.getMessage()));
             }
             if (cause instanceof JwtIllegalArgumentException) {
-                return sendErrorMessage(new ErrorResponse(cause.getMessage(), "JWT_ILLEGAL_ARGUMENT"));
+                return sendErrorMessage(new ErrorResponse(1201, cause.getMessage()));
             }
         }
         return super.handleClientMessageProcessingError(clientMessage, ex);
