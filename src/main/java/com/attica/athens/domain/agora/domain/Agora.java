@@ -70,11 +70,11 @@ public class Agora extends AuditingFields {
     private AgoraStatus status;
 
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-    @Column(name = "start_time", updatable = false)
+    @Column(name = "start_time")
     private LocalDateTime startTime;
 
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-    @Column(name = "end_time", updatable = false)
+    @Column(name = "end_time")
     private LocalDateTime endTime;
 
     @Column(name = "end_vote_count", nullable = false)
