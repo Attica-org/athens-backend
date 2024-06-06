@@ -8,11 +8,10 @@ import com.attica.athens.domain.agoraUser.domain.AgoraVoteType;
 public record AgoraParticipateRequest(
         String nickname,
         Integer photoNum,
-        String type
-
+        AgoraUserType type
 ) {
 
-    public AgoraUserType getAgoraUserType() {
-        return AgoraUserType.valueOf(type);
-    }
+//    public AgoraUserType getAgoraUserType() {
+//        return AgoraUserType.valueOf(type);
+//    }
 }

@@ -12,7 +12,7 @@ public class AgoraParticipateValidator implements ConstraintValidator<ValidAgora
     @Override
     public boolean isValid(AgoraParticipateRequest request, ConstraintValidatorContext context) {
         boolean isTypeValid = Arrays.stream(AgoraUserType.values())
-                .anyMatch(type -> type.name().equals(request.type()));
+                .anyMatch(type -> type.equals(request.type()));
 
         if (!isTypeValid) {
             context.buildConstraintViolationWithTemplate("Invalid user type.")
@@ -21,7 +21,7 @@ public class AgoraParticipateValidator implements ConstraintValidator<ValidAgora
             return false;
         }
 
-        if (Objects.equals(request.getAgoraUserType(), AgoraUserType.OBSERVER)) {
+        if (Objects.equals(request.type(), AgoraUserType.OBSERVER)) {
             return true;
         }
 
