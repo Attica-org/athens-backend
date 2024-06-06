@@ -4,5 +4,5 @@ import com.attica.athens.domain.agoraUser.domain.AgoraUserType;
 
 public interface AgoraUserQueryRepository {
 
-    int countCapacityByAgoraUserType(AgoraUserType type);
+    int countCapacityByAgoraUserType(Long agoraId, AgoraUserType type);
 }
