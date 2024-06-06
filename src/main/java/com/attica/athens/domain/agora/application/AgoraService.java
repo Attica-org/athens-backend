@@ -147,6 +147,7 @@ public class AgoraService {
 
     @Transactional
     public StartAgoraResponse startAgora(Long agoraId, Long userId) {
+
         Agora agora = findAgoraById(agoraId);
 
         boolean isExists = existsByAgoraIdAndUserId(agoraId, userId);
