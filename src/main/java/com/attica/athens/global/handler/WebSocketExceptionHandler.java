@@ -25,7 +25,9 @@ public class WebSocketExceptionHandler {
 
     @MessageExceptionHandler(SocketException.class)
     @SendToUser("/queue/errors")
-    public ErrorResponse handleSocketException() {
+    public ErrorResponse handleSocketException(Message<?> message) throws IOException {
+
+        removeSession(message);
 
         return new ErrorResponse(3000, "SOCKET_ERROR");
     }
@@ -39,8 +41,7 @@ public class WebSocketExceptionHandler {
 
     @MessageExceptionHandler(RuntimeException.class)
     @SendToUser("/queue/errors")
-    public ErrorResponse handleIllegalArgumentException()
-            throws IOException {
+    public ErrorResponse handleIllegalArgumentException() {
 
         return new ErrorResponse(2000, "Runtime Exception");
     }
