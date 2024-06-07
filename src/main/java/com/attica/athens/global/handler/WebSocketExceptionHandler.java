@@ -23,37 +23,31 @@ public class WebSocketExceptionHandler {
 
     private final CustomWebSocketHandlerDecorator decorator;
 
-    @MessageExceptionHandler
+    @MessageExceptionHandler(SocketException.class)
     @SendToUser("/queue/errors")
-    public ErrorResponse handleSocketException(SocketException exception, Message<?> message) throws IOException {
-        removeSession(message);
+    public ErrorResponse handleSocketException() {
 
         return new ErrorResponse(3000, "SOCKET_ERROR");
     }
 
     @MessageExceptionHandler
     @SendToUser("/queue/errors")
-    public ErrorResponse handleCustomException(CustomException exception, Message<?> message)
-            throws IOException {
-        removeSession(message);
+    public ErrorResponse handleCustomException(CustomException exception) {
 
         return new ErrorResponse(exception.getErrorCode(), exception.getMessage());
     }
 
-    @MessageExceptionHandler
+    @MessageExceptionHandler(RuntimeException.class)
     @SendToUser("/queue/errors")
-    public ErrorResponse handleIllegalArgumentException(RuntimeException exception, Message<?> message)
+    public ErrorResponse handleIllegalArgumentException()
             throws IOException {
-        removeSession(message);
 
         return new ErrorResponse(2000, "Runtime Exception");
     }
 
     @MessageExceptionHandler
     @SendToUser("/queue/errors")
-    public ErrorResponse handleValidationException(MethodArgumentNotValidException ex, Message<?> message)
-            throws IOException {
-        removeSession(message);
+    public ErrorResponse handleValidationException(MethodArgumentNotValidException ex) {
 
         return new ErrorResponse(
                 1001,
