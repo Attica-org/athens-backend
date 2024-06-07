@@ -7,7 +7,8 @@ import jakarta.validation.ConstraintValidatorContext;
 import java.util.Arrays;
 import java.util.Objects;
 
-public class AgoraParticipateValidator implements ConstraintValidator<ValidAgoraParticipateRequest, AgoraParticipateRequest> {
+public class AgoraParticipateValidator implements
+        ConstraintValidator<ValidAgoraParticipateRequest, AgoraParticipateRequest> {
 
     @Override
     public boolean isValid(AgoraParticipateRequest request, ConstraintValidatorContext context) {
@@ -18,6 +19,7 @@ public class AgoraParticipateValidator implements ConstraintValidator<ValidAgora
             context.buildConstraintViolationWithTemplate("Invalid user type.")
                     .addPropertyNode("type")
                     .addConstraintViolation();
+
             return false;
         }
 
@@ -25,24 +27,22 @@ public class AgoraParticipateValidator implements ConstraintValidator<ValidAgora
             return true;
         }
 
-        boolean isNicknameValid = request.nickname() != null && !request.nickname().isEmpty() && !request.nickname().isBlank();
-        boolean isPhotoNumValid = request.photoNum() != null;
+        boolean isNicknameValid = request.nickname() == null || request.nickname().isBlank();
+        boolean isPhotoNumValid = request.photoNum() == null;
 
-        if (!isNicknameValid || !isPhotoNumValid) {
+        if (isNicknameValid) {
+            context
+                    .buildConstraintViolationWithTemplate("nickname can not be null")
+                    .addPropertyNode("nickname")
+                    .addConstraintViolation();
 
-            if (!isNicknameValid) {
-                context
-                        .buildConstraintViolationWithTemplate("nickname can not be null")
-                        .addPropertyNode("nickname")
-                        .addConstraintViolation();
+            return false;
+        }
 
-            }
-
-            if (!isPhotoNumValid) {
-                context.buildConstraintViolationWithTemplate("photoNum can not be null.")
-                        .addPropertyNode("photoNum")
-                        .addConstraintViolation();
-            }
+        if (isPhotoNumValid) {
+            context.buildConstraintViolationWithTemplate("photoNum can not be null.")
+                    .addPropertyNode("photoNum")
+                    .addConstraintViolation();
 
             return false;
         }
