@@ -11,7 +11,6 @@ import com.attica.athens.domain.agora.exception.NotFoundAgoraIdException;
 import com.attica.athens.domain.agoraUser.domain.AgoraUserType;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
