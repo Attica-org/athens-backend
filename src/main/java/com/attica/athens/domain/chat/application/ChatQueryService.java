@@ -2,6 +2,7 @@ package com.attica.athens.domain.chat.application;
 
 import com.attica.athens.domain.agora.dao.AgoraRepository;
 import com.attica.athens.domain.agora.domain.Agora;
+import com.attica.athens.domain.agora.exception.NotFoundAgoraException;
 import com.attica.athens.domain.agoraUser.dao.AgoraUserRepository;
 import com.attica.athens.domain.agoraUser.domain.AgoraUser;
 import com.attica.athens.domain.chat.dao.ChatRepository;
@@ -47,7 +48,9 @@ public class ChatQueryService {
 
     public GetChatResponse getChatHistory(Long agoraId, Cursor cursor) {
 
-        List<AgoraUser> agoraUsers = findAgoraUsersByAgoraId(agoraId);
+        findAgoraById(agoraId);
+
+        List<AgoraUser> agoraUsers = findAgoraUser(agoraId);
 
         List<Chat> chats = findChatsByCursor(cursor, extractAgoraUserIds(agoraUsers));
 
@@ -57,6 +60,10 @@ public class ChatQueryService {
         Long nextKey = getNextCursor(chats);
 
         return new GetChatResponse(chatData, cursor.next(nextKey));
+    }
+
+    private List<AgoraUser> findAgoraUser(Long agoraId) {
+        return agoraUserRepository.findByAgoraId(agoraId);
     }
 
     private List<Chat> findChatsByCursor(Cursor cursor, List<Long> agoraUserIds) {
@@ -104,10 +111,12 @@ public class ChatQueryService {
 
     private Agora findAgoraById(Long agoraId) {
         return agoraRepository.findById(agoraId)
-                .orElseThrow(() -> new IllegalArgumentException("Agora is not exist."));
+                .orElseThrow(() -> new NotFoundAgoraException(agoraId));
     }
 
     public GetChatParticipants getChatParticipants(Long agoraId) {
+
+        findAgoraById(agoraId);
 
         return new GetChatParticipants(findAgoraUsersByAgoraId(agoraId), agoraId);
     }

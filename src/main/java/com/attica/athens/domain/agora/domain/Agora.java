@@ -1,5 +1,7 @@
 package com.attica.athens.domain.agora.domain;
 
+import static com.attica.athens.domain.agora.domain.AgoraConstants.END_VOTE_RATIO;
+
 import com.attica.athens.domain.agora.exception.InvalidAgoraStatusChangeException;
 import com.attica.athens.domain.agora.exception.InvalidAgoraStatusException;
 import com.attica.athens.domain.agoraUser.domain.AgoraUser;
@@ -70,8 +72,12 @@ public class Agora extends AuditingFields {
     private AgoraStatus status;
 
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-    @Column(name = "start_time", updatable = false)
+    @Column(name = "start_time")
     private LocalDateTime startTime;
+
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+    @Column(name = "end_time")
+    private LocalDateTime endTime;
 
     @Column(name = "end_vote_count", nullable = false)
     private Integer endVoteCount;
@@ -116,14 +122,15 @@ public class Agora extends AuditingFields {
         }
     }
 
-    public void incrementEndVoteCountAndCheckTermination(int participantsNum) {
+    public void endVoteAgora(int participantsNum) {
         AgoraStatus expectedStatus = AgoraStatus.RUNNING;
 
         if (this.status == expectedStatus) {
             endVoteCount++;
 
-            if (endVoteCount >= participantsNum / 3 * 2) {
+            if (endVoteCount >= (int) participantsNum * END_VOTE_RATIO) {
                 changeStatus(AgoraStatus.CLOSED);
+                this.endTime = LocalDateTime.now();
             }
         } else {
             throw new InvalidAgoraStatusException(expectedStatus);
@@ -136,7 +143,7 @@ public class Agora extends AuditingFields {
         ) {
             this.status = status;
         } else {
-            throw new InvalidAgoraStatusChangeException(id);
+            throw new InvalidAgoraStatusChangeException();
         }
     }
 
