@@ -1,5 +1,7 @@
 package com.attica.athens.domain.agora.domain;
 
+import static com.attica.athens.domain.agora.domain.AgoraConstants.END_VOTE_RATIO;
+
 import com.attica.athens.domain.agora.exception.InvalidAgoraStatusChangeException;
 import com.attica.athens.domain.agora.exception.InvalidAgoraStatusException;
 import com.attica.athens.domain.agoraUser.domain.AgoraUser;
@@ -126,7 +128,7 @@ public class Agora extends AuditingFields {
         if (this.status == expectedStatus) {
             endVoteCount++;
 
-            if (endVoteCount >= participantsNum / 3 * 2) {
+            if (endVoteCount >= (int) participantsNum * END_VOTE_RATIO) {
                 changeStatus(AgoraStatus.CLOSED);
                 this.endTime = LocalDateTime.now();
             }
