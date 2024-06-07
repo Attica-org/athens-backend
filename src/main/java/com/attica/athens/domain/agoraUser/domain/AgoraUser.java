@@ -70,4 +70,9 @@ public class AgoraUser extends AuditingFields {
     public void markEndVoted() {
         this.endVoted = true;
     }
+
+    public void updateIsOpinionVotedAndVoteType(AgoraVoteType voteType, boolean isOpinionVoted) {
+        this.voteType = voteType;
+        this.isOpinionVoted = isOpinionVoted;
+    }
 }

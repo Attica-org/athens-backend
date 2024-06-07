@@ -7,6 +7,7 @@ import com.attica.athens.domain.agora.domain.AgoraStatus;
 import com.attica.athens.domain.agora.dto.SimpleAgoraResult;
 import com.attica.athens.domain.agora.dto.SimpleParticipants;
 import com.attica.athens.domain.agora.dto.response.AgoraSlice;
+import com.attica.athens.domain.agora.exception.NotFoundAgoraIdException;
 import com.attica.athens.domain.agoraUser.domain.AgoraUserType;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -117,6 +118,10 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
                 .from(agora)
                 .limit(size + 1L)
                 .fetch();
+
+        if (agoraIdList.isEmpty()) {
+            throw new NotFoundAgoraIdException();
+        }
 
         return agoraIdList;
     }

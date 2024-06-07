@@ -142,6 +142,7 @@ public class AgoraService {
     }
 
     public AgoraIdResponse getAgoraIdList() {
+
         List<Long> agoraIdList = agoraRepository.getAgoraIdList();
 
         return new AgoraIdResponse(agoraIdList);

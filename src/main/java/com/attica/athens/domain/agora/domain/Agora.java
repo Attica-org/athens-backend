@@ -144,4 +144,9 @@ public class Agora extends AuditingFields {
             throw new InvalidAgoraStatusChangeException();
         }
     }
+
+    public void updateProsCountAndConsCount(Integer prosCount, Integer consCount) {
+        this.prosCount = prosCount;
+        this.consCount = consCount;
+    }
 }
