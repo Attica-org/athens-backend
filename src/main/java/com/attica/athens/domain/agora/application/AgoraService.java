@@ -205,6 +205,16 @@ public class AgoraService {
         return new EndVoteAgoraResponse(agora);
     }
 
+    @Transactional
+    public EndVoteAgoraResponse timeOutEndAgora(Long agoraId) {
+        Agora agora = findAgoraById(agoraId);
+
+        agora.timeOutEndAgora();
+
+        return new EndVoteAgoraResponse(agora);
+
+    }
+
     private void findAgoraUserAndMarkEndVoted(Long agoraId, Long userId) {
         AgoraUser agoraUser = findAgoraUserByAgoraIdAndUserId(agoraId, userId);
         if (agoraUser.isEndVoted()) {
