@@ -44,10 +44,10 @@ public class AgoraAuthController {
         return ResponseEntity.ok(ApiUtil.success(response));
     }
 
-    @PostMapping("/{agora-id}/participants")
+    @PostMapping("/{agoraId}/participants")
     public ResponseEntity<ApiResponse<?>> participateAgora(
             @AuthenticationPrincipal CustomUserDetails user,
-            @PathVariable("agora-id") Long agoraId,
+            @PathVariable("agoraId") Long agoraId,
             @RequestBody @Valid AgoraParticipateRequest request
     ) {
         Long userId = Long.parseLong(user.getUsername());

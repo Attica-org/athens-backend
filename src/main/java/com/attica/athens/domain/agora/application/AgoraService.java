@@ -86,11 +86,11 @@ public class AgoraService {
             if (typeCount >= agora.getCapacity()) {
                 throw new FullAgoraCapacityException(agora.getId(), request.type());
             }
-        }
 
-        boolean existsNickname = agoraUserRepository.existsNickname(agoraId, request.nickname());
-        if (existsNickname) {
-            throw new DuplicatedNicknameException(request.nickname());
+            boolean existsNickname = agoraUserRepository.existsNickname(agoraId, request.nickname());
+            if (existsNickname) {
+                throw new DuplicatedNicknameException(request.nickname());
+            }
         }
 
         agoraUserRepository.findByAgoraIdAndUserId(agora.getId(), userId)
