@@ -16,6 +16,15 @@ public class AgoraUserQueryRepositoryImpl implements AgoraUserQueryRepository {
     private final JPAQueryFactory jpaQueryFactory;
 
     @Override
+    public boolean existsNickname(Long agoraId, String nickname) {
+        return jpaQueryFactory.selectFrom(agoraUser)
+                .where(agoraUser.agora.id.eq(agoraId)
+                        .and(agoraUser.nickname.lower().eq(nickname.toLowerCase()))
+                )
+                .fetchOne() != null;
+    }
+
+    @Override
     public int countCapacityByAgoraUserType(Long agoraId, AgoraUserType type) {
         return Objects.requireNonNull(jpaQueryFactory
                         .select(agoraUser.count())
