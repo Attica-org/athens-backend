@@ -81,16 +81,16 @@ public class AgoraService {
                                                 final AgoraParticipateRequest request) {
         Agora agora = findAgoraById(agoraId);
 
-        boolean existsNickname = agoraUserRepository.existsNickname(agoraId, request.nickname());
-        if (existsNickname) {
-            throw new DuplicatedNicknameException(request.nickname());
-        }
-
         if (!Objects.equals(AgoraUserType.OBSERVER, request.type())) {
             int typeCount = agoraUserRepository.countCapacityByAgoraUserType(agora.getId(), request.type());
             if (typeCount >= agora.getCapacity()) {
                 throw new FullAgoraCapacityException(agora.getId(), request.type());
             }
+        }
+
+        boolean existsNickname = agoraUserRepository.existsNickname(agoraId, request.nickname());
+        if (existsNickname) {
+            throw new DuplicatedNicknameException(request.nickname());
         }
 
         agoraUserRepository.findByAgoraIdAndUserId(agora.getId(), userId)
