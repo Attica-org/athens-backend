@@ -14,6 +14,7 @@ import com.attica.athens.domain.agora.dto.response.AgoraParticipateResponse;
 import com.attica.athens.domain.agora.dto.response.AgoraSlice;
 import com.attica.athens.domain.agora.dto.response.AgoraTitleResponse;
 import com.attica.athens.domain.agora.dto.response.CreateAgoraResponse;
+import com.attica.athens.domain.agora.dto.response.EndAgoraResponse;
 import com.attica.athens.domain.agora.dto.response.EndNotificationResponse;
 import com.attica.athens.domain.agora.dto.response.EndVoteAgoraResponse;
 import com.attica.athens.domain.agora.dto.response.StartAgoraResponse;
@@ -206,12 +207,12 @@ public class AgoraService {
     }
 
     @Transactional
-    public EndVoteAgoraResponse timeOutEndAgora(Long agoraId) {
+    public EndAgoraResponse timeOutEndAgora(Long agoraId) {
         Agora agora = findAgoraById(agoraId);
 
         agora.timeOutEndAgora();
 
-        return new EndVoteAgoraResponse(agora);
+        return new EndAgoraResponse(agora);
 
     }
 

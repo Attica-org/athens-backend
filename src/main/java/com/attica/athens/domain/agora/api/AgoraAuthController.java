@@ -5,6 +5,7 @@ import com.attica.athens.domain.agora.dto.request.AgoraCreateRequest;
 import com.attica.athens.domain.agora.dto.request.AgoraParticipateRequest;
 import com.attica.athens.domain.agora.dto.response.AgoraParticipateResponse;
 import com.attica.athens.domain.agora.dto.response.CreateAgoraResponse;
+import com.attica.athens.domain.agora.dto.response.EndAgoraResponse;
 import com.attica.athens.domain.agora.dto.response.EndVoteAgoraResponse;
 import com.attica.athens.domain.agora.dto.response.StartAgoraResponse;
 import com.attica.athens.domain.common.ApiResponse;
@@ -46,7 +47,7 @@ public class AgoraAuthController {
 
     @PatchMapping("/{agoraId}/timeOut")
     public ResponseEntity<ApiResponse<?>> timeOutEndAgora(@PathVariable("agoraId") Long agoraId) {
-        EndVoteAgoraResponse response = agoraService.timeOutEndAgora(agoraId);
+        EndAgoraResponse response = agoraService.timeOutEndAgora(agoraId);
 
         return ResponseEntity.ok(ApiUtil.success(response));
     }
