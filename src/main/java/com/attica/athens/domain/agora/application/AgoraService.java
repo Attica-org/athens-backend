@@ -19,6 +19,7 @@ import com.attica.athens.domain.agora.dto.response.EndVoteAgoraResponse;
 import com.attica.athens.domain.agora.dto.response.StartAgoraResponse;
 import com.attica.athens.domain.agora.dto.response.StartNotificationResponse;
 import com.attica.athens.domain.agora.exception.AlreadyParticipateException;
+import com.attica.athens.domain.agora.exception.DuplicatedNicknameException;
 import com.attica.athens.domain.agora.exception.FullAgoraCapacityException;
 import com.attica.athens.domain.agora.exception.NotFoundAgoraException;
 import com.attica.athens.domain.agora.exception.NotFoundCategoryException;
@@ -79,6 +80,12 @@ public class AgoraService {
     public AgoraParticipateResponse participate(final Long userId, final Long agoraId,
                                                 final AgoraParticipateRequest request) {
         Agora agora = findAgoraById(agoraId);
+
+        boolean existsNickname = agoraUserRepository.existsNickname(agoraId, request.nickname());
+        if (existsNickname) {
+            throw new DuplicatedNicknameException(request.nickname());
+        }
+
         if (!Objects.equals(AgoraUserType.OBSERVER, request.type())) {
             int typeCount = agoraUserRepository.countCapacityByAgoraUserType(agora.getId(), request.type());
             if (typeCount >= agora.getCapacity()) {
