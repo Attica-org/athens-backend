@@ -207,10 +207,10 @@ public class AgoraService {
     }
 
     @Transactional
-    public EndAgoraResponse timeOutEndAgora(Long agoraId) {
+    public EndAgoraResponse timeOutAgora(Long agoraId) {
         Agora agora = findAgoraById(agoraId);
 
-        agora.timeOutEndAgora();
+        agora.timeOutAgora();
 
         return new EndAgoraResponse(agora);
 

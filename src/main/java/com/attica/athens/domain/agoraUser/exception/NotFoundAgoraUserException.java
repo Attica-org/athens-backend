@@ -14,4 +14,12 @@ public class NotFoundAgoraUserException extends CustomException {
                         " user id: " + userId
         );
     }
+
+    public NotFoundAgoraUserException(Long userId) {
+        super(
+                HttpStatus.NOT_FOUND,
+                ErrorCode.RESOURCE_NOT_FOUND,
+                "Agora user not found with user id: " + userId
+        );
+    }
 }

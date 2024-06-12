@@ -13,6 +13,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import java.util.List;
+import java.util.Optional;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -38,11 +40,17 @@ public class AgoraUser extends AuditingFields {
     @Column(length = 25)
     private String nickname;
 
+    @Column(name = "session_id")
+    private String sessionId;
+
     @Column(name = "photo_number")
     private Integer photoNumber;
 
     @Column(name = "end_voted", nullable = false)
     private boolean endVoted;
+
+    @Column(name = "is_deleted")
+    private boolean isDeleted;
 
     @Column(name = "is_opinion_voted", nullable = false)
     private boolean isOpinionVoted;
@@ -59,6 +67,8 @@ public class AgoraUser extends AuditingFields {
                      BaseUser user) {
         this.type = type;
         this.voteType = AgoraVoteType.DEFAULT;
+        this.sessionId = "";
+        this.isDeleted = false;
         this.nickname = nickname;
         this.photoNumber = photoNumber;
         this.endVoted = false;
@@ -75,4 +85,17 @@ public class AgoraUser extends AuditingFields {
         this.voteType = voteType;
         this.isOpinionVoted = isOpinionVoted;
     }
+
+    public static Optional<AgoraUser> findAgoraUser(List<AgoraUser> agoraUsers) {
+        return agoraUsers.stream()
+                .filter(agoraUser -> !agoraUser.isDeleted && !agoraUser.isOpinionVoted && !agoraUser.endVoted)
+                .findFirst();
+    }
+
+    public void updateSessionId(String sessionId){
+        this.sessionId = sessionId;
+    }
+    /**
+     * 이후 여기부분에 isdelete와 sessionid 저장
+     */
 }

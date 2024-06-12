@@ -133,7 +133,7 @@ public class Agora extends AuditingFields {
         }
     }
 
-    public void timeOutEndAgora(){
+    public void timeOutAgora(){
         changeStatus(AgoraStatus.CLOSED);
         this.endTime = LocalDateTime.now();
     }
