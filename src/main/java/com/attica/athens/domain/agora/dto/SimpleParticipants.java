@@ -5,4 +5,8 @@ public record SimpleParticipants(
         int cons,
         int observer
 ) {
+
+    public SimpleParticipants(Long pros, Long cons, Long observer) {
+        this(pros.intValue(), cons.intValue(), observer.intValue());
+    }
 }

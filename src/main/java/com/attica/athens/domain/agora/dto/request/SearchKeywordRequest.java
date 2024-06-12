@@ -1,5 +1,9 @@
 package com.attica.athens.domain.agora.dto.request;
 
+import static com.attica.athens.domain.agora.domain.AgoraStatus.CLOSED;
+import static com.attica.athens.domain.agora.domain.AgoraStatus.QUEUED;
+import static com.attica.athens.domain.agora.domain.AgoraStatus.RUNNING;
+
 import com.attica.athens.domain.agora.domain.AgoraStatus;
 import jakarta.validation.constraints.Pattern;
 import java.util.List;
@@ -11,9 +15,8 @@ public record SearchKeywordRequest(
 ) {
 
     public List<AgoraStatus> getStatus() {
-        if (status.equals("active")) {
-            return List.of(AgoraStatus.RUNNING, AgoraStatus.QUEUED);
-        }
-        return List.of(AgoraStatus.CLOSED);
+        return status.equals(CLOSED.getType()) ?
+                List.of(CLOSED) :
+                List.of(QUEUED, RUNNING);
     }
 }

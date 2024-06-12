@@ -11,19 +11,16 @@ import com.attica.athens.domain.agora.exception.NotFoundAgoraIdException;
 import com.attica.athens.domain.agoraUser.domain.AgoraUserType;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 @Repository
+@RequiredArgsConstructor
 public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
 
     private final JPAQueryFactory jpaQueryFactory;
-
-    public AgoraQueryRepositoryImpl(JPAQueryFactory jpaQueryFactory) {
-        this.jpaQueryFactory = jpaQueryFactory;
-    }
 
     @Override
     public AgoraSlice<SimpleAgoraResult> findAgoraByKeyword(Long agoraId, List<AgoraStatus> status, String keyword) {
@@ -36,29 +33,27 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
                         agora.title,
                         agora.color,
                         Projections.constructor(SimpleParticipants.class,
-                                new CaseBuilder()
-                                        .when(agoraUser.type.eq(AgoraUserType.PROS)).then(agoraUser.count())
-                                        .otherwise(0L)
-                                        .intValue(),
-                                new CaseBuilder()
-                                        .when(agoraUser.type.eq(AgoraUserType.CONS)).then(agoraUser.count())
-                                        .otherwise(0L)
-                                        .intValue(),
-                                new CaseBuilder()
-                                        .when(agoraUser.type.eq(AgoraUserType.OBSERVER)).then(agoraUser.count())
-                                        .otherwise(0L)
-                                        .intValue()
+                                jpaQueryFactory.select(agoraUser.count())
+                                        .from(agoraUser)
+                                        .where(agoraUser.agora.id.eq(agora.id)
+                                                .and(agoraUser.type.eq(AgoraUserType.PROS))),
+                                jpaQueryFactory.select(agoraUser.count())
+                                        .from(agoraUser)
+                                        .where(agoraUser.agora.id.eq(agora.id)
+                                                .and(agoraUser.type.eq(AgoraUserType.CONS))),
+                                jpaQueryFactory.select(agoraUser.count())
+                                        .from(agoraUser)
+                                        .where(agoraUser.agora.id.eq(agora.id)
+                                                .and(agoraUser.type.eq(AgoraUserType.OBSERVER)))
                         ),
                         agora.createdAt,
                         agora.status
                 ))
                 .from(agora)
-                .leftJoin(agora.agoraUsers, agoraUser)
                 .where(gtAgoraId(agoraId),
                         (containKeyword(keyword))
                                 .and((agora.status.in(status)))
                 )
-                .groupBy(agora.id, agoraUser.type)
                 .orderBy(agora.id.desc())
                 .limit(size + 1L)
                 .fetch();
@@ -78,29 +73,63 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
                         agora.title,
                         agora.color,
                         Projections.constructor(SimpleParticipants.class,
-                                new CaseBuilder()
-                                        .when(agoraUser.type.eq(AgoraUserType.PROS)).then(agoraUser.count())
-                                        .otherwise(0L)
-                                        .intValue(),
-                                new CaseBuilder()
-                                        .when(agoraUser.type.eq(AgoraUserType.CONS)).then(agoraUser.count())
-                                        .otherwise(0L)
-                                        .intValue(),
-                                new CaseBuilder()
-                                        .when(agoraUser.type.eq(AgoraUserType.OBSERVER)).then(agoraUser.count())
-                                        .otherwise(0L)
-                                        .intValue()
+                                jpaQueryFactory.select(agoraUser.count())
+                                        .from(agoraUser)
+                                        .where(agoraUser.agora.id.eq(agora.id)
+                                                .and(agoraUser.type.eq(AgoraUserType.PROS))),
+                                jpaQueryFactory.select(agoraUser.count())
+                                        .from(agoraUser)
+                                        .where(agoraUser.agora.id.eq(agora.id)
+                                                .and(agoraUser.type.eq(AgoraUserType.CONS))),
+                                jpaQueryFactory.select(agoraUser.count())
+                                        .from(agoraUser)
+                                        .where(agoraUser.agora.id.eq(agora.id)
+                                                .and(agoraUser.type.eq(AgoraUserType.OBSERVER)))
                         ),
                         agora.createdAt,
                         agora.status
                 ))
                 .from(agora)
-                .leftJoin(agora.agoraUsers, agoraUser)
                 .where(gtAgoraId(agoraId),
                         agora.status.in(status)
                                 .and(agora.category.id.in(categoryIds))
                 )
-                .groupBy(agora.id, agoraUser.type)
+                .orderBy(agora.id.desc())
+                .limit(size + 1L)
+                .fetch();
+
+        return getSimpleAgoraResultAgoraSlice(size, result);
+    }
+
+    @Override
+    public AgoraSlice<SimpleAgoraResult> findAgoraByAllCategory(Long agoraId, List<AgoraStatus> status) {
+        final int size = 10;
+
+        List<SimpleAgoraResult> result = jpaQueryFactory
+                .select(Projections.constructor(
+                        SimpleAgoraResult.class,
+                        agora.id,
+                        agora.title,
+                        agora.color,
+                        Projections.constructor(SimpleParticipants.class,
+                                jpaQueryFactory.select(agoraUser.count())
+                                        .from(agoraUser)
+                                        .where(agoraUser.agora.id.eq(agora.id)
+                                                .and(agoraUser.type.eq(AgoraUserType.PROS))),
+                                jpaQueryFactory.select(agoraUser.count())
+                                        .from(agoraUser)
+                                        .where(agoraUser.agora.id.eq(agora.id)
+                                                .and(agoraUser.type.eq(AgoraUserType.CONS))),
+                                jpaQueryFactory.select(agoraUser.count())
+                                        .from(agoraUser)
+                                        .where(agoraUser.agora.id.eq(agora.id)
+                                                .and(agoraUser.type.eq(AgoraUserType.OBSERVER)))
+                        ),
+                        agora.createdAt,
+                        agora.status
+                ))
+                .from(agora)
+                .where(agora.status.in(status))
                 .orderBy(agora.id.desc())
                 .limit(size + 1L)
                 .fetch();

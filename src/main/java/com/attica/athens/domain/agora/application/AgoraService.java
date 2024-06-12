@@ -19,11 +19,13 @@ import com.attica.athens.domain.agora.dto.response.EndVoteAgoraResponse;
 import com.attica.athens.domain.agora.dto.response.StartAgoraResponse;
 import com.attica.athens.domain.agora.dto.response.StartNotificationResponse;
 import com.attica.athens.domain.agora.exception.AlreadyParticipateException;
+import com.attica.athens.domain.agora.exception.DuplicatedNicknameException;
 import com.attica.athens.domain.agora.exception.FullAgoraCapacityException;
 import com.attica.athens.domain.agora.exception.NotFoundAgoraException;
 import com.attica.athens.domain.agora.exception.NotFoundCategoryException;
 import com.attica.athens.domain.agoraUser.dao.AgoraUserRepository;
 import com.attica.athens.domain.agoraUser.domain.AgoraUser;
+import com.attica.athens.domain.agoraUser.domain.AgoraUserType;
 import com.attica.athens.domain.agoraUser.exception.AlreadyEndVotedException;
 import com.attica.athens.domain.agoraUser.exception.NotFoundAgoraUserException;
 import com.attica.athens.domain.chat.domain.ChatType;
@@ -32,6 +34,7 @@ import com.attica.athens.domain.user.domain.BaseUser;
 import com.attica.athens.domain.user.exception.NotFoundUserException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
@@ -64,6 +67,10 @@ public class AgoraService {
     }
 
     public AgoraSlice<SimpleAgoraResult> findAgoraByCategory(final SearchCategoryRequest request) {
+        if (request.category() == 1) {
+            return agoraRepository.findAgoraByAllCategory(request.next(), request.getStatus());
+        }
+
         List<Long> categoryIds = findParentCategoryById(request.category());
 
         return agoraRepository.findAgoraByCategory(request.next(), request.getStatus(), categoryIds);
@@ -73,8 +80,17 @@ public class AgoraService {
     public AgoraParticipateResponse participate(final Long userId, final Long agoraId,
                                                 final AgoraParticipateRequest request) {
         Agora agora = findAgoraById(agoraId);
-        if (agora.isFull()) {
-            throw new FullAgoraCapacityException(agora.getId());
+
+        if (!Objects.equals(AgoraUserType.OBSERVER, request.type())) {
+            int typeCount = agoraUserRepository.countCapacityByAgoraUserType(agora.getId(), request.type());
+            if (typeCount >= agora.getCapacity()) {
+                throw new FullAgoraCapacityException(agora.getId(), request.type());
+            }
+
+            boolean existsNickname = agoraUserRepository.existsNickname(agoraId, request.nickname());
+            if (existsNickname) {
+                throw new DuplicatedNicknameException(request.nickname());
+            }
         }
 
         agoraUserRepository.findByAgoraIdAndUserId(agora.getId(), userId)
@@ -101,7 +117,7 @@ public class AgoraService {
 
     private AgoraUser createAgoraUser(final Long userId, final Long agoraId, final AgoraParticipateRequest request) {
         return new AgoraUser(
-                request.getAgoraUserType(),
+                request.type(),
                 request.nickname(),
                 request.photoNum(),
                 findAgoraById(agoraId),
