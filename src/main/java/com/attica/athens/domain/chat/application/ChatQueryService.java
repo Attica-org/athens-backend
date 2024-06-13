@@ -5,6 +5,7 @@ import com.attica.athens.domain.agora.domain.Agora;
 import com.attica.athens.domain.agora.exception.NotFoundAgoraException;
 import com.attica.athens.domain.agoraUser.dao.AgoraUserRepository;
 import com.attica.athens.domain.agoraUser.domain.AgoraUser;
+import com.attica.athens.domain.agoraUser.domain.AgoraUserType;
 import com.attica.athens.domain.chat.dao.ChatRepository;
 import com.attica.athens.domain.chat.domain.Chat;
 import com.attica.athens.domain.chat.dto.Cursor;
@@ -14,6 +15,7 @@ import com.attica.athens.domain.chat.dto.response.GetChatResponse.ChatData;
 import com.attica.athens.domain.chat.dto.response.SendMetaResponse;
 import com.attica.athens.domain.chat.dto.response.SendMetaResponse.MetaData;
 import com.attica.athens.domain.chat.dto.response.SendMetaResponse.ParticipantsInfo;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -118,10 +120,11 @@ public class ChatQueryService {
 
         findAgoraById(agoraId);
 
-        return new GetChatParticipants(findAgoraUsersByAgoraId(agoraId), agoraId);
+        return new GetChatParticipants(findByAgoraIdAndTypeIn(agoraId), agoraId);
     }
 
-    private List<AgoraUser> findAgoraUsersByAgoraId(Long agoraId) {
-        return agoraUserRepository.findByAgoraId(agoraId);
+    private List<AgoraUser> findByAgoraIdAndTypeIn(Long agoraId) {
+        return agoraUserRepository.findByAgoraIdAndTypeIn(agoraId,
+                Arrays.asList(AgoraUserType.PROS, AgoraUserType.CONS));
     }
 }
