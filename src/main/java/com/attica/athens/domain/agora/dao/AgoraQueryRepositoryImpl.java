@@ -3,6 +3,7 @@ package com.attica.athens.domain.agora.dao;
 import static com.attica.athens.domain.agora.domain.QAgora.agora;
 import static com.attica.athens.domain.agoraUser.domain.QAgoraUser.agoraUser;
 
+import com.attica.athens.domain.agora.domain.Agora;
 import com.attica.athens.domain.agora.domain.AgoraStatus;
 import com.attica.athens.domain.agora.dto.SimpleAgoraResult;
 import com.attica.athens.domain.agora.dto.SimpleParticipants;
@@ -12,7 +13,9 @@ import com.attica.athens.domain.agoraUser.domain.AgoraUserType;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import jakarta.persistence.LockModeType;
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -129,7 +132,7 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
                         agora.status
                 ))
                 .from(agora)
-                .where(agora.status.in(status))
+                .where(gtAgoraId(agoraId), agora.status.in(status))
                 .orderBy(agora.id.desc())
                 .limit(size + 1L)
                 .fetch();
@@ -153,6 +156,15 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
         }
 
         return agoraIdList;
+    }
+
+    @Override
+    public Optional<Agora> findAgoraById(Long agoraId) {
+        return Optional.ofNullable(jpaQueryFactory.selectFrom(agora)
+                .where(agora.id.eq(agoraId))
+                .setLockMode(LockModeType.PESSIMISTIC_WRITE)
+                .fetchOne()
+        );
     }
 
     private AgoraSlice<SimpleAgoraResult> getSimpleAgoraResultAgoraSlice(final int size,
