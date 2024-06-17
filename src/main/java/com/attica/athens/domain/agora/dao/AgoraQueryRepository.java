@@ -1,9 +1,11 @@
 package com.attica.athens.domain.agora.dao;
 
+import com.attica.athens.domain.agora.domain.Agora;
 import com.attica.athens.domain.agora.domain.AgoraStatus;
 import com.attica.athens.domain.agora.dto.SimpleAgoraResult;
 import com.attica.athens.domain.agora.dto.response.AgoraSlice;
 import java.util.List;
+import java.util.Optional;
 
 public interface AgoraQueryRepository {
 
@@ -14,4 +16,6 @@ public interface AgoraQueryRepository {
     AgoraSlice<SimpleAgoraResult> findAgoraByAllCategory(Long agoraId, List<AgoraStatus> status);
 
     List<Long> getAgoraIdList();
+
+    Optional<Agora> findAgoraById(Long agoraId);
 }
