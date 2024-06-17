@@ -79,7 +79,8 @@ public class AgoraService {
     @Transactional
     public AgoraParticipateResponse participate(final Long userId, final Long agoraId,
                                                 final AgoraParticipateRequest request) {
-        Agora agora = findAgoraById(agoraId);
+        Agora agora = agoraRepository.findAgoraById(agoraId)
+                .orElseThrow(() -> new NotFoundAgoraException(agoraId));
 
         if (!Objects.equals(AgoraUserType.OBSERVER, request.type())) {
             int typeCount = agoraUserRepository.countCapacityByAgoraUserType(agora.getId(), request.type());
