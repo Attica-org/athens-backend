@@ -40,4 +40,4 @@ frontend:
   local: http://localhost:3000, file:// # 로컬 URL 예시
 
 cors:
-  allowed-origins: http://localhost:3000, file://
+  allowed-origins: http://localhost:3000, file://, https://athens-client-mu.vercel.app
