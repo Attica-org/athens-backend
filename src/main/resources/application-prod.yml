@@ -30,7 +30,6 @@ auth:
     access-expired: 1200000
     refresh-expired: 86400000
 
-
 logging:
   level:
     '[com.attica.athens]': DEBUG

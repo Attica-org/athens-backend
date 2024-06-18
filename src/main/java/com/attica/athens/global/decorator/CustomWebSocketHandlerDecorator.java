@@ -38,4 +38,8 @@ public class CustomWebSocketHandlerDecorator extends WebSocketHandlerDecorator {
             session.close();
         }
     }
+
+//    public ConcurrentHashMap<String, WebSocketSession> getSessionMap() {
+//        return sessionMap;
+//    }
 }

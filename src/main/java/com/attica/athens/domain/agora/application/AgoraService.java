@@ -218,7 +218,7 @@ public class AgoraService {
 
     private void findAgoraUserAndMarkEndVoted(Long agoraId, Long userId) {
         AgoraUser agoraUser = findAgoraUserByAgoraIdAndUserId(agoraId, userId);
-        if (agoraUser.isEndVoted()) {
+        if (agoraUser.getEndVoted()) {
             throw new AlreadyEndVotedException();
         }
         agoraUser.markEndVoted();

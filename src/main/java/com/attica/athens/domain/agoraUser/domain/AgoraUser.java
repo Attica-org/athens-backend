@@ -18,10 +18,12 @@ import java.util.Optional;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Where;
 
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Where(clause = "is_deleted=false")
 public class AgoraUser extends AuditingFields {
 
     @Id
@@ -46,14 +48,14 @@ public class AgoraUser extends AuditingFields {
     @Column(name = "photo_number")
     private Integer photoNumber;
 
-    @Column(name = "end_voted", nullable = false)
-    private boolean endVoted;
+    @Column(name = "end_voted", nullable = false, columnDefinition = "BIT default 0")
+    private Boolean endVoted;
 
-    @Column(name = "is_deleted")
-    private boolean isDeleted;
+    @Column(name = "is_deleted", nullable = false, columnDefinition = "BIT default 0")
+    private Boolean isDeleted;
 
-    @Column(name = "is_opinion_voted", nullable = false)
-    private boolean isOpinionVoted;
+    @Column(name = "is_opinion_voted", nullable = false, columnDefinition = "BIT default 0")
+    private Boolean isOpinionVoted;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "agora_id")
@@ -86,16 +88,11 @@ public class AgoraUser extends AuditingFields {
         this.isOpinionVoted = isOpinionVoted;
     }
 
-    public static Optional<AgoraUser> findAgoraUser(List<AgoraUser> agoraUsers) {
-        return agoraUsers.stream()
-                .filter(agoraUser -> !agoraUser.isDeleted && !agoraUser.isOpinionVoted && !agoraUser.endVoted)
-                .findFirst();
-    }
-
-    public void updateSessionId(String sessionId){
+    public void updateSessionId(String sessionId) {
         this.sessionId = sessionId;
     }
-    /**
-     * 이후 여기부분에 isdelete와 sessionid 저장
-     */
+
+    public void delete() {
+        isDeleted = true;
+    }
 }
