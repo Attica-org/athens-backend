@@ -19,14 +19,15 @@ public class JpaConfig {
     }
 
     private Optional<String> getPrinciple() {
-
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        Object principal = authentication.getPrincipal();
-        if (principal instanceof UserDetails) {
-            return Optional.of(((UserDetails) principal).getUsername());
-        }
-
-        return Optional.of(principal.toString());
+        return Optional.ofNullable(SecurityContextHolder.getContext().getAuthentication())
+                .filter(Authentication::isAuthenticated)
+                .map(Authentication::getPrincipal)
+                .map(principal -> {
+                    if (principal instanceof UserDetails) {
+                        return ((UserDetails) principal).getUsername();
+                    } else {
+                        return principal.toString();
+                    }
+                });
     }
 }
