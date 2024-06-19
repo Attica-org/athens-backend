@@ -210,7 +210,6 @@ public class AgoraService {
         agora.timeOutEndAgora();
 
         return new EndVoteAgoraResponse(agora);
-
     }
 
     @Transactional

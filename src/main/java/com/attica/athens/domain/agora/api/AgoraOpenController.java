@@ -65,7 +65,7 @@ public class AgoraOpenController {
     }
 
     @PatchMapping("/{agoraId}/timeOut")
-    public ResponseEntity<ApiResponse<?>> timeOutEndAgora(@PathVariable("agoraId") Long agoraId) {
+    public ResponseEntity<ApiResponse<?>> timeOutAgora(@PathVariable("agoraId") Long agoraId) {
         EndVoteAgoraResponse response = agoraService.timeOutEndAgora(agoraId);
 
         return ResponseEntity.ok(ApiUtil.success(response));
