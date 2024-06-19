@@ -7,6 +7,7 @@ import com.attica.athens.domain.common.advice.CustomException;
 import com.attica.athens.global.auth.application.AuthService;
 import com.attica.athens.global.auth.config.SecurityConfig;
 import com.attica.athens.global.auth.exception.InvalidAuthorizationHeaderException;
+import com.attica.athens.global.auth.exception.InvalidRequestException;
 import com.attica.athens.global.auth.jwt.Constants;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -37,19 +38,23 @@ public class JwtFilter extends OncePerRequestFilter {
             return;
         }
 
-        try {
-            String header = request.getHeader(Constants.AUTHORIZATION);
+        String header = request.getHeader(Constants.AUTHORIZATION);
 
-            if (!Objects.equals(header, null) && header.startsWith(BEARER_)) {
-                String token = header.split(" ")[1];
-                authService.validateToken(token);
-                Authentication authentication = authService.createAuthenticationByToken(token);
-                SecurityContextHolder.getContext().setAuthentication(authentication);
-            } else {
-                throw new InvalidAuthorizationHeaderException();
+        if (!Objects.equals(header, null)) {
+            try {
+                if (header.startsWith(BEARER_)) {
+                    String token = header.split(" ")[1];
+                    authService.validateToken(token);
+                    Authentication authentication = authService.createAuthenticationByToken(token);
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                } else {
+                    throw new InvalidAuthorizationHeaderException();
+                }
+            } catch (CustomException e) {
+                request.setAttribute(REQUEST_ATTRIBUTE_NAME, e);
             }
-        } catch (CustomException e) {
-            request.setAttribute(REQUEST_ATTRIBUTE_NAME, e);
+        } else {
+            request.setAttribute(REQUEST_ATTRIBUTE_NAME, new InvalidRequestException());
         }
 
         filterChain.doFilter(request, response);
