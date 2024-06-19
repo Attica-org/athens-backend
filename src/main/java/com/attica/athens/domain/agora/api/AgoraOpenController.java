@@ -7,12 +7,14 @@ import com.attica.athens.domain.agora.dto.request.SearchKeywordRequest;
 import com.attica.athens.domain.agora.dto.response.AgoraIdResponse;
 import com.attica.athens.domain.agora.dto.response.AgoraSlice;
 import com.attica.athens.domain.agora.dto.response.AgoraTitleResponse;
+import com.attica.athens.domain.agora.dto.response.EndVoteAgoraResponse;
 import com.attica.athens.domain.common.ApiResponse;
 import com.attica.athens.domain.common.ApiUtil;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -60,5 +62,12 @@ public class AgoraOpenController {
         AgoraIdResponse agoraIdList = agoraService.getAgoraIdList();
 
         return ResponseEntity.ok(ApiUtil.success(agoraIdList));
+    }
+
+    @PatchMapping("/{agoraId}/timeOut")
+    public ResponseEntity<ApiResponse<?>> timeOutEndAgora(@PathVariable("agoraId") Long agoraId) {
+        EndVoteAgoraResponse response = agoraService.timeOutEndAgora(agoraId);
+
+        return ResponseEntity.ok(ApiUtil.success(response));
     }
 }
