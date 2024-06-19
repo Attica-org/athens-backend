@@ -38,20 +38,19 @@ public class StompErrorHandler extends StompSubProtocolErrorHandler {
             if (cause instanceof InvalidAuthorizationHeaderException) {
                 return sendErrorMessage(new ErrorResponse(1003, cause.getMessage()));
             }
-            if (cause instanceof JwtSignatureException) {
-                return sendErrorMessage(new ErrorResponse(1201, cause.getMessage()));
-            }
-            if (cause instanceof JwtExpiredException) {
-                return sendErrorMessage(new ErrorResponse(1201, cause.getMessage()));
-            }
-            if (cause instanceof JwtUnsupportedJwtException) {
-                return sendErrorMessage(new ErrorResponse(1201, cause.getMessage()));
-            }
-            if (cause instanceof JwtIllegalArgumentException) {
+
+            if (isJwtException(cause)) {
                 return sendErrorMessage(new ErrorResponse(1201, cause.getMessage()));
             }
         }
         return super.handleClientMessageProcessingError(clientMessage, ex);
+    }
+
+    private boolean isJwtException(Throwable ex) {
+        return ex instanceof JwtSignatureException
+                || ex instanceof JwtExpiredException
+                || ex instanceof JwtUnsupportedJwtException
+                || ex instanceof JwtIllegalArgumentException;
     }
 
     private Message<byte[]> sendErrorMessage(ErrorResponse errorResponse) {

@@ -9,6 +9,6 @@ public record EndVoteAgoraResponse(Long agoraId, Integer endVoteCount, Boolean i
 
     public EndVoteAgoraResponse(Agora agora) {
         this(agora.getId(), agora.getEndVoteCount(), agora.getStatus() == AgoraStatus.CLOSED,
-                format(agora.getEndTime()));
+                agora.getEndTime() == null ? null : format(agora.getEndTime()));
     }
 }
