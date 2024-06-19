@@ -16,10 +16,10 @@ public class AgoraQueryVoteRepositoryImpl implements AgoraQueryVoteRepository {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Integer getProsVoteResult(Long agoraid) {
+    public Integer getProsVoteResult(Long agoraId) {
         List<Long> prosResult = queryFactory.select(agoraUser.voteType.count())
                 .from(agoraUser)
-                .where(agora.id.eq(agoraid).and(agoraUser.voteType.eq(AgoraVoteType.PROS)))
+                .where(agora.id.eq(agoraId).and(agoraUser.voteType.eq(AgoraVoteType.PROS)))
                 .groupBy(agoraUser.voteType)
                 .fetch();
 
@@ -27,10 +27,10 @@ public class AgoraQueryVoteRepositoryImpl implements AgoraQueryVoteRepository {
     }
 
     @Override
-    public Integer getConsVoteResult(Long agoraid) {
+    public Integer getConsVoteResult(Long agoraId) {
         List<Long> consResult = queryFactory.select(agoraUser.voteType.count())
                 .from(agoraUser)
-                .where(agora.id.eq(agoraid).and(agoraUser.voteType.eq(AgoraVoteType.CONS)))
+                .where(agora.id.eq(agoraId).and(agoraUser.voteType.eq(AgoraVoteType.CONS)))
                 .groupBy(agoraUser.voteType)
                 .fetch();
 
