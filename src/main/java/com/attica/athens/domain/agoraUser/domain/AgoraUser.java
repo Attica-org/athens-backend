@@ -13,8 +13,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import java.util.List;
-import java.util.Optional;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -93,6 +91,6 @@ public class AgoraUser extends AuditingFields {
     }
 
     public void delete() {
-        isDeleted = true;
+        this.isDeleted = true;
     }
 }

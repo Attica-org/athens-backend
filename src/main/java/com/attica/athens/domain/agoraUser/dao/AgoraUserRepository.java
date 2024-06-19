@@ -16,7 +16,8 @@ public interface AgoraUserRepository extends JpaRepository<AgoraUser, Integer>, 
 
     Optional<AgoraUser> findByAgoraIdAndUserId(Long agoraId, Long userId);
 
-    Optional<List<AgoraUser>> findByUserId(Long userId);
+    @Query("SELECT au FROM AgoraUser au JOIN FETCH au.agora WHERE au.user.id = :userId")
+    List<AgoraUser> findByUserId(@Param("userId") Long userId);
 
     @Query("SELECT new com.attica.athens.domain.chat.dto.response.SendMetaResponse$ParticipantsInfo(au.type, COUNT(au)) "
             +

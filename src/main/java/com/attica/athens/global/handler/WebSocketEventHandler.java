@@ -6,10 +6,11 @@ import com.attica.athens.domain.agoraUser.dao.AgoraUserRepository;
 import com.attica.athens.domain.agoraUser.domain.AgoraUser;
 import com.attica.athens.domain.agoraUser.exception.NotFoundActiveAgoraUserException;
 import com.attica.athens.domain.agoraUser.exception.NotFoundAgoraUserException;
+import com.attica.athens.domain.agoraUser.exception.findActiveAgorasException;
 import com.attica.athens.global.auth.CustomUserDetails;
+import java.security.Principal;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
@@ -39,18 +40,44 @@ public class WebSocketEventHandler {
         logConnectEvent(event);
     }
 
+    private void getUserDetailsAndSessionId(SessionConnectEvent event) {
+        StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(event.getMessage(), StompHeaderAccessor.class);
+
+        CustomUserDetails customUserDetails = getUserDetails(
+                Objects.requireNonNull(accessor.getUser(), "User cannot be null"));
+        String sessionId = accessor.getSessionId();
+
+        updateSessionId(customUserDetails.getUserId(), sessionId);
+    }
+
+    private <T extends AbstractSubProtocolEvent> CustomUserDetails getUserDetails(Principal principle) {
+        Authentication authentication = (Authentication) Objects.requireNonNull(principle);
+        return (CustomUserDetails) authentication.getPrincipal();
+    }
+
+    @Transactional
+    public void updateSessionId(Long userId, String sessionId) {
+
+        AgoraUser agoraUser = getAgoraUser(userId);
+
+        agoraUser.updateSessionId(sessionId);
+    }
+
     @EventListener
     public void handleWebSocketDisconnect(SessionDisconnectEvent event) {
-        CustomUserDetails userDetails = getUserDetails(event);
+
+        StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(event.getMessage(), StompHeaderAccessor.class);
+
+        CustomUserDetails userDetails = getUserDetails(accessor.getUser());
         AgoraUser agoraUser = updateIsDelete(userDetails);
 
         Agora agora = agoraUser.getAgora();
-
         checkAgoraIsDelete(agora);
     }
 
     private void checkAgoraIsDelete(Agora agora) {
-        List<AgoraUser> agoraUsers = agoraUserRepository.findByAgoraIdAndAgoraStatus(agora.getId(), AgoraStatus.RUNNING);
+        List<AgoraUser> agoraUsers = agoraUserRepository.findByAgoraIdAndAgoraStatus(agora.getId(),
+                AgoraStatus.RUNNING);
 
         if (agoraUsers.isEmpty()) {
             agora.timeOutAgora();
@@ -61,20 +88,34 @@ public class WebSocketEventHandler {
     public AgoraUser updateIsDelete(CustomUserDetails userDetails) {
         Long userId = userDetails.getUserId();
 
-        List<AgoraUser> agoraUsers = agoraUserRepository.findByUserId(userId)
-                .orElseThrow(() -> new NotFoundAgoraUserException(userId));
-
-        AgoraUser agoraUser = findAgoraUser(agoraUsers)
-                .orElseThrow(() -> new NotFoundActiveAgoraUserException());
-
+        AgoraUser agoraUser = getAgoraUser(userId);
         agoraUser.delete();
+
         return agoraUser;
     }
 
-    public Optional<AgoraUser> findAgoraUser(List<AgoraUser> agoraUsers) {
+    private AgoraUser getAgoraUser(Long userId) {
+        List<AgoraUser> agoraUsers = agoraUserRepository.findByUserId(userId);
+
+        if (agoraUsers.isEmpty()) {
+            throw new NotFoundAgoraUserException(userId);
+        }
+
+        List<AgoraUser> allAgoraUser = findActiveAgoraUser(agoraUsers);
+        if (allAgoraUser.size() > 1) {
+            throw new findActiveAgorasException();
+        }
+        if (allAgoraUser.isEmpty()) {
+            throw new NotFoundActiveAgoraUserException();
+        }
+
+        return allAgoraUser.get(0);
+    }
+
+    private List<AgoraUser> findActiveAgoraUser(List<AgoraUser> agoraUsers) {
         return agoraUsers.stream()
-                .filter(agoraUser -> !agoraUser.getIsDeleted() && !agoraUser.getIsOpinionVoted() && !agoraUser.getEndVoted())
-                .findFirst();
+                .filter(agoraUser -> agoraUser.getAgora().getStatus() != AgoraStatus.CLOSED)
+                .toList();
     }
 
     private void logConnectEvent(SessionConnectEvent event) {
@@ -109,38 +150,5 @@ public class WebSocketEventHandler {
     @EventListener(SessionUnsubscribeEvent.class)
     public void handleWebSocketSessionUnsubscribe() {
         log.info("WebSocket Unsubscribe");
-    }
-
-    public void getUserDetailsAndSessionId(SessionConnectEvent event) {
-
-        CustomUserDetails customUserDetails = getUserDetails(event);
-
-        String sessionId = getSessionId(event);
-
-        updateSessionId(customUserDetails, sessionId);
-    }
-
-    @Transactional
-    public void updateSessionId(CustomUserDetails customUserDetails, String sessionId) {
-        Long userId = customUserDetails.getUserId();
-        List<AgoraUser> agoraUsers = agoraUserRepository.findByUserId(userId)
-                .orElseThrow(() -> new NotFoundAgoraUserException(userId));
-
-        AgoraUser agoraUser = findAgoraUser(agoraUsers)
-                .orElseThrow(() -> new NotFoundActiveAgoraUserException());
-
-        agoraUser.updateSessionId(sessionId);
-    }
-
-    public String getSessionId(SessionConnectEvent event) {
-        StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
-        return headerAccessor.getSessionId();
-    }
-
-    public <T extends AbstractSubProtocolEvent> CustomUserDetails getUserDetails(T event) {
-        StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(event.getMessage(), StompHeaderAccessor.class);
-
-        Authentication authentication = (Authentication) Objects.requireNonNull(accessor.getUser());
-        return (CustomUserDetails) authentication.getPrincipal();
     }
 }

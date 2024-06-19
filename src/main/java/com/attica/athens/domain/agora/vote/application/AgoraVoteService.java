@@ -42,7 +42,7 @@ public class AgoraVoteService {
         AgoraUser agoraUser = findAgoraUserByAgoraIdAndUserId(agoraId, userId);
 
         agoraUser.updateIsOpinionVotedAndVoteType(agoraVoteRequest.voteType(), agoraVoteRequest.isOpinionVoted());
-        // 이후에 update 되더라도 rollback되니 db에는 반영 x
+
         checkVoteTime(agora);
 
         return new AgoraVoteResponse(agoraUser);
@@ -52,7 +52,6 @@ public class AgoraVoteService {
     private void checkVoteTime(Agora agora) {
         LocalDateTime now = LocalDateTime.now();
 
-        //LocalDateTime endTime = now.plusSeconds(6);
         LocalDateTime endTime = agora.getEndTime();
 
         if (Duration.between(now, endTime).getSeconds() > 5) {
