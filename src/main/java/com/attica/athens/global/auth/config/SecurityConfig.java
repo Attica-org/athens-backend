@@ -48,9 +48,6 @@ public class SecurityConfig {
     private final AuthService authService;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
-    @Value("${cors.allowed-origins}")
-    private String[] allowedOrigins;
-
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
 
