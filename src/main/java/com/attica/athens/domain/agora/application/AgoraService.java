@@ -199,6 +199,16 @@ public class AgoraService {
     }
 
     @Transactional
+    public EndVoteAgoraResponse timeOutEndAgora(Long agoraId) {
+        Agora agora = findAgoraById(agoraId);
+
+        agora.timeOutEndAgora();
+
+        return new EndVoteAgoraResponse(agora);
+
+    }
+
+    @Transactional
     public EndVoteAgoraResponse endVoteAgora(Long agoraId, Long userId) {
 
         Agora agora = findAgoraById(agoraId);
