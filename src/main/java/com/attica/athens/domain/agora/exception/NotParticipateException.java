@@ -10,7 +10,7 @@ public class NotParticipateException extends CustomException {
         super(
                 HttpStatus.BAD_REQUEST,
                 ErrorCode.WRONG_REQUEST_TRANSMISSION,
-                "User is not in the agora."
+                "User is not participating in the agora"
         );
     }
 }
