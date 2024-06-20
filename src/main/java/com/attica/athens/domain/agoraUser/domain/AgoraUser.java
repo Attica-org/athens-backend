@@ -79,7 +79,7 @@ public class AgoraUser extends AuditingFields {
         this.isOpinionVoted = isOpinionVoted;
     }
 
-    public void updateSessionId(String sessionName) {
-        this.sessionId = sessionName;
+    public void updateSessionId(String sessionId) {
+        this.sessionId = sessionId;
     }
 }

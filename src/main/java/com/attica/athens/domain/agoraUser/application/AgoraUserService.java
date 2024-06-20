@@ -34,7 +34,7 @@ public class AgoraUserService {
     @Transactional
     public void removeSessionId(String sessionId) {
         AgoraUser agoraUser = agoraUserRepository.findBySessionId(sessionId)
-                .orElseThrow(() -> new IllegalArgumentException("SessionId is not exist."));
+                .orElseThrow(NotFoundSessionException::new);
         agoraUser.updateSessionId(null);
     }
 
