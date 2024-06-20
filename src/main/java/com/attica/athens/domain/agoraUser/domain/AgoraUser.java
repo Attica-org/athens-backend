@@ -47,8 +47,8 @@ public class AgoraUser extends AuditingFields {
     @Column(name = "is_opinion_voted", nullable = false)
     private boolean isOpinionVoted;
 
-    @Column(length = 50)
-    private String sessionName;
+    @Column(name = "session_id", length = 50)
+    private String sessionId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "agora_id")
@@ -79,7 +79,7 @@ public class AgoraUser extends AuditingFields {
         this.isOpinionVoted = isOpinionVoted;
     }
 
-    public void updateSessionName(String sessionName) {
-        this.sessionName = sessionName;
+    public void updateSessionId(String sessionName) {
+        this.sessionId = sessionName;
     }
 }

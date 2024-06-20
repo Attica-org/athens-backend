@@ -1,7 +1,6 @@
 package com.attica.athens.global.handler;
 
 import com.attica.athens.domain.agoraUser.application.AgoraUserService;
-import com.attica.athens.domain.chat.application.ChatQueryService;
 import com.attica.athens.global.auth.CustomUserDetails;
 import java.util.List;
 import java.util.Map;
@@ -27,7 +26,6 @@ import org.springframework.web.socket.messaging.SessionUnsubscribeEvent;
 public class WebSocketEventHandler {
 
     private final AgoraUserService agoraUserService;
-    private final ChatQueryService chatQueryService;
 
     @EventListener
     public void handleWebSocketSessionConnect(SessionConnectEvent event) {
@@ -36,35 +34,38 @@ public class WebSocketEventHandler {
 
     private void logConnectEvent(SessionConnectEvent event) {
         StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(event.getMessage(), StompHeaderAccessor.class);
-
         Authentication authentication = (Authentication) Objects.requireNonNull(accessor.getUser());
         String username = authentication.getName();
-        String userRole = authentication.getAuthorities()
+        String userRole = getUserRole(authentication);
+
+        log.debug("WebSocket {}: username={}, userRole={}", event.getClass().getSimpleName(), username, userRole);
+    }
+
+    private String getUserRole(Authentication authentication) {
+        return authentication.getAuthorities()
                 .stream()
                 .findFirst()
                 .map(GrantedAuthority::getAuthority)
                 .orElseThrow(() -> new IllegalArgumentException("User role is not exist."));
-
-        log.info("WebSocket {}: username={}, userRole={}", event.getClass().getSimpleName(), username, userRole);
     }
 
     @EventListener
     public void handleWebSocketSessionConnected(SessionConnectedEvent event) {
-        log.info("WebSocket Connected");
-
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(event.getMessage());
-
         GenericMessage generic = (GenericMessage) accessor.getHeader("simpConnectMessage");
         Map nativeHeaders = (Map) generic.getHeaders().get("nativeHeaders");
 
-        if (accessor.getUser() != null && nativeHeaders.containsKey("agoraId")) {
+        if (accessor.getUser() != null && nativeHeaders.containsKey("AgoraId")) {
             Long userId = getUserId(accessor);
-            Long agoraId = Long.parseLong((String) ((List<?>) nativeHeaders.get("agoraId")).get(0));
-            String sessionName = accessor.getSessionId();
-            agoraUserService.updateSessionName(agoraId, userId, sessionName);
+            Long agoraId = getAgoraId(nativeHeaders);
+            String sessionId = (String) generic.getHeaders().get("simpSessionId");
 
-            log.info("SessionName updated: agoraId={}, userId={}, sessionName={}", agoraId, userId, sessionName);
+            agoraUserService.updateSessionId(agoraId, userId, sessionId);
+            agoraUserService.sendMetaToActiveUsers(agoraId);
+
+            log.info("SessionId updated: agoraId={}, userId={}, sessionId={}", agoraId, userId, sessionId);
         }
+        log.debug("WebSocket Connected");
     }
 
     private Long getUserId(StompHeaderAccessor accessor) {
@@ -73,21 +74,29 @@ public class WebSocketEventHandler {
         return customUserDetails.getUserId();
     }
 
+    private long getAgoraId(Map nativeHeaders) {
+        return Long.parseLong((String) ((List<?>) nativeHeaders.get("AgoraId")).get(0));
+    }
+
     @EventListener
     public void handleWebSocketSessionDisconnected(SessionDisconnectEvent event) {
-        StompHeaderAccessor accessor = StompHeaderAccessor.wrap(event.getMessage());
-        agoraUserService.removeSessionName(accessor.getSessionId());
+        String sessionId = event.getSessionId();
+        Long agoraId = agoraUserService.findAgoraIdBySessionId(sessionId);
+        Long userId = getUserId(StompHeaderAccessor.wrap(event.getMessage()));
 
-        log.info("WebSocket Disconnected");
+        agoraUserService.removeSessionId(sessionId);
+        agoraUserService.sendMetaToActiveUsers(agoraId);
+
+        log.info("WebSocket Disconnected: sessionId={}, agoraId={}, userId={}", sessionId, agoraId, userId);
     }
 
     @EventListener(SessionSubscribeEvent.class)
     public void handleWebSocketSessionSubscribe() {
-        log.info("WebSocket Subscribe");
+        log.debug("WebSocket Subscribe");
     }
 
     @EventListener(SessionUnsubscribeEvent.class)
     public void handleWebSocketSessionUnsubscribe() {
-        log.info("WebSocket Unsubscribe");
+        log.debug("WebSocket Unsubscribe");
     }
 }
