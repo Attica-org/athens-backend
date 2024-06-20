@@ -32,7 +32,7 @@ public class WebSocketExceptionHandler {
         return new ErrorResponse(3000, "SOCKET_ERROR");
     }
 
-    @MessageExceptionHandler
+    @MessageExceptionHandler(CustomException.class)
     @SendToUser("/queue/errors")
     public ErrorResponse handleCustomException(CustomException exception) {
 
@@ -41,8 +41,7 @@ public class WebSocketExceptionHandler {
 
     @MessageExceptionHandler(RuntimeException.class)
     @SendToUser("/queue/errors")
-    public ErrorResponse handleIllegalArgumentException() {
-
+    public ErrorResponse handleRuntimeException() {
         return new ErrorResponse(2000, "Runtime Exception");
     }
 
