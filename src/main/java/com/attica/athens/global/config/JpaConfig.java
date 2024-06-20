@@ -15,10 +15,10 @@ public class JpaConfig {
 
     @Bean
     public AuditorAware<String> auditorAware() {
-        return this::getPrinciple;
+        return this::getPrincipal;
     }
 
-    private Optional<String> getPrinciple() {
+    private Optional<String> getPrincipal() {
         return Optional.ofNullable(SecurityContextHolder.getContext().getAuthentication())
                 .filter(Authentication::isAuthenticated)
                 .map(Authentication::getPrincipal)
