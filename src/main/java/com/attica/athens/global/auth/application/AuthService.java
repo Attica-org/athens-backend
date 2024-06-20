@@ -87,9 +87,7 @@ public class AuthService {
         Long userId = Long.parseLong(jwtUtils.getUserId(refreshToken));
         String role = jwtUtils.getRole(refreshToken);
 
-        String newAccess = createRefreshTokenAndGetAccessToken(userId, role, response);
-        refreshTokenRepository.deleteByRefresh(refreshToken);
-        return newAccess;
+        return createRefreshTokenAndGetAccessToken(userId, role, response);
     }
 
     public String createRefreshTokenAndGetAccessToken(Long userId, String role, HttpServletResponse response) {
@@ -119,7 +117,7 @@ public class AuthService {
         Cookie cookie = new Cookie(key, value);
 
         cookie.setMaxAge(COOKIE_EXPIRATION_TIME);
-        //cookie.setSecure(true);
+        cookie.setSecure(true);
         cookie.setPath("/");
         cookie.setHttpOnly(true);
 

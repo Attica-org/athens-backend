@@ -12,6 +12,7 @@ import com.attica.athens.domain.agora.exception.NotFoundAgoraIdException;
 import com.attica.athens.domain.agoraUser.domain.AgoraUserType;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.LockModeType;
 import java.util.List;
@@ -36,15 +37,15 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
                         agora.title,
                         agora.color,
                         Projections.constructor(SimpleParticipants.class,
-                                jpaQueryFactory.select(agoraUser.count())
+                                JPAExpressions.select(agoraUser.count())
                                         .from(agoraUser)
                                         .where(agoraUser.agora.id.eq(agora.id)
                                                 .and(agoraUser.type.eq(AgoraUserType.PROS))),
-                                jpaQueryFactory.select(agoraUser.count())
+                                JPAExpressions.select(agoraUser.count())
                                         .from(agoraUser)
                                         .where(agoraUser.agora.id.eq(agora.id)
                                                 .and(agoraUser.type.eq(AgoraUserType.CONS))),
-                                jpaQueryFactory.select(agoraUser.count())
+                                JPAExpressions.select(agoraUser.count())
                                         .from(agoraUser)
                                         .where(agoraUser.agora.id.eq(agora.id)
                                                 .and(agoraUser.type.eq(AgoraUserType.OBSERVER)))
@@ -76,15 +77,15 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
                         agora.title,
                         agora.color,
                         Projections.constructor(SimpleParticipants.class,
-                                jpaQueryFactory.select(agoraUser.count())
+                                JPAExpressions.select(agoraUser.count())
                                         .from(agoraUser)
                                         .where(agoraUser.agora.id.eq(agora.id)
                                                 .and(agoraUser.type.eq(AgoraUserType.PROS))),
-                                jpaQueryFactory.select(agoraUser.count())
+                                JPAExpressions.select(agoraUser.count())
                                         .from(agoraUser)
                                         .where(agoraUser.agora.id.eq(agora.id)
                                                 .and(agoraUser.type.eq(AgoraUserType.CONS))),
-                                jpaQueryFactory.select(agoraUser.count())
+                                JPAExpressions.select(agoraUser.count())
                                         .from(agoraUser)
                                         .where(agoraUser.agora.id.eq(agora.id)
                                                 .and(agoraUser.type.eq(AgoraUserType.OBSERVER)))
@@ -115,15 +116,15 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
                         agora.title,
                         agora.color,
                         Projections.constructor(SimpleParticipants.class,
-                                jpaQueryFactory.select(agoraUser.count())
+                                JPAExpressions.select(agoraUser.count())
                                         .from(agoraUser)
                                         .where(agoraUser.agora.id.eq(agora.id)
                                                 .and(agoraUser.type.eq(AgoraUserType.PROS))),
-                                jpaQueryFactory.select(agoraUser.count())
+                                JPAExpressions.select(agoraUser.count())
                                         .from(agoraUser)
                                         .where(agoraUser.agora.id.eq(agora.id)
                                                 .and(agoraUser.type.eq(AgoraUserType.CONS))),
-                                jpaQueryFactory.select(agoraUser.count())
+                                JPAExpressions.select(agoraUser.count())
                                         .from(agoraUser)
                                         .where(agoraUser.agora.id.eq(agora.id)
                                                 .and(agoraUser.type.eq(AgoraUserType.OBSERVER)))
