@@ -32,7 +32,7 @@ public class WebSocketExceptionHandler {
         return new ErrorResponse(3000, "SOCKET_ERROR");
     }
 
-    @MessageExceptionHandler(CustomException.class)
+    @MessageExceptionHandler
     @SendToUser("/queue/errors")
     public ErrorResponse handleCustomException(CustomException exception) {
 
