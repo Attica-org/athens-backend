@@ -10,6 +10,7 @@ import com.attica.athens.domain.agora.vote.dto.request.AgoraVoteRequest;
 import com.attica.athens.domain.agora.vote.dto.response.AgoraVoteResponse;
 import com.attica.athens.domain.agora.vote.dto.response.AgoraVoteResultResponse;
 import com.attica.athens.domain.agora.vote.exception.AlreadyOpinionVotedException;
+import com.attica.athens.domain.agora.vote.exception.InvalidAgoraVoteTypeException;
 import com.attica.athens.domain.agoraUser.dao.AgoraUserRepository;
 import com.attica.athens.domain.agoraUser.domain.AgoraUser;
 import com.attica.athens.domain.agoraUser.exception.NotFoundAgoraUserException;
@@ -29,6 +30,7 @@ public class AgoraVoteService {
     public AgoraVoteResponse vote(Long userId, AgoraVoteRequest agoraVoteRequest, Long agoraId) {
 
         checkAgoraUserVoted(agoraId, userId);
+        checkAgoraVoteRequest(agoraVoteRequest);
 
         Agora agora = findAgoraById(agoraId);
 
@@ -53,6 +55,12 @@ public class AgoraVoteService {
 
         return new AgoraVoteResultResponse(agoraId, prosVoteResult, consVoteResult);
 
+    }
+
+    private void checkAgoraVoteRequest(AgoraVoteRequest agoraVoteRequest) {
+        if (agoraVoteRequest.voteType() == null) {
+            throw new InvalidAgoraVoteTypeException();
+        }
     }
 
     private void checkAgoraUserVoted(Long agoraId, Long userId) {

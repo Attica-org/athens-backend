@@ -133,6 +133,11 @@ public class Agora extends AuditingFields {
         }
     }
 
+    public void timeOutEndAgora() {
+        changeStatus(AgoraStatus.CLOSED);
+        this.endTime = LocalDateTime.now();
+    }
+
     private void changeStatus(AgoraStatus status) {
         if ((this.status == AgoraStatus.QUEUED && status == AgoraStatus.RUNNING) ||
                 (this.status == AgoraStatus.RUNNING && status == AgoraStatus.CLOSED)
