@@ -39,16 +39,13 @@ public class AgoraUserService {
     }
 
     public void sendMetaToActiveUsers(Long agoraId) {
-        simpMessagingTemplate.convertAndSend("/topic/agoras/" + agoraId + "/meta", sendMeta(agoraId));
-    }
-
-    private SendMetaResponse sendMeta(Long agoraId) {
-        return new SendMetaResponse(
-                new MetaData(
-                        findAgoraUserByType(agoraId),
-                        findAgoraById(agoraId)
-                )
-        );
+        simpMessagingTemplate.convertAndSend("/topic/agoras/" + agoraId + "/meta",
+                new SendMetaResponse(
+                        new MetaData(
+                                findAgoraUserByType(agoraId),
+                                findAgoraById(agoraId)
+                        )
+                ));
     }
 
     private List<ParticipantsInfo> findAgoraUserByType(Long agoraId) {
