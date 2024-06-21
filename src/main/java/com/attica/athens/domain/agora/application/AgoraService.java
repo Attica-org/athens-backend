@@ -88,7 +88,7 @@ public class AgoraService {
         if (!Objects.equals(AgoraUserType.OBSERVER, request.type())) {
             int typeCount = agoraUserRepository.countCapacityByAgoraUserType(agora.getId(), request.type());
             if (typeCount >= agora.getCapacity()) {
-                throw new FullAgoraCapacityException(agora.getId(), request.type());
+                throw new FullAgoraCapacityException();
             }
 
             boolean existsNickname = agoraUserRepository.existsNickname(agoraId, request.nickname());
