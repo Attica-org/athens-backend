@@ -25,7 +25,7 @@ public interface AgoraUserRepository extends JpaRepository<AgoraUser, Integer>, 
 
     List<AgoraUser> findByAgoraId(Long agoraId);
 
-    List<AgoraUser> findByAgoraIdAndTypeIn(Long agoraId, List<AgoraUserType> types);
+    List<AgoraUser> findByAgoraIdAndTypeInAndSessionIdIsNotNull(Long agoraId, List<AgoraUserType> types);
 
     int countByAgoraId(Long agoraId);
 

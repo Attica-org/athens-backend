@@ -107,7 +107,7 @@ public class ChatQueryService {
     }
 
     private List<AgoraUser> findByAgoraIdAndTypeIn(Long agoraId) {
-        return agoraUserRepository.findByAgoraIdAndTypeIn(agoraId,
+        return agoraUserRepository.findByAgoraIdAndTypeInAndSessionIdIsNotNull(agoraId,
                 Arrays.asList(AgoraUserType.PROS, AgoraUserType.CONS));
     }
 }

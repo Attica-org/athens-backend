@@ -14,5 +14,4 @@ public class NotFoundAgoraUserException extends CustomException {
                         " user id: " + userId
         );
     }
-
 }

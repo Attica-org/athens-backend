@@ -38,5 +38,4 @@ public class CustomWebSocketHandlerDecorator extends WebSocketHandlerDecorator {
             session.close();
         }
     }
-
 }
