@@ -39,7 +39,4 @@ public class CustomWebSocketHandlerDecorator extends WebSocketHandlerDecorator {
         }
     }
 
-//    public ConcurrentHashMap<String, WebSocketSession> getSessionMap() {
-//        return sessionMap;
-//    }
 }
