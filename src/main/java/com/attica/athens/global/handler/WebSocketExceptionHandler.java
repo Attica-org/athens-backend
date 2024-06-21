@@ -41,8 +41,7 @@ public class WebSocketExceptionHandler {
 
     @MessageExceptionHandler(RuntimeException.class)
     @SendToUser("/queue/errors")
-    public ErrorResponse handleIllegalArgumentException() {
-
+    public ErrorResponse handleRuntimeException() {
         return new ErrorResponse(2000, "Runtime Exception");
     }
 

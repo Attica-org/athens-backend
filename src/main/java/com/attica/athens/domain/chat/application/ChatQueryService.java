@@ -12,9 +12,6 @@ import com.attica.athens.domain.chat.dto.Cursor;
 import com.attica.athens.domain.chat.dto.response.GetChatParticipants;
 import com.attica.athens.domain.chat.dto.response.GetChatResponse;
 import com.attica.athens.domain.chat.dto.response.GetChatResponse.ChatData;
-import com.attica.athens.domain.chat.dto.response.SendMetaResponse;
-import com.attica.athens.domain.chat.dto.response.SendMetaResponse.MetaData;
-import com.attica.athens.domain.chat.dto.response.SendMetaResponse.ParticipantsInfo;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -33,20 +30,6 @@ public class ChatQueryService {
     private final AgoraRepository agoraRepository;
     private final AgoraUserRepository agoraUserRepository;
     private final ChatRepository chatRepository;
-
-    public SendMetaResponse sendMeta(Long agoraId) {
-
-        MetaData metaData = new MetaData(
-                findAgoraUserByType(agoraId),
-                findAgoraById(agoraId)
-        );
-
-        return new SendMetaResponse(metaData);
-    }
-
-    private List<ParticipantsInfo> findAgoraUserByType(Long agoraId) {
-        return agoraUserRepository.countAgoraUsersByType(agoraId);
-    }
 
     public GetChatResponse getChatHistory(Long agoraId, Cursor cursor) {
 
