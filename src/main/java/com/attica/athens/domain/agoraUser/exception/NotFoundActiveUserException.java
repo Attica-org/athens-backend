@@ -4,12 +4,12 @@ import com.attica.athens.domain.common.advice.CustomException;
 import com.attica.athens.domain.common.advice.ErrorCode;
 import org.springframework.http.HttpStatus;
 
-public class findActiveAgorasException extends CustomException {
-    public findActiveAgorasException() {
+public class NotFoundActiveUserException extends CustomException {
+    public NotFoundActiveUserException() {
         super(
                 HttpStatus.BAD_REQUEST,
                 ErrorCode.WRONG_REQUEST_TRANSMISSION,
-                "There are more than one agora in progress."
+                "No users are participating in Agora."
         );
     }
 }

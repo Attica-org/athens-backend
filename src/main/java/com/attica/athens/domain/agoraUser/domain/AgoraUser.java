@@ -16,12 +16,10 @@ import jakarta.persistence.ManyToOne;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.Where;
 
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Where(clause = "is_deleted=false")
 public class AgoraUser extends AuditingFields {
 
     @Id
@@ -49,9 +47,6 @@ public class AgoraUser extends AuditingFields {
     @Column(name = "end_voted", nullable = false, columnDefinition = "BIT default 0")
     private Boolean endVoted;
 
-    @Column(name = "is_deleted", nullable = false, columnDefinition = "BIT default 0")
-    private Boolean isDeleted;
-
     @Column(name = "is_opinion_voted", nullable = false, columnDefinition = "BIT default 0")
     private Boolean isOpinionVoted;
 
@@ -67,8 +62,6 @@ public class AgoraUser extends AuditingFields {
                      BaseUser user) {
         this.type = type;
         this.voteType = AgoraVoteType.DEFAULT;
-        this.sessionId = "DEFAULT";
-        this.isDeleted = false;
         this.nickname = nickname;
         this.photoNumber = photoNumber;
         this.endVoted = false;
@@ -90,7 +83,4 @@ public class AgoraUser extends AuditingFields {
         this.sessionId = sessionId;
     }
 
-    public void delete() {
-        this.isDeleted = true;
-    }
 }

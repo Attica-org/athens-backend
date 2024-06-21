@@ -13,3 +13,4 @@ public class InvalidAgoraVoteTypeException extends CustomException {
         );
     }
 }
+

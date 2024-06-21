@@ -3,6 +3,7 @@ package com.attica.athens.domain.agora.application;
 import com.attica.athens.domain.agora.dao.AgoraRepository;
 import com.attica.athens.domain.agora.dao.CategoryRepository;
 import com.attica.athens.domain.agora.domain.Agora;
+import com.attica.athens.domain.agora.domain.AgoraStatus;
 import com.attica.athens.domain.agora.domain.Category;
 import com.attica.athens.domain.agora.dto.SimpleAgoraResult;
 import com.attica.athens.domain.agora.dto.request.AgoraCreateRequest;
@@ -20,9 +21,12 @@ import com.attica.athens.domain.agora.dto.response.EndVoteAgoraResponse;
 import com.attica.athens.domain.agora.dto.response.StartAgoraResponse;
 import com.attica.athens.domain.agora.dto.response.StartNotificationResponse;
 import com.attica.athens.domain.agora.exception.AlreadyParticipateException;
+import com.attica.athens.domain.agora.exception.DuplicatedNicknameException;
 import com.attica.athens.domain.agora.exception.FullAgoraCapacityException;
 import com.attica.athens.domain.agora.exception.NotFoundAgoraException;
 import com.attica.athens.domain.agora.exception.NotFoundCategoryException;
+import com.attica.athens.domain.agora.exception.NotParticipateException;
+import com.attica.athens.domain.agora.exception.ObserverException;
 import com.attica.athens.domain.agoraUser.dao.AgoraUserRepository;
 import com.attica.athens.domain.agoraUser.domain.AgoraUser;
 import com.attica.athens.domain.agoraUser.domain.AgoraUserType;
@@ -79,11 +83,18 @@ public class AgoraService {
     @Transactional
     public AgoraParticipateResponse participate(final Long userId, final Long agoraId,
                                                 final AgoraParticipateRequest request) {
-        Agora agora = findAgoraById(agoraId);
+        Agora agora = agoraRepository.findAgoraById(agoraId)
+                .orElseThrow(() -> new NotFoundAgoraException(agoraId));
+
         if (!Objects.equals(AgoraUserType.OBSERVER, request.type())) {
             int typeCount = agoraUserRepository.countCapacityByAgoraUserType(agora.getId(), request.type());
             if (typeCount >= agora.getCapacity()) {
-                throw new FullAgoraCapacityException(agora.getId(), request.type());
+                throw new FullAgoraCapacityException();
+            }
+
+            boolean existsNickname = agoraUserRepository.existsNickname(agoraId, request.nickname());
+            if (existsNickname) {
+                throw new DuplicatedNicknameException(request.nickname());
             }
         }
 
@@ -168,6 +179,8 @@ public class AgoraService {
             throw new NotFoundAgoraUserException(agoraId, userId);
         }
 
+        findAgoraUserByAgoraIdAndUserId(agoraId, userId);
+
         agora.startAgora();
 
         sendAgoraStartMessage(agora);
@@ -201,14 +214,21 @@ public class AgoraService {
         int participantCount = agoraUserRepository.countByAgoraId(agoraId);
         agora.endVoteAgora(participantCount);
 
-        sendAgoraEndMessage(agora);
+        if (agora.getStatus() == AgoraStatus.CLOSED) {
+            sendAgoraEndMessage(agora);
+        }
 
         return new EndVoteAgoraResponse(agora);
     }
 
     @Transactional
     public EndAgoraResponse timeOutAgora(Long agoraId) {
+
         Agora agora = findAgoraById(agoraId);
+
+        if (agora.getStatus() == AgoraStatus.CLOSED) {
+            sendAgoraEndMessage(agora);
+        }
 
         agora.timeOutAgora();
 
@@ -226,7 +246,13 @@ public class AgoraService {
 
     private AgoraUser findAgoraUserByAgoraIdAndUserId(Long agoraId, Long userId) {
         return agoraUserRepository.findByAgoraIdAndUserId(agoraId, userId)
-                .orElseThrow(() -> new NotFoundAgoraUserException(agoraId, userId));
+                .map(agoraUser -> {
+                    if (agoraUser.getType() == AgoraUserType.OBSERVER) {
+                        throw new ObserverException();
+                    }
+                    return agoraUser;
+                })
+                .orElseThrow(NotParticipateException::new);
     }
 
     private void sendAgoraEndMessage(Agora agora) {
@@ -235,4 +261,5 @@ public class AgoraService {
 
         messagingTemplate.convertAndSend("/topic/agoras/" + agora.getId(), notification);
     }
+
 }

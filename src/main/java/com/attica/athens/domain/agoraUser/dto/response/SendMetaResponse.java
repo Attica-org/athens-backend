@@ -1,4 +1,4 @@
-package com.attica.athens.domain.chat.dto.response;
+package com.attica.athens.domain.agoraUser.dto.response;
 
 import com.attica.athens.domain.agora.domain.Agora;
 import com.attica.athens.domain.agoraUser.domain.AgoraUserType;

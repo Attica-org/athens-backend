@@ -76,7 +76,9 @@ if (project.hasProperty('prod')) {
         }
         container {
             creationTime = "USE_CURRENT_TIMESTAMP"
-            jvmFlags = ["-Dspring.profiles.active=prod"]
+
+            jvmFlags = ["-Dspring.profiles.active=prod", "-Duser.timezone=Asia/Seoul"]
+
             setAllowInsecureRegistries(true)
         }
     }
