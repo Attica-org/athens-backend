@@ -227,8 +227,10 @@ public class AgoraService {
         Agora agora = findAgoraById(agoraId);
 
         if (agora.getStatus() == AgoraStatus.CLOSED) {
-            sendAgoraEndMessage(agora);
+            return new EndAgoraResponse(agora);
         }
+
+        sendAgoraEndMessage(agora);
 
         agora.timeOutAgora();
 
