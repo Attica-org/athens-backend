@@ -45,13 +45,6 @@ public class AgoraAuthController {
         return ResponseEntity.ok(ApiUtil.success(response));
     }
 
-    @PatchMapping("/{agoraId}/timeOut")
-    public ResponseEntity<ApiResponse<?>> timeOutAgora(@PathVariable("agoraId") Long agoraId) {
-        EndAgoraResponse response = agoraService.timeOutAgora(agoraId);
-
-        return ResponseEntity.ok(ApiUtil.success(response));
-    }
-
     @PostMapping("/{agora-id}/participants")
     public ResponseEntity<ApiResponse<?>> participateAgora(
             @AuthenticationPrincipal CustomUserDetails user,

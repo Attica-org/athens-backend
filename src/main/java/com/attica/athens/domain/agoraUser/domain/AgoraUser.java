@@ -67,7 +67,7 @@ public class AgoraUser extends AuditingFields {
                      BaseUser user) {
         this.type = type;
         this.voteType = AgoraVoteType.DEFAULT;
-        this.sessionId = "";
+        this.sessionId = "DEFAULT";
         this.isDeleted = false;
         this.nickname = nickname;
         this.photoNumber = photoNumber;
