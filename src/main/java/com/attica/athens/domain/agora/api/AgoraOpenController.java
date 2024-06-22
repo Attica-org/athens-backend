@@ -7,7 +7,7 @@ import com.attica.athens.domain.agora.dto.request.SearchKeywordRequest;
 import com.attica.athens.domain.agora.dto.response.AgoraIdResponse;
 import com.attica.athens.domain.agora.dto.response.AgoraSlice;
 import com.attica.athens.domain.agora.dto.response.AgoraTitleResponse;
-import com.attica.athens.domain.agora.dto.response.EndVoteAgoraResponse;
+import com.attica.athens.domain.agora.dto.response.EndAgoraResponse;
 import com.attica.athens.domain.common.ApiResponse;
 import com.attica.athens.domain.common.ApiUtil;
 import jakarta.validation.Valid;
@@ -66,7 +66,8 @@ public class AgoraOpenController {
 
     @PatchMapping("/{agoraId}/time-out")
     public ResponseEntity<ApiResponse<?>> timeOutAgora(@PathVariable("agoraId") Long agoraId) {
-        EndVoteAgoraResponse response = agoraService.timeOutEndAgora(agoraId);
+
+        EndAgoraResponse response = agoraService.timeOutAgora(agoraId);
 
         return ResponseEntity.ok(ApiUtil.success(response));
     }

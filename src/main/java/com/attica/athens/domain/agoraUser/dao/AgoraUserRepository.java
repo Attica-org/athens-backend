@@ -1,6 +1,5 @@
 package com.attica.athens.domain.agoraUser.dao;
 
-
 import com.attica.athens.domain.agoraUser.domain.AgoraUser;
 import com.attica.athens.domain.agoraUser.domain.AgoraUserType;
 import com.attica.athens.domain.agoraUser.dto.response.SendMetaResponse.ParticipantsInfo;
@@ -26,9 +25,11 @@ public interface AgoraUserRepository extends JpaRepository<AgoraUser, Integer>, 
 
     List<AgoraUser> findByAgoraId(Long agoraId);
 
-    List<AgoraUser> findByAgoraIdAndTypeIn(Long agoraId, List<AgoraUserType> types);
+    List<AgoraUser> findByAgoraIdAndTypeInAndSessionIdIsNotNull(Long agoraId, List<AgoraUserType> types);
 
     int countByAgoraId(Long agoraId);
 
     Optional<AgoraUser> findBySessionId(String sessionName);
+
+    boolean existsByAgoraIdAndSessionIdIsNotNull(Long agoraId);
 }

@@ -19,4 +19,5 @@ public abstract class Constants {
     public static final String BEARER_ = "Bearer ";
 
     public static final String REQUEST_ATTRIBUTE_NAME = "jwt exception";
+
 }

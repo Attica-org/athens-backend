@@ -38,17 +38,17 @@ public class AgoraUser extends AuditingFields {
     @Column(length = 25)
     private String nickname;
 
+    @Column(name = "session_id")
+    private String sessionId;
+
     @Column(name = "photo_number")
     private Integer photoNumber;
 
-    @Column(name = "end_voted", nullable = false)
-    private boolean endVoted;
+    @Column(name = "end_voted", nullable = false, columnDefinition = "BIT default 0")
+    private Boolean endVoted;
 
-    @Column(name = "is_opinion_voted", nullable = false)
-    private boolean isOpinionVoted;
-
-    @Column(name = "session_id", length = 50)
-    private String sessionId;
+    @Column(name = "is_opinion_voted", nullable = false, columnDefinition = "BIT default 0")
+    private Boolean isOpinionVoted;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "agora_id")
