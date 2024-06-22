@@ -15,6 +15,7 @@ import com.attica.athens.domain.agora.dto.response.AgoraParticipateResponse;
 import com.attica.athens.domain.agora.dto.response.AgoraSlice;
 import com.attica.athens.domain.agora.dto.response.AgoraTitleResponse;
 import com.attica.athens.domain.agora.dto.response.CreateAgoraResponse;
+import com.attica.athens.domain.agora.dto.response.EndAgoraResponse;
 import com.attica.athens.domain.agora.dto.response.EndNotificationResponse;
 import com.attica.athens.domain.agora.dto.response.EndVoteAgoraResponse;
 import com.attica.athens.domain.agora.dto.response.StartAgoraResponse;
@@ -145,7 +146,6 @@ public class AgoraService {
                     .map(Category::getId)
                     .orElse(null);
         }
-
         return parentCodes;
     }
 
@@ -204,15 +204,6 @@ public class AgoraService {
     }
 
     @Transactional
-    public EndVoteAgoraResponse timeOutEndAgora(Long agoraId) {
-        Agora agora = findAgoraById(agoraId);
-
-        agora.timeOutEndAgora();
-
-        return new EndVoteAgoraResponse(agora);
-    }
-
-    @Transactional
     public EndVoteAgoraResponse endVoteAgora(Long agoraId, Long userId) {
 
         Agora agora = findAgoraById(agoraId);
@@ -229,9 +220,25 @@ public class AgoraService {
         return new EndVoteAgoraResponse(agora);
     }
 
+    @Transactional
+    public EndAgoraResponse timeOutAgora(Long agoraId) {
+
+        Agora agora = findAgoraById(agoraId);
+
+        if (agora.getStatus() == AgoraStatus.CLOSED) {
+            return new EndAgoraResponse(agora);
+        }
+
+        sendAgoraEndMessage(agora);
+
+        agora.timeOutAgora();
+
+        return new EndAgoraResponse(agora);
+    }
+
     private void findAgoraUserAndMarkEndVoted(Long agoraId, Long userId) {
         AgoraUser agoraUser = findAgoraUserByAgoraIdAndUserId(agoraId, userId);
-        if (agoraUser.isEndVoted()) {
+        if (agoraUser.getEndVoted()) {
             throw new AlreadyEndVotedException();
         }
         agoraUser.markEndVoted();
