@@ -9,7 +9,7 @@ public class VoteTimeOutException extends CustomException {
         super(
                 HttpStatus.BAD_REQUEST,
                 ErrorCode.WRONG_REQUEST_TRANSMISSION,
-                "Voting timed out."
+                "Voting period has expired."
         );
     }
 }

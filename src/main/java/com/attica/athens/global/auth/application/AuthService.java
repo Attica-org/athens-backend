@@ -22,14 +22,10 @@ import io.jsonwebtoken.security.SecurityException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
@@ -40,20 +36,6 @@ public class AuthService {
 
     private final JwtUtils jwtUtils;
     private final RefreshTokenRepository refreshTokenRepository;
-
-    @Scheduled(cron = "0 0 0 * * ?")
-    public void cleanUpExpiredTokens() {
-        Date date = getDate();
-        List<RefreshToken> refreshTokensByExpiration = refreshTokenRepository.findByExpirationBefore(date);
-        refreshTokenRepository.deleteAll(refreshTokensByExpiration);
-    }
-
-    public Date getDate() {
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime before = now.minusHours(24);
-        Date date = Date.from(before.atZone(ZoneId.systemDefault()).toInstant());
-        return date;
-    }
 
     public String createJwtToken(String tokenType, long id, String role) {
         return jwtUtils.createJwtToken(tokenType, id, role);

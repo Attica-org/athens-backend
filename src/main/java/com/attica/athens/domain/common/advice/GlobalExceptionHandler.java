@@ -69,16 +69,4 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(ApiUtil.failure(response));
     }
-
-    @ExceptionHandler(TimeoutException.class)
-    ResponseEntity<?> handleTimeLimiterException() {
-
-        ErrorResponse response = new ErrorResponse(
-                ErrorCode.WRONG_REQUEST_TRANSMISSION.getCode(),
-                "요청이 타임아웃되었습니다."
-        );
-        return ResponseEntity.status(HttpStatus.REQUEST_TIMEOUT)
-                .body(ApiUtil.failure(response));
-
-    }
 }

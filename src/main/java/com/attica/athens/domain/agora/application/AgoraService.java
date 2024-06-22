@@ -146,7 +146,6 @@ public class AgoraService {
                     .map(Category::getId)
                     .orElse(null);
         }
-
         return parentCodes;
     }
 
@@ -235,7 +234,6 @@ public class AgoraService {
         agora.timeOutAgora();
 
         return new EndAgoraResponse(agora);
-
     }
 
     private void findAgoraUserAndMarkEndVoted(Long agoraId, Long userId) {
@@ -263,5 +261,4 @@ public class AgoraService {
 
         messagingTemplate.convertAndSend("/topic/agoras/" + agora.getId(), notification);
     }
-
 }

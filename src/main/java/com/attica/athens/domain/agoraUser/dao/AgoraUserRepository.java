@@ -30,4 +30,6 @@ public interface AgoraUserRepository extends JpaRepository<AgoraUser, Integer>, 
     int countByAgoraId(Long agoraId);
 
     Optional<AgoraUser> findBySessionId(String sessionName);
+
+    boolean existsByAgoraIdAndSessionIdIsNotNull(Long agoraId);
 }

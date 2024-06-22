@@ -82,5 +82,4 @@ public class AgoraUser extends AuditingFields {
     public void updateSessionId(String sessionId) {
         this.sessionId = sessionId;
     }
-
 }
