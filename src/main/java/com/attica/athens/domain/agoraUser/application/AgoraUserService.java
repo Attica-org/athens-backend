@@ -49,7 +49,7 @@ public class AgoraUserService {
     }
 
     public void sendMetaToActiveUsers(Long agoraId) {
-        simpMessagingTemplate.convertAndSend("/topic/agoras/" + agoraId + "/meta",
+        simpMessagingTemplate.convertAndSend("/topic/agoras/" + agoraId,
                 new SendMetaResponse(
                         new MetaData(
                                 findAgoraUserByType(agoraId),
