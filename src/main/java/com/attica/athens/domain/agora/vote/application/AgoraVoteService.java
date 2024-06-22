@@ -11,9 +11,12 @@ import com.attica.athens.domain.agora.vote.dto.response.AgoraVoteResponse;
 import com.attica.athens.domain.agora.vote.dto.response.AgoraVoteResultResponse;
 import com.attica.athens.domain.agora.vote.exception.AlreadyOpinionVotedException;
 import com.attica.athens.domain.agora.vote.exception.InvalidAgoraVoteTypeException;
+import com.attica.athens.domain.agora.vote.exception.VoteTimeOutException;
 import com.attica.athens.domain.agoraUser.dao.AgoraUserRepository;
 import com.attica.athens.domain.agoraUser.domain.AgoraUser;
 import com.attica.athens.domain.agoraUser.exception.NotFoundAgoraUserException;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,7 +43,20 @@ public class AgoraVoteService {
 
         agoraUser.updateIsOpinionVotedAndVoteType(agoraVoteRequest.voteType(), agoraVoteRequest.isOpinionVoted());
 
+        checkVoteTime(agora);
+
         return new AgoraVoteResponse(agoraUser);
+
+    }
+
+    private void checkVoteTime(Agora agora) {
+        LocalDateTime now = LocalDateTime.now();
+
+        LocalDateTime endTime = agora.getEndTime();
+
+        if (Duration.between(now, endTime).getSeconds() > 20) {
+            throw new VoteTimeOutException();
+        }
     }
 
     @Transactional
@@ -66,7 +82,7 @@ public class AgoraVoteService {
     private void checkAgoraUserVoted(Long agoraId, Long userId) {
         AgoraUser agoraUser = findAgoraUserByAgoraIdAndUserId(agoraId, userId);
 
-        if (agoraUser.isOpinionVoted()) {
+        if (agoraUser.getIsOpinionVoted()) {
             throw new AlreadyOpinionVotedException();
         }
     }

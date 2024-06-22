@@ -49,6 +49,8 @@ dependencies {
 
     implementation 'com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.9.0'
 
+    implementation 'org.springframework.boot:spring-boot-starter-quartz'
+
 }
 
 tasks.named('test') {
@@ -74,7 +76,9 @@ if (project.hasProperty('prod')) {
         }
         container {
             creationTime = "USE_CURRENT_TIMESTAMP"
+
             jvmFlags = ["-Dspring.profiles.active=prod", "-Duser.timezone=Asia/Seoul"]
+
             setAllowInsecureRegistries(true)
         }
     }

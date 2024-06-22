@@ -133,7 +133,8 @@ public class Agora extends AuditingFields {
         }
     }
 
-    public void timeOutEndAgora() {
+    public void timeOutAgora() {
+
         changeStatus(AgoraStatus.CLOSED);
         this.endTime = LocalDateTime.now();
     }
@@ -151,5 +152,10 @@ public class Agora extends AuditingFields {
     public void updateProsCountAndConsCount(Integer prosCount, Integer consCount) {
         this.prosCount = prosCount;
         this.consCount = consCount;
+    }
+
+    public boolean isAgoraActive(List<AgoraUser> agoraUsers) {
+        return agoraUsers.stream()
+                .anyMatch(agoraUser -> agoraUser.getSessionId() != null);
     }
 }
