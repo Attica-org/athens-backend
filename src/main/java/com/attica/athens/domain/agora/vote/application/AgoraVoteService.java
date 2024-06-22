@@ -54,7 +54,7 @@ public class AgoraVoteService {
 
         LocalDateTime endTime = agora.getEndTime();
 
-        if (Duration.between(now, endTime).getSeconds() > 5) {
+        if (Duration.between(now, endTime).getSeconds() > 20) {
             throw new VoteTimeOutException();
         }
     }
