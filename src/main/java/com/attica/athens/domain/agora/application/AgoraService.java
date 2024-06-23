@@ -210,7 +210,8 @@ public class AgoraService {
 
         findAgoraUserAndMarkEndVoted(agoraId, userId);
 
-        int participantCount = agoraUserRepository.countByAgoraId(agoraId);
+        int participantCount = agoraUserRepository.countByAgoraIdAndSessionIdIsNotNullAndTypeIsNot(agoraId,
+                AgoraUserType.OBSERVER);
         agora.endVoteAgora(participantCount);
 
         if (agora.getStatus() == AgoraStatus.CLOSED) {
