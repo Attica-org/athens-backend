@@ -44,7 +44,7 @@ public class AgoraUserService {
 
         boolean isAllAgoraUsersInactive = agoraUserRepository.existsByAgoraIdAndSessionIdIsNotNull(agora.getId());
         if (!isAllAgoraUsersInactive) {
-            throw new NotFoundActiveUserException();
+            agora.timeOutAgora();
         }
     }
 

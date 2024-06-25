@@ -113,7 +113,7 @@ public class AuthService {
     }
 
     private Cookie createCookie(String key, String value) {
-
+        // 해당 메소드 지우고 addHeader로 sameSite NONE으로 설정
         Cookie cookie = new Cookie(key, value);
 
         cookie.setMaxAge(COOKIE_EXPIRATION_TIME);
