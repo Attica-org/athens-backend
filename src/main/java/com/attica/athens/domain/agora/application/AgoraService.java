@@ -6,8 +6,10 @@ import com.attica.athens.domain.agora.domain.Agora;
 import com.attica.athens.domain.agora.domain.AgoraStatus;
 import com.attica.athens.domain.agora.domain.Category;
 import com.attica.athens.domain.agora.dto.SimpleAgoraResult;
+import com.attica.athens.domain.agora.dto.SimpleClosedAgoraVoteResult;
 import com.attica.athens.domain.agora.dto.request.AgoraCreateRequest;
 import com.attica.athens.domain.agora.dto.request.AgoraParticipateRequest;
+import com.attica.athens.domain.agora.dto.request.ClosedAgoraRequest;
 import com.attica.athens.domain.agora.dto.request.SearchCategoryRequest;
 import com.attica.athens.domain.agora.dto.request.SearchKeywordRequest;
 import com.attica.athens.domain.agora.dto.response.AgoraIdResponse;
@@ -78,6 +80,10 @@ public class AgoraService {
         List<Long> categoryIds = findParentCategoryById(request.category());
 
         return agoraRepository.findAgoraByCategory(request.next(), request.getStatus(), categoryIds);
+    }
+
+    public AgoraSlice<SimpleClosedAgoraVoteResult> findClosedAgoraVoteResultByStatus(final ClosedAgoraRequest request){
+        return agoraRepository.findClosedAgoraVoteResultsByStatus(request.next(), request.getStatus());
     }
 
     @Transactional
