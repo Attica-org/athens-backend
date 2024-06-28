@@ -18,6 +18,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.LockModeType;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -63,7 +64,7 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
                 .limit(size + 1L)
                 .fetch();
 
-        return getAgoraResultSlice(size, result);
+        return getAgoraResultSlice(size, result, SimpleAgoraResult::id);
     }
 
     @Override
@@ -103,7 +104,7 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
                 .limit(size + 1L)
                 .fetch();
 
-        return getAgoraResultSlice(size, result);
+        return getAgoraResultSlice(size, result, SimpleAgoraResult::id);
     }
 
     @Override
@@ -139,7 +140,7 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
                 .limit(size + 1L)
                 .fetch();
 
-        return getAgoraResultSlice(size, result);
+        return getAgoraResultSlice(size, result, SimpleAgoraResult::id);
     }
 
     @Override
@@ -167,7 +168,7 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
                 .limit(size + 1L)
                 .fetch();
 
-        return getAgoraResultSlice(size, result);
+        return getAgoraResultSlice(size, result, SimpleClosedAgoraVoteResult::id);
     }
 
     @Override
@@ -196,12 +197,12 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
         );
     }
 
-    private <T extends AgoraResult> AgoraSlice<T> getAgoraResultSlice(final int size, final List<T> result) {
+    private <T> AgoraSlice<T> getAgoraResultSlice(final int size, final List<T> result, Function<T, Long> idExtractor) {
         boolean hasNext = false;
         Long lastAgoraId = null;
         if (result != null && result.size() > size) {
             result.remove(size);
-            lastAgoraId = result.get(result.size() - 1).id();
+            lastAgoraId = idExtractor.apply(result.get(result.size() - 1));
             hasNext = true;
         }
         return new AgoraSlice<>(result, lastAgoraId, hasNext);
