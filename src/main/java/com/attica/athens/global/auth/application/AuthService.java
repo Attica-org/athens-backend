@@ -97,7 +97,7 @@ public class AuthService {
         createRefreshEntity(new CreateRefreshTokenRequest(userId, newRefresh));
 
         Cookie cookie = createCookie(COOKIE_NAME, newRefresh);
-        response.addCookie(cookie);
+        addSameSiteCookieAttribute(response, cookie);
 
         return newAccess;
     }
@@ -122,5 +122,15 @@ public class AuthService {
         cookie.setHttpOnly(true);
 
         return cookie;
+    }
+
+    private void addSameSiteCookieAttribute(HttpServletResponse response, Cookie cookie) {
+        String cookieString = String.format("%s=%s; Max-Age=%d; Path=%s; Secure; HttpOnly; SameSite=None",
+                cookie.getName(),
+                cookie.getValue(),
+                cookie.getMaxAge(),
+                cookie.getPath());
+
+        response.addHeader("Set-Cookie", cookieString);
     }
 }

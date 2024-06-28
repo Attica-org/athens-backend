@@ -6,10 +6,7 @@ import com.attica.athens.global.auth.filter.CustomLogoutFilter;
 import com.attica.athens.global.auth.filter.JwtAuthenticationEntryPoint;
 import com.attica.athens.global.auth.filter.JwtFilter;
 import com.attica.athens.global.auth.filter.LoginFilter;
-import java.util.Arrays;
-import java.util.Collections;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -23,7 +20,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
-import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsUtils;
 
 @Configuration
@@ -38,7 +34,7 @@ public class SecurityConfig {
             "/ws/**",
             "/login",
             "/api/v1/user/**",
-            "/api/v1/reissue",
+            "/api/v1/auth/reissue",
             "/api/v1/temp-user/**",
             "/api/v1/open/**"
     };
