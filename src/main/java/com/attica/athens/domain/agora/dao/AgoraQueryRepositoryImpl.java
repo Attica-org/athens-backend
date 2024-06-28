@@ -6,6 +6,7 @@ import static com.attica.athens.domain.agoraUser.domain.QAgoraUser.agoraUser;
 import com.attica.athens.domain.agora.domain.Agora;
 import com.attica.athens.domain.agora.domain.AgoraStatus;
 import com.attica.athens.domain.agora.dto.SimpleAgoraResult;
+import com.attica.athens.domain.agora.dto.SimpleClosedAgoraVoteResult;
 import com.attica.athens.domain.agora.dto.SimpleParticipants;
 import com.attica.athens.domain.agora.dto.response.AgoraSlice;
 import com.attica.athens.domain.agora.exception.NotFoundAgoraIdException;
@@ -17,6 +18,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.LockModeType;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -62,7 +64,7 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
                 .limit(size + 1L)
                 .fetch();
 
-        return getSimpleAgoraResultAgoraSlice(size, result);
+        return getAgoraResultSlice(size, result, SimpleAgoraResult::id);
     }
 
     @Override
@@ -102,7 +104,7 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
                 .limit(size + 1L)
                 .fetch();
 
-        return getSimpleAgoraResultAgoraSlice(size, result);
+        return getAgoraResultSlice(size, result, SimpleAgoraResult::id);
     }
 
     @Override
@@ -138,7 +140,35 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
                 .limit(size + 1L)
                 .fetch();
 
-        return getSimpleAgoraResultAgoraSlice(size, result);
+        return getAgoraResultSlice(size, result, SimpleAgoraResult::id);
+    }
+
+    @Override
+    public AgoraSlice<SimpleClosedAgoraVoteResult> findClosedAgoraVoteResultsByStatus(Long agoraId,
+                                                                                      List<AgoraStatus> status) {
+
+        final int size = 10;
+
+        List<SimpleClosedAgoraVoteResult> result = jpaQueryFactory
+                .select(Projections.constructor(
+                        SimpleClosedAgoraVoteResult.class,
+                        agora.id,
+                        agora.prosCount,
+                        agora.consCount,
+                        agora.title,
+                        agora.color,
+                        agora.createdAt,
+                        agora.status
+                ))
+                .from(agora)
+                .where(gtAgoraId(agoraId),
+                        agora.status.in(status)
+                )
+                .orderBy(agora.id.desc())
+                .limit(size + 1L)
+                .fetch();
+
+        return getAgoraResultSlice(size, result, SimpleClosedAgoraVoteResult::id);
     }
 
     @Override
@@ -155,7 +185,6 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
         if (agoraIdList.isEmpty()) {
             throw new NotFoundAgoraIdException();
         }
-
         return agoraIdList;
     }
 
@@ -168,16 +197,14 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
         );
     }
 
-    private AgoraSlice<SimpleAgoraResult> getSimpleAgoraResultAgoraSlice(final int size,
-                                                                         final List<SimpleAgoraResult> result) {
+    private <T> AgoraSlice<T> getAgoraResultSlice(final int size, final List<T> result, Function<T, Long> idExtractor) {
         boolean hasNext = false;
         Long lastAgoraId = null;
         if (result != null && result.size() > size) {
             result.remove(size);
-            lastAgoraId = result.get(result.size() - 1).id();
+            lastAgoraId = idExtractor.apply(result.get(result.size() - 1));
             hasNext = true;
         }
-
         return new AgoraSlice<>(result, lastAgoraId, hasNext);
     }
 
