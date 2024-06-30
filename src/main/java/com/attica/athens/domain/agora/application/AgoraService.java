@@ -82,8 +82,17 @@ public class AgoraService {
         return agoraRepository.findAgoraByCategory(request.next(), request.getStatus(), categoryIds);
     }
 
-    public AgoraSlice<SimpleClosedAgoraVoteResult> findClosedAgoraVoteResultByStatus(final ClosedAgoraRequest request){
-        return agoraRepository.findClosedAgoraVoteResultsByStatus(request.next(), request.getStatus());
+    public AgoraSlice<SimpleClosedAgoraVoteResult> findClosedAgoraVoteResultByStatus(final ClosedAgoraRequest request) {
+
+        if (request.category() == 1) {
+            return agoraRepository.findClosedAgoraVoteResultsByStatusAndAllCategory(request.next(),
+                    request.getStatus());
+        }
+
+        List<Long> categoryIds = findParentCategoryById(request.category());
+
+        return agoraRepository.findClosedAgoraVoteResultsByStatusAndCategory(request.next(), categoryIds,
+                request.getStatus());
     }
 
     @Transactional

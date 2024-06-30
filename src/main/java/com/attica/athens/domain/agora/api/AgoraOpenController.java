@@ -29,7 +29,7 @@ public class AgoraOpenController {
 
     private final AgoraService agoraService;
 
-    @GetMapping(params = {"status", "category", "next"})
+    @GetMapping(value = "/category", params = {"status", "category", "next"})
     public ResponseEntity<ApiResponse<?>> getAgoraByCategory(
             @Valid SearchCategoryRequest request
     ) {
@@ -49,12 +49,12 @@ public class AgoraOpenController {
         return ResponseEntity.ok(ApiUtil.success(response));
     }
 
-    @GetMapping(params = {"status", "next"})
+    @GetMapping(value = "/results", params = {"status", "category", "next"})
     public ResponseEntity<ApiResponse<?>> getClosedAgoraVoteResult(
             @Valid ClosedAgoraRequest request
     ) {
         AgoraSlice<SimpleClosedAgoraVoteResult> response = agoraService.findClosedAgoraVoteResultByStatus(
-                new ClosedAgoraRequest(request.status(), request.next()));
+                new ClosedAgoraRequest(request.status(), request.category(), request.next()));
 
         return ResponseEntity.ok(ApiUtil.success(response));
     }
