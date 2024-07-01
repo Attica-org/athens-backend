@@ -45,7 +45,7 @@ public class AgoraAuthController {
     }
 
     @PostMapping("/{agoraId}/participants")
-    public ResponseEntity<ApiResponse<?>> participateAgora(
+    public ResponseEntity<ApiResponse<AgoraParticipateResponse>> participateAgora(
             @AuthenticationPrincipal CustomUserDetails user,
             @PathVariable("agoraId") Long agoraId,
             @RequestBody @Valid AgoraParticipateRequest request
@@ -57,7 +57,7 @@ public class AgoraAuthController {
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponse<?>> createAgora(
+    public ResponseEntity<ApiResponse<CreateAgoraResponse>> createAgora(
             @RequestBody @Valid AgoraCreateRequest request
     ) {
         CreateAgoraResponse response = agoraService.create(request);
