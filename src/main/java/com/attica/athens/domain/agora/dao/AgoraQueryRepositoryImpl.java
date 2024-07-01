@@ -144,8 +144,38 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
     }
 
     @Override
-    public AgoraSlice<SimpleClosedAgoraVoteResult> findClosedAgoraVoteResultsByStatus(Long agoraId,
-                                                                                      List<AgoraStatus> status) {
+    public AgoraSlice<SimpleClosedAgoraVoteResult> findClosedAgoraVoteResultsByStatusAndCategory(Long agoraId,
+                                                                                                 List<Long> categoryIds,
+                                                                                                 List<AgoraStatus> status) {
+
+        final int size = 10;
+
+        List<SimpleClosedAgoraVoteResult> result = jpaQueryFactory
+                .select(Projections.constructor(
+                        SimpleClosedAgoraVoteResult.class,
+                        agora.id,
+                        agora.prosCount,
+                        agora.consCount,
+                        agora.title,
+                        agora.color,
+                        agora.createdAt,
+                        agora.status
+                ))
+                .from(agora)
+                .where(gtAgoraId(agoraId),
+                        agora.status.in(status)
+                                .and(agora.category.id.in(categoryIds))
+                )
+                .orderBy(agora.id.desc())
+                .limit(size + 1L)
+                .fetch();
+
+        return getAgoraResultSlice(size, result, SimpleClosedAgoraVoteResult::id);
+    }
+
+    @Override
+    public AgoraSlice<SimpleClosedAgoraVoteResult> findClosedAgoraVoteResultsByStatusAndAllCategory(Long agoraId,
+                                                                                                    List<AgoraStatus> status) {
 
         final int size = 10;
 
