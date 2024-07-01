@@ -16,7 +16,12 @@ public interface AgoraQueryRepository {
 
     AgoraSlice<SimpleAgoraResult> findAgoraByAllCategory(Long agoraId, List<AgoraStatus> status);
 
-    AgoraSlice<SimpleClosedAgoraVoteResult> findClosedAgoraVoteResultsByStatus(Long agoraId, List<AgoraStatus> status);
+    AgoraSlice<SimpleClosedAgoraVoteResult> findClosedAgoraVoteResultsByStatusAndCategory(Long agoraId,
+                                                                                          List<Long> categoryIds,
+                                                                                          List<AgoraStatus> status);
+
+    AgoraSlice<SimpleClosedAgoraVoteResult> findClosedAgoraVoteResultsByStatusAndAllCategory(Long agoraId,
+                                                                                             List<AgoraStatus> status);
 
     List<Long> getAgoraIdList();
 
