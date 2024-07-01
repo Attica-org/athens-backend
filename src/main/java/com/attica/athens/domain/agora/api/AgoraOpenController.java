@@ -37,7 +37,7 @@ public class AgoraOpenController {
     }
 
     @GetMapping(params = {"agora-name", "status", "next"})
-    public ResponseEntity<ApiResponse<?>> getAgoraByKeyword(
+    public ResponseEntity<ApiResponse<AgoraSlice<SimpleAgoraResult>>> getAgoraByKeyword(
             @RequestParam("agora-name") String agoraName,
             @Valid SearchKeywordRequest request
     ) {
