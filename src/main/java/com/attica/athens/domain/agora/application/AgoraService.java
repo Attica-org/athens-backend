@@ -72,7 +72,7 @@ public class AgoraService {
 
     public AgoraSlice<?> findAgoraByCategoryAndStatus(AgoraRequest request) {
 
-        boolean isClosed = AgoraStatus.CLOSED.equals(request.status());
+        boolean isClosed = AgoraStatus.CLOSED.getType().equals(request.status());
 
         if (request.category() == 1) {
             return isClosed
