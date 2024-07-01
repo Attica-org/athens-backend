@@ -6,11 +6,9 @@ import com.attica.athens.domain.agora.domain.Agora;
 import com.attica.athens.domain.agora.domain.AgoraStatus;
 import com.attica.athens.domain.agora.domain.Category;
 import com.attica.athens.domain.agora.dto.SimpleAgoraResult;
-import com.attica.athens.domain.agora.dto.SimpleClosedAgoraVoteResult;
 import com.attica.athens.domain.agora.dto.request.AgoraCreateRequest;
 import com.attica.athens.domain.agora.dto.request.AgoraParticipateRequest;
-import com.attica.athens.domain.agora.dto.request.ClosedAgoraRequest;
-import com.attica.athens.domain.agora.dto.request.SearchCategoryRequest;
+import com.attica.athens.domain.agora.dto.request.AgoraRequest;
 import com.attica.athens.domain.agora.dto.request.SearchKeywordRequest;
 import com.attica.athens.domain.agora.dto.response.AgoraIdResponse;
 import com.attica.athens.domain.agora.dto.response.AgoraParticipateResponse;
@@ -72,27 +70,22 @@ public class AgoraService {
         return agoraRepository.findAgoraByKeyword(request.next(), request.getStatus(), agoraName);
     }
 
-    public AgoraSlice<SimpleAgoraResult> findAgoraByCategory(final SearchCategoryRequest request) {
-        if (request.category() == 1) {
-            return agoraRepository.findAgoraByAllCategory(request.next(), request.getStatus());
-        }
+    public AgoraSlice<?> findAgoraByCategoryAndStatus(AgoraRequest request) {
 
-        List<Long> categoryIds = findParentCategoryById(request.category());
-
-        return agoraRepository.findAgoraByCategory(request.next(), request.getStatus(), categoryIds);
-    }
-
-    public AgoraSlice<SimpleClosedAgoraVoteResult> findClosedAgoraVoteResultByStatus(final ClosedAgoraRequest request) {
+        boolean isClosed = AgoraStatus.CLOSED.equals(request.status());
 
         if (request.category() == 1) {
-            return agoraRepository.findClosedAgoraVoteResultsByStatusAndAllCategory(request.next(),
-                    request.getStatus());
+            return isClosed
+                    ? agoraRepository.findClosedAgoraVoteResultsByStatusAndAllCategory(request.next(),
+                    request.getStatus())
+                    : agoraRepository.findAgoraByAllCategory(request.next(), request.getStatus());
+        } else {
+            List<Long> categoryIds = findParentCategoryById(request.category());
+            return isClosed
+                    ? agoraRepository.findClosedAgoraVoteResultsByStatusAndCategory(request.next(), categoryIds,
+                    request.getStatus())
+                    : agoraRepository.findAgoraByCategory(request.next(), request.getStatus(), categoryIds);
         }
-
-        List<Long> categoryIds = findParentCategoryById(request.category());
-
-        return agoraRepository.findClosedAgoraVoteResultsByStatusAndCategory(request.next(), categoryIds,
-                request.getStatus());
     }
 
     @Transactional

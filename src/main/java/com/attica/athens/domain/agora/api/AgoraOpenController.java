@@ -2,9 +2,7 @@ package com.attica.athens.domain.agora.api;
 
 import com.attica.athens.domain.agora.application.AgoraService;
 import com.attica.athens.domain.agora.dto.SimpleAgoraResult;
-import com.attica.athens.domain.agora.dto.SimpleClosedAgoraVoteResult;
-import com.attica.athens.domain.agora.dto.request.ClosedAgoraRequest;
-import com.attica.athens.domain.agora.dto.request.SearchCategoryRequest;
+import com.attica.athens.domain.agora.dto.request.AgoraRequest;
 import com.attica.athens.domain.agora.dto.request.SearchKeywordRequest;
 import com.attica.athens.domain.agora.dto.response.AgoraIdResponse;
 import com.attica.athens.domain.agora.dto.response.AgoraSlice;
@@ -31,9 +29,9 @@ public class AgoraOpenController {
 
     @GetMapping(value = "/category", params = {"status", "category", "next"})
     public ResponseEntity<ApiResponse<?>> getAgoraByCategory(
-            @Valid SearchCategoryRequest request
+            @Valid AgoraRequest request
     ) {
-        AgoraSlice<SimpleAgoraResult> response = agoraService.findAgoraByCategory(request);
+        AgoraSlice<?> response = agoraService.findAgoraByCategoryAndStatus(request);
 
         return ResponseEntity.ok(ApiUtil.success(response));
     }
@@ -51,10 +49,9 @@ public class AgoraOpenController {
 
     @GetMapping(value = "/results", params = {"status", "category", "next"})
     public ResponseEntity<ApiResponse<?>> getClosedAgoraVoteResult(
-            @Valid ClosedAgoraRequest request
+            @Valid AgoraRequest request
     ) {
-        AgoraSlice<SimpleClosedAgoraVoteResult> response = agoraService.findClosedAgoraVoteResultByStatus(
-                new ClosedAgoraRequest(request.status(), request.category(), request.next()));
+        AgoraSlice<?> response = agoraService.findAgoraByCategoryAndStatus(request);
 
         return ResponseEntity.ok(ApiUtil.success(response));
     }
