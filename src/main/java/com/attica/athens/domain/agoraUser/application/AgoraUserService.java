@@ -8,7 +8,6 @@ import com.attica.athens.domain.agoraUser.domain.AgoraUser;
 import com.attica.athens.domain.agoraUser.dto.response.SendMetaResponse;
 import com.attica.athens.domain.agoraUser.dto.response.SendMetaResponse.MetaData;
 import com.attica.athens.domain.agoraUser.dto.response.SendMetaResponse.ParticipantsInfo;
-import com.attica.athens.domain.agoraUser.exception.NotFoundActiveUserException;
 import com.attica.athens.domain.agoraUser.exception.NotFoundSessionException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -41,10 +40,9 @@ public class AgoraUserService {
     }
 
     public void checkAgoraStatus(Agora agora) {
-
-        boolean isAllAgoraUsersInactive = agoraUserRepository.existsByAgoraIdAndSessionIdIsNotNull(agora.getId());
-        if (!isAllAgoraUsersInactive) {
-            agora.timeOutAgora();
+        boolean isAnyAgoraUsersActive = agoraUserRepository.existsByAgoraIdAndSessionIdIsNotNull(agora.getId());
+        if (!isAnyAgoraUsersActive) {
+            agora.endAgora();
         }
     }
 
