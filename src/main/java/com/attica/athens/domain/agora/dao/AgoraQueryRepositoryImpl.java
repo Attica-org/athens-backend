@@ -47,12 +47,12 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
                                 JPAExpressions.select(agoraUser.count())
                                         .from(agoraUser)
                                         .where(agoraUser.agora.id.eq(agora.id)
-                                                .and(agoraUser.type.eq(AgoraUserType.PROS))
+                                                .and(agoraUser.type.eq(AgoraUserType.CONS))
                                                 .and(agoraUser.sessionId.isNotNull())),
                                 JPAExpressions.select(agoraUser.count())
                                         .from(agoraUser)
                                         .where(agoraUser.agora.id.eq(agora.id)
-                                                .and(agoraUser.type.eq(AgoraUserType.PROS))
+                                                .and(agoraUser.type.eq(AgoraUserType.OBSERVER))
                                                 .and(agoraUser.sessionId.isNotNull()))
                         ),
                         agora.createdAt,
@@ -90,12 +90,12 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
                                 JPAExpressions.select(agoraUser.count())
                                         .from(agoraUser)
                                         .where(agoraUser.agora.id.eq(agora.id)
-                                                .and(agoraUser.type.eq(AgoraUserType.PROS))
+                                                .and(agoraUser.type.eq(AgoraUserType.CONS))
                                                 .and(agoraUser.sessionId.isNotNull())),
                                 JPAExpressions.select(agoraUser.count())
                                         .from(agoraUser)
                                         .where(agoraUser.agora.id.eq(agora.id)
-                                                .and(agoraUser.type.eq(AgoraUserType.PROS))
+                                                .and(agoraUser.type.eq(AgoraUserType.OBSERVER))
                                                 .and(agoraUser.sessionId.isNotNull()))
                         ),
                         agora.createdAt,
@@ -132,12 +132,12 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
                                 JPAExpressions.select(agoraUser.count())
                                         .from(agoraUser)
                                         .where(agoraUser.agora.id.eq(agora.id)
-                                                .and(agoraUser.type.eq(AgoraUserType.PROS))
+                                                .and(agoraUser.type.eq(AgoraUserType.CONS))
                                                 .and(agoraUser.sessionId.isNotNull())),
                                 JPAExpressions.select(agoraUser.count())
                                         .from(agoraUser)
                                         .where(agoraUser.agora.id.eq(agora.id)
-                                                .and(agoraUser.type.eq(AgoraUserType.PROS))
+                                                .and(agoraUser.type.eq(AgoraUserType.OBSERVER))
                                                 .and(agoraUser.sessionId.isNotNull()))
                         ),
                         agora.createdAt,
