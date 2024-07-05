@@ -242,7 +242,7 @@ public class AgoraService {
 
         sendAgoraEndMessage(agora);
 
-        agora.timeOutAgora();
+        agora.endAgora();
 
         return new EndAgoraResponse(agora);
     }
