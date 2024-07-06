@@ -12,7 +12,6 @@ import com.attica.athens.domain.chat.dto.Cursor;
 import com.attica.athens.domain.chat.dto.response.GetChatParticipants;
 import com.attica.athens.domain.chat.dto.response.GetChatResponse;
 import com.attica.athens.domain.chat.dto.response.GetChatResponse.ChatData;
-import java.util.Arrays;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -61,15 +60,13 @@ public class ChatQueryService {
                 .toList();
         Pageable pageable = PageRequest.of(0, cursor.getEffectiveSize());
 
-        if (cursor.hasKey()) {
-            return chatRepository.findByAgoraUserIdInAndIdLessThanOrderByIdDesc(agoraUserIds, cursor.key(),
-                    pageable);
-        }
-        return chatRepository.findByAgoraUserIdInOrderByIdDesc(agoraUserIds, pageable);
+        return chatRepository.findChatsForAgoraUsers(agoraUserIds,
+                cursor.hasKey() ? cursor.key() : null,
+                pageable);
     }
 
     private List<AgoraUser> findActiveParticipants(final Long agoraId) {
         return agoraUserRepository.findByAgoraIdAndTypeInAndSessionIdIsNotNull(agoraId,
-                Arrays.asList(AgoraUserType.PROS, AgoraUserType.CONS));
+                List.of(AgoraUserType.PROS, AgoraUserType.CONS));
     }
 }
