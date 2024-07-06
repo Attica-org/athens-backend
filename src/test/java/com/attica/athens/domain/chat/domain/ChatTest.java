@@ -16,7 +16,11 @@ class ChatTest {
 
     @Nested
     @DisplayName("채팅 생성 테스트")
+<<<<<<< HEAD
     public class ChatCreationTest {
+=======
+    public class ChatCreationTest extends TestDoubleFactory {
+>>>>>>> 7d1681a (test: Chats 도메인 테스트를 작성한다.)
 
         @Test
         @DisplayName("유효한 파라미터가 주어지면 채팅이 올바르게 생성된다")
@@ -24,7 +28,11 @@ class ChatTest {
             // Given
             final ChatType chatType = ChatType.CHAT;
             final ChatContent content = createBasicChatContent();
+<<<<<<< HEAD
             final AgoraMember agoraMember = createBasicAgoraMember();
+=======
+            final AgoraUser agoraUser = createBasicAgoraUser();
+>>>>>>> 7d1681a (test: Chats 도메인 테스트를 작성한다.)
 
             // When
             final Chat chat = new Chat(chatType, content, agoraMember);
@@ -40,7 +48,11 @@ class ChatTest {
         void givenNoChatType_whenCreateChat_thenThrowException() {
             // Given
             final ChatContent content = createBasicChatContent();
+<<<<<<< HEAD
             final AgoraMember agoraMember = createBasicAgoraMember();
+=======
+            final AgoraUser agoraUser = createBasicAgoraUser();
+>>>>>>> 7d1681a (test: Chats 도메인 테스트를 작성한다.)
 
             // When, Then
             thenThrownBy(() -> new Chat(null, content, agoraMember))
@@ -53,7 +65,11 @@ class ChatTest {
         void givenNoContent_whenCreateChat_thenThrowException() {
             // Given
             final ChatType chatType = ChatType.CHAT;
+<<<<<<< HEAD
             final AgoraMember agoraMember = createBasicAgoraMember();
+=======
+            final AgoraUser agoraUser = createBasicAgoraUser();
+>>>>>>> 7d1681a (test: Chats 도메인 테스트를 작성한다.)
 
             // When, Then
             thenThrownBy(() -> new Chat(chatType, null, agoraMember))
