@@ -12,9 +12,9 @@ import com.attica.athens.domain.agora.vote.dto.response.AgoraVoteResultResponse;
 import com.attica.athens.domain.agora.vote.exception.AlreadyOpinionVotedException;
 import com.attica.athens.domain.agora.vote.exception.InvalidAgoraVoteTypeException;
 import com.attica.athens.domain.agora.vote.exception.VoteTimeOutException;
-import com.attica.athens.domain.agoraUser.dao.AgoraUserRepository;
-import com.attica.athens.domain.agoraUser.domain.AgoraUser;
-import com.attica.athens.domain.agoraUser.exception.NotFoundAgoraUserException;
+import com.attica.athens.domain.agoraMember.dao.AgoraMemberRepository;
+import com.attica.athens.domain.agoraMember.domain.AgoraMember;
+import com.attica.athens.domain.agoraMember.exception.NotFoundAgoraMemberException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
@@ -27,25 +27,25 @@ public class AgoraVoteService {
 
     private final AgoraQueryVoteRepository agoraVoteRepository;
     private final AgoraRepository agoraRepository;
-    private final AgoraUserRepository agoraUserRepository;
+    private final AgoraMemberRepository agoraMemberRepository;
 
     @Transactional
     public AgoraVoteResponse vote(Long userId, AgoraVoteRequest agoraVoteRequest, Long agoraId) {
 
-        checkAgoraUserVoted(agoraId, userId);
+        checkAgoraMemberVoted(agoraId, userId);
         checkAgoraVoteRequest(agoraVoteRequest);
 
         Agora agora = findAgoraById(agoraId);
 
         checkAgoraStatus(agora);
 
-        AgoraUser agoraUser = findAgoraUserByAgoraIdAndUserId(agoraId, userId);
+        AgoraMember agoraMember = findAgoraMemberByAgoraIdAndUserId(agoraId, userId);
 
-        agoraUser.updateIsOpinionVotedAndVoteType(agoraVoteRequest.voteType(), agoraVoteRequest.isOpinionVoted());
+        agoraMember.updateIsOpinionVotedAndVoteType(agoraVoteRequest.voteType(), agoraVoteRequest.isOpinionVoted());
 
         checkVoteTime(agora);
 
-        return new AgoraVoteResponse(agoraUser);
+        return new AgoraVoteResponse(agoraMember);
 
     }
 
@@ -79,10 +79,10 @@ public class AgoraVoteService {
         }
     }
 
-    private void checkAgoraUserVoted(Long agoraId, Long userId) {
-        AgoraUser agoraUser = findAgoraUserByAgoraIdAndUserId(agoraId, userId);
+    private void checkAgoraMemberVoted(Long agoraId, Long userId) {
+        AgoraMember agoraMember = findAgoraMemberByAgoraIdAndUserId(agoraId, userId);
 
-        if (agoraUser.getIsOpinionVoted()) {
+        if (agoraMember.getIsOpinionVoted()) {
             throw new AlreadyOpinionVotedException();
         }
     }
@@ -92,9 +92,9 @@ public class AgoraVoteService {
                 .orElseThrow(() -> new NotFoundAgoraException(agoraId));
     }
 
-    private AgoraUser findAgoraUserByAgoraIdAndUserId(Long agoraId, Long userId) {
-        return agoraUserRepository.findByAgoraIdAndUserId(agoraId, userId)
-                .orElseThrow(() -> new NotFoundAgoraUserException(agoraId, userId));
+    private AgoraMember findAgoraMemberByAgoraIdAndUserId(Long agoraId, Long userId) {
+        return agoraMemberRepository.findByAgoraIdAndMemberId(agoraId, userId)
+                .orElseThrow(() -> new NotFoundAgoraMemberException(agoraId, userId));
     }
 
     private void checkAgoraStatus(Agora agora) {

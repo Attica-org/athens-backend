@@ -1,6 +1,6 @@
 package com.attica.athens.domain.chat.domain;
 
-import com.attica.athens.domain.agoraUser.domain.AgoraUser;
+import com.attica.athens.domain.agoraMember.domain.AgoraMember;
 import com.attica.athens.domain.common.AuditingFields;
 import com.attica.athens.global.auth.exception.NullFieldException;
 import jakarta.persistence.Column;
@@ -42,17 +42,17 @@ public class Chat extends AuditingFields {
     private ChatContent content;
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "agora_user_id")
-    private AgoraUser agoraUser;
+    @JoinColumn(name = "agora_member_id")
+    private AgoraMember agoraMember;
 
-    public Chat(ChatType type, ChatContent content, AgoraUser agoraUser) {
+    public Chat(ChatType type, ChatContent content, AgoraMember agoraMember) {
         validateType(type);
         validateContent(content);
-        validateAgoraUser(agoraUser);
+        validateAgoraMember(agoraMember);
 
         this.type = type;
         this.content = content;
-        this.agoraUser = agoraUser;
+        this.agoraMember = agoraMember;
     }
 
     private void validateType(ChatType type) {
@@ -67,9 +67,9 @@ public class Chat extends AuditingFields {
         }
     }
 
-    private void validateAgoraUser(AgoraUser agoraUser) {
-        if (agoraUser == null) {
-            throw new NullFieldException("agoraUser");
+    private void validateAgoraMember(AgoraMember agoraMember) {
+        if (agoraMember == null) {
+            throw new NullFieldException("agoraMember");
         }
     }
 }

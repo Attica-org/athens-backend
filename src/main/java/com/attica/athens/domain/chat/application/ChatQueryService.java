@@ -2,9 +2,9 @@ package com.attica.athens.domain.chat.application;
 
 import com.attica.athens.domain.agora.dao.AgoraRepository;
 import com.attica.athens.domain.agora.exception.NotFoundAgoraException;
-import com.attica.athens.domain.agoraUser.dao.AgoraUserRepository;
-import com.attica.athens.domain.agoraUser.domain.AgoraUser;
-import com.attica.athens.domain.agoraUser.domain.AgoraUserType;
+import com.attica.athens.domain.agoraMember.dao.AgoraMemberRepository;
+import com.attica.athens.domain.agoraMember.domain.AgoraMember;
+import com.attica.athens.domain.agoraMember.domain.AgoraMemberType;
 import com.attica.athens.domain.chat.dao.ChatRepository;
 import com.attica.athens.domain.chat.domain.Chat;
 import com.attica.athens.domain.chat.domain.Chats;
@@ -25,15 +25,15 @@ import org.springframework.transaction.annotation.Transactional;
 public class ChatQueryService {
 
     private final AgoraRepository agoraRepository;
-    private final AgoraUserRepository agoraUserRepository;
+    private final AgoraMemberRepository agoraMemberRepository;
     private final ChatRepository chatRepository;
 
     public GetChatResponse getChatHistory(final Long agoraId, final Cursor cursor) {
         validateAgoraExists(agoraId);
 
-        List<AgoraUser> agoraUsers = findAgoraUsers(agoraId);
-        Chats chats = new Chats(findChats(cursor, agoraUsers));
-        List<ChatData> chatData = chats.createChatDataWithUsers(agoraUsers);
+        List<AgoraMember> agoraMembers = findAgoraMembers(agoraId);
+        Chats chats = new Chats(findChats(cursor, agoraMembers));
+        List<ChatData> chatData = chats.createChatDataWithUsers(agoraMembers);
         Cursor nextCursor = cursor.calculateNext(chats);
 
         return new GetChatResponse(chatData, nextCursor);
@@ -50,23 +50,23 @@ public class ChatQueryService {
                 .orElseThrow(() -> new NotFoundAgoraException(agoraId));
     }
 
-    private List<AgoraUser> findAgoraUsers(final Long agoraId) {
-        return agoraUserRepository.findByAgoraId(agoraId);
+    private List<AgoraMember> findAgoraMembers(final Long agoraId) {
+        return agoraMemberRepository.findByAgoraId(agoraId);
     }
 
-    private List<Chat> findChats(final Cursor cursor, final List<AgoraUser> agoraUsers) {
-        List<Long> agoraUserIds = agoraUsers.stream()
-                .map(AgoraUser::getId)
+    private List<Chat> findChats(final Cursor cursor, final List<AgoraMember> agoraMembers) {
+        List<Long> agoraMemberIds = agoraMembers.stream()
+                .map(AgoraMember::getId)
                 .toList();
         Pageable pageable = PageRequest.of(0, cursor.getEffectiveSize());
 
-        return chatRepository.findChatsForAgoraUsers(agoraUserIds,
+        return chatRepository.findChatsForAgoraMembers(agoraMemberIds,
                 cursor.hasKey() ? cursor.key() : null,
                 pageable);
     }
 
-    private List<AgoraUser> findActiveParticipants(final Long agoraId) {
-        return agoraUserRepository.findByAgoraIdAndTypeInAndSessionIdIsNotNull(agoraId,
-                List.of(AgoraUserType.PROS, AgoraUserType.CONS));
+    private List<AgoraMember> findActiveParticipants(final Long agoraId) {
+        return agoraMemberRepository.findByAgoraIdAndTypeInAndSessionIdIsNotNull(agoraId,
+                List.of(AgoraMemberType.PROS, AgoraMemberType.CONS));
     }
 }

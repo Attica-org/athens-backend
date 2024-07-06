@@ -1,6 +1,6 @@
 package com.attica.athens.domain.chat.domain;
 
-import com.attica.athens.domain.agoraUser.domain.AgoraUser;
+import com.attica.athens.domain.agoraMember.domain.AgoraMember;
 import com.attica.athens.domain.chat.dto.response.GetChatResponse.ChatData;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -31,12 +31,12 @@ public class Chats {
                 .min(Long::compare);
     }
 
-    public List<ChatData> createChatDataWithUsers(final List<AgoraUser> agoraUsers) {
-        Map<Long, AgoraUser> agoraUserMap = agoraUsers.stream()
-                .collect(Collectors.toMap(AgoraUser::getId, agoraUser -> agoraUser));
+    public List<ChatData> createChatDataWithUsers(final List<AgoraMember> agoraMembers) {
+        Map<Long, AgoraMember> agoraMemberMap = agoraMembers.stream()
+                .collect(Collectors.toMap(AgoraMember::getId, agoraMember -> agoraMember));
 
         return chats.stream()
-                .map(chat -> new ChatData(chat, agoraUserMap.get(chat.getAgoraUser().getId())))
+                .map(chat -> new ChatData(chat, agoraMemberMap.get(chat.getAgoraMember().getId())))
                 .toList();
     }
 

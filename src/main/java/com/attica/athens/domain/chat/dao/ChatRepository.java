@@ -9,11 +9,11 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface ChatRepository extends JpaRepository<Chat, Long> {
-    @Query("SELECT c FROM Chat c WHERE c.agoraUser.id IN :agoraUserIds " +
+    @Query("SELECT c FROM Chat c WHERE c.agoraMember.id IN :agoraMemberIds " +
             "AND (:cursorId IS NULL OR c.id < :cursorId) " +
             "ORDER BY c.id DESC")
-    List<Chat> findChatsForAgoraUsers(
-            @Param("agoraUserIds") List<Long> agoraUserIds,
+    List<Chat> findChatsForAgoraMembers(
+            @Param("agoraMemberIds") List<Long> agoraMemberIds,
             @Param("cursorId") Long cursorId,
             Pageable pageable
     );

@@ -1,9 +1,10 @@
 package com.attica.athens.domain.agora.vote.dao;
 
-import static com.attica.athens.domain.agora.domain.QAgora.agora;
-import static com.attica.athens.domain.agoraUser.domain.QAgoraUser.agoraUser;
 
-import com.attica.athens.domain.agoraUser.domain.AgoraVoteType;
+import static com.attica.athens.domain.agora.domain.QAgora.agora;
+import static com.attica.athens.domain.agoraMember.domain.QAgoraMember.agoraMember;
+
+import com.attica.athens.domain.agoraMember.domain.AgoraVoteType;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -17,10 +18,10 @@ public class AgoraQueryVoteRepositoryImpl implements AgoraQueryVoteRepository {
 
     @Override
     public Integer getProsVoteResult(Long agoraId) {
-        List<Long> prosResult = queryFactory.select(agoraUser.voteType.count())
-                .from(agoraUser)
-                .where(agora.id.eq(agoraId).and(agoraUser.voteType.eq(AgoraVoteType.PROS)))
-                .groupBy(agoraUser.voteType)
+        List<Long> prosResult = queryFactory.select(agoraMember.voteType.count())
+                .from(agoraMember)
+                .where(agora.id.eq(agoraId).and(agoraMember.voteType.eq(AgoraVoteType.PROS)))
+                .groupBy(agoraMember.voteType)
                 .fetch();
 
         return prosResult.isEmpty() ? 0 : prosResult.get(0).intValue();
@@ -28,10 +29,10 @@ public class AgoraQueryVoteRepositoryImpl implements AgoraQueryVoteRepository {
 
     @Override
     public Integer getConsVoteResult(Long agoraId) {
-        List<Long> consResult = queryFactory.select(agoraUser.voteType.count())
-                .from(agoraUser)
-                .where(agora.id.eq(agoraId).and(agoraUser.voteType.eq(AgoraVoteType.CONS)))
-                .groupBy(agoraUser.voteType)
+        List<Long> consResult = queryFactory.select(agoraMember.voteType.count())
+                .from(agoraMember)
+                .where(agora.id.eq(agoraId).and(agoraMember.voteType.eq(AgoraVoteType.CONS)))
+                .groupBy(agoraMember.voteType)
                 .fetch();
 
         return consResult.isEmpty() ? 0 : consResult.get(0).intValue();

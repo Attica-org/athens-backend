@@ -3,8 +3,7 @@ package com.attica.athens.domain.chat.domain;
 import static org.assertj.core.api.BDDAssertions.then;
 import static org.assertj.core.api.BDDAssertions.thenThrownBy;
 
-import com.attica.athens.domain.agoraUser.domain.AgoraUser;
-import com.attica.athens.domain.agoraUser.domain.AgoraUserType;
+import com.attica.athens.domain.agoraMember.domain.AgoraMember;
 import com.attica.athens.global.auth.exception.NullFieldException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -23,15 +22,15 @@ class ChatTest {
             // Given
             final ChatType chatType = ChatType.CHAT;
             final ChatContent content = createBasicChatContent();
-            final AgoraUser agoraUser = createBasicAgoraUser();
+            final AgoraMember agoraMember = createBasicAgoraMember();
 
             // When
-            final Chat chat = new Chat(chatType, content, agoraUser);
+            final Chat chat = new Chat(chatType, content, agoraMember);
 
             // Then
             then(chat.getType()).isEqualTo(chatType);
             then(chat.getContent()).isEqualTo(content);
-            then(chat.getAgoraUser()).isEqualTo(agoraUser);
+            then(chat.getAgoraMember()).isEqualTo(agoraMember);
         }
 
         @Test
@@ -39,10 +38,10 @@ class ChatTest {
         void givenNoChatType_whenCreateChat_thenThrowException() {
             // Given
             final ChatContent content = createBasicChatContent();
-            final AgoraUser agoraUser = createBasicAgoraUser();
+            final AgoraMember agoraMember = createBasicAgoraMember();
 
             // When, Then
-            thenThrownBy(() -> new Chat(null, content, agoraUser))
+            thenThrownBy(() -> new Chat(null, content, agoraMember))
                     .isInstanceOf(NullFieldException.class)
                     .hasMessage("The field type must not be null");
         }
@@ -52,17 +51,17 @@ class ChatTest {
         void givenNoContent_whenCreateChat_thenThrowException() {
             // Given
             final ChatType chatType = ChatType.CHAT;
-            final AgoraUser agoraUser = createBasicAgoraUser();
+            final AgoraMember agoraMember = createBasicAgoraMember();
 
             // When, Then
-            thenThrownBy(() -> new Chat(chatType, null, agoraUser))
+            thenThrownBy(() -> new Chat(chatType, null, agoraMember))
                     .isInstanceOf(NullFieldException.class)
                     .hasMessage("The field content must not be null");
         }
 
         @Test
-        @DisplayName("채팅의 사용자가 주어지지 않으면 예외가 발생한다")
-        void givenNoAgoraUser_whenCreateChat_thenThrowException() {
+        @DisplayName("채팅의 회원이 주어지지 않으면 예외가 발생한다")
+        void givenNoAgoraMember_whenCreateChat_thenThrowException() {
             // Given
             final ChatType chatType = ChatType.CHAT;
             final ChatContent content = createBasicChatContent();
@@ -70,7 +69,7 @@ class ChatTest {
             // When, Then
             thenThrownBy(() -> new Chat(chatType, content, null))
                     .isInstanceOf(NullFieldException.class)
-                    .hasMessage("The field agoraUser must not be null");
+                    .hasMessage("The field agoraMember must not be null");
         }
     }
 }

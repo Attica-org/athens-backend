@@ -45,13 +45,14 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
     implementation 'org.springframework.security:spring-security-messaging'
 
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testImplementation 'org.springframework.security:spring-security-test'
-
     implementation 'com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.9.0'
-
     implementation 'org.springframework.boot:spring-boot-starter-quartz'
 
+    implementation 'io.micrometer:micrometer-core:1.11.0'
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.security:spring-security-test'
+    testImplementation 'com.h2database:h2'
 }
 
 tasks.named('test') {

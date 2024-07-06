@@ -4,7 +4,7 @@ import static com.attica.athens.domain.agora.domain.AgoraConstants.END_VOTE_RATI
 
 import com.attica.athens.domain.agora.exception.InvalidAgoraStatusChangeException;
 import com.attica.athens.domain.agora.exception.InvalidAgoraStatusException;
-import com.attica.athens.domain.agoraUser.domain.AgoraUser;
+import com.attica.athens.domain.agoraMember.domain.AgoraMember;
 import com.attica.athens.domain.common.AuditingFields;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -87,7 +87,7 @@ public class Agora extends AuditingFields {
     private Category category;
 
     @OneToMany(mappedBy = "agora")
-    private final List<AgoraUser> agoraUsers = new ArrayList<>();
+    private final List<AgoraMember> agoraMembers = new ArrayList<>();
 
     public Agora(String title, Integer capacity, Integer duration, String color, Integer prosCount, Integer consCount,
                  Category category) {
@@ -103,8 +103,8 @@ public class Agora extends AuditingFields {
         this.category = category;
     }
 
-    public void addUser(AgoraUser user) {
-        this.agoraUsers.add(user);
+    public void addMember(AgoraMember member) {
+        this.agoraMembers.add(member);
     }
 
     public void startAgora() {
@@ -154,8 +154,8 @@ public class Agora extends AuditingFields {
         this.consCount = consCount;
     }
 
-    public boolean isAgoraActive(List<AgoraUser> agoraUsers) {
-        return agoraUsers.stream()
-                .anyMatch(agoraUser -> agoraUser.getSessionId() != null);
+    public boolean isAgoraActive(List<AgoraMember> agoraMembers) {
+        return agoraMembers.stream()
+                .anyMatch(agoraMember -> agoraMember.getSessionId() != null);
     }
 }
