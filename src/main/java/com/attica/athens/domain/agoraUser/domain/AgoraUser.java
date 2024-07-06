@@ -17,6 +17,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -65,6 +66,7 @@ public class AgoraUser extends AuditingFields {
     @JoinColumn(name = "user_id")
     private BaseUser user;
 
+    @Builder
     public AgoraUser(AgoraUserType type, String nickname, Integer photoNumber, Agora agora,
                      BaseUser user) {
         this.type = type;
