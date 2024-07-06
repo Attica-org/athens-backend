@@ -1,6 +1,7 @@
 package com.attica.athens.domain.agoraUser.domain;
 
 import com.attica.athens.domain.agora.domain.Agora;
+import com.attica.athens.domain.agora.exception.ObserverException;
 import com.attica.athens.domain.common.AuditingFields;
 import com.attica.athens.domain.user.domain.BaseUser;
 import jakarta.persistence.Column;
@@ -81,5 +82,12 @@ public class AgoraUser extends AuditingFields {
 
     public void updateSessionId(String sessionId) {
         this.sessionId = sessionId;
+    }
+
+    public AgoraUser validateSendMessage() {
+        if (!this.getType().canSendMessage()) {
+            throw new ObserverException();
+        }
+        return this;
     }
 }

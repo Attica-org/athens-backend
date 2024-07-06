@@ -9,6 +9,10 @@ import com.attica.athens.domain.chat.domain.ChatType;
 
 public record SendChatResponse(ChatType type, SendChatData data) {
 
+    public SendChatResponse(AgoraUser agoraUser, Chat chat) {
+        this(chat.getType(), new SendChatData(chat, agoraUser));
+    }
+
     public record SendChatData(
             Long chatId,
             UserData user,
@@ -16,8 +20,7 @@ public record SendChatResponse(ChatType type, SendChatData data) {
             String createdAt
     ) {
         public SendChatData(Chat chat, AgoraUser agoraUser) {
-            this(chat.getId(), new UserData(agoraUser), chat.getContent(),
-                    format(chat.getCreatedAt()));
+            this(chat.getId(), new UserData(agoraUser), chat.getContent(), format(chat.getCreatedAt()));
         }
     }
 
