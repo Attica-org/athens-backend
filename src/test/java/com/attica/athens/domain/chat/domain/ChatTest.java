@@ -15,21 +15,15 @@ class ChatTest {
 
     @Nested
     @DisplayName("채팅 생성 테스트")
-    public class ChatCreationTest {
-
-        private static AgoraUser createTestAgoraUser() {
-            return AgoraUser.builder()
-                    .type(AgoraUserType.PROS)
-                    .build();
-        }
+    public class ChatCreationTest extends TestDoubleFactory {
 
         @Test
         @DisplayName("유효한 파라미터가 주어지면 채팅이 올바르게 생성된다")
         void givenValidParameters_whenCreateChat_thenChatIsCreatedCorrectly() {
             // Given
             final ChatType chatType = ChatType.CHAT;
-            final ChatContent content = new ChatContent("안녕");
-            final AgoraUser agoraUser = createTestAgoraUser();
+            final ChatContent content = createBasicChatContent();
+            final AgoraUser agoraUser = createBasicAgoraUser();
 
             // When
             final Chat chat = new Chat(chatType, content, agoraUser);
@@ -44,8 +38,8 @@ class ChatTest {
         @DisplayName("채팅의 타입이 주어지지 않으면 예외가 발생한다")
         void givenNoChatType_whenCreateChat_thenThrowException() {
             // Given
-            final ChatContent content = new ChatContent("안녕");
-            final AgoraUser agoraUser = createTestAgoraUser();
+            final ChatContent content = createBasicChatContent();
+            final AgoraUser agoraUser = createBasicAgoraUser();
 
             // When, Then
             thenThrownBy(() -> new Chat(null, content, agoraUser))
@@ -58,7 +52,7 @@ class ChatTest {
         void givenNoContent_whenCreateChat_thenThrowException() {
             // Given
             final ChatType chatType = ChatType.CHAT;
-            final AgoraUser agoraUser = createTestAgoraUser();
+            final AgoraUser agoraUser = createBasicAgoraUser();
 
             // When, Then
             thenThrownBy(() -> new Chat(chatType, null, agoraUser))
@@ -71,7 +65,7 @@ class ChatTest {
         void givenNoAgoraUser_whenCreateChat_thenThrowException() {
             // Given
             final ChatType chatType = ChatType.CHAT;
-            final ChatContent content = new ChatContent("안녕");
+            final ChatContent content = createBasicChatContent();
 
             // When, Then
             thenThrownBy(() -> new Chat(chatType, content, null))
