@@ -1,7 +1,6 @@
 package com.attica.athens.domain.chat.application;
 
 import com.attica.athens.domain.agora.dao.AgoraRepository;
-import com.attica.athens.domain.agora.domain.Agora;
 import com.attica.athens.domain.agora.exception.NotFoundAgoraException;
 import com.attica.athens.domain.agoraUser.dao.AgoraUserRepository;
 import com.attica.athens.domain.agoraUser.domain.AgoraUser;
@@ -31,29 +30,28 @@ public class ChatQueryService {
     private final AgoraUserRepository agoraUserRepository;
     private final ChatRepository chatRepository;
 
-    public GetChatResponse getChatHistory(Long agoraId, Cursor cursor) {
+    public GetChatResponse getChatHistory(final Long agoraId, final Cursor cursor) {
+        validateAgoraExists(agoraId);
+        List<AgoraUser> agoraUsers = findAgoraUsers(agoraId);
+        List<Chat> chats = findChats(cursor, agoraUsers);
+        List<ChatData> chatData = createChatData(agoraUsers, chats);
+        Cursor nextCursor = calculateNextCursor(cursor, chats);
 
-        findAgoraById(agoraId);
-
-        List<AgoraUser> agoraUsers = findAgoraUser(agoraId);
-
-        List<Chat> chats = findChatsByCursor(cursor, extractAgoraUserIds(agoraUsers));
-
-        Map<Long, AgoraUser> agoraUserMap = mapAgoraUserIdToAgoraUser(agoraUsers);
-        List<ChatData> chatData = mapChatsToChatData(agoraUserMap, chats);
-
-        Long nextKey = getNextCursor(chats);
-
-        return new GetChatResponse(chatData, cursor.next(nextKey));
+        return new GetChatResponse(chatData, nextCursor);
     }
 
-    private List<AgoraUser> findAgoraUser(Long agoraId) {
+    private void validateAgoraExists(final Long agoraId) {
+        agoraRepository.findById(agoraId)
+                .orElseThrow(() -> new NotFoundAgoraException(agoraId));
+    }
+
+    private List<AgoraUser> findAgoraUsers(final Long agoraId) {
         return agoraUserRepository.findByAgoraId(agoraId);
     }
 
-    private List<Chat> findChatsByCursor(Cursor cursor, List<Long> agoraUserIds) {
-
-        Pageable pageable = PageRequest.of(0, cursor.getEffectiveSize());
+    private List<Chat> findChats(final Cursor cursor, final List<AgoraUser> agoraUsers) {
+        List<Long> agoraUserIds = extractAgoraUserIds(agoraUsers);
+        Pageable pageable = createPageable(cursor);
 
         if (cursor.hasKey()) {
             return chatRepository.findByAgoraUserIdInAndIdLessThanOrderByIdDesc(agoraUserIds, cursor.key(),
@@ -62,51 +60,49 @@ public class ChatQueryService {
         return chatRepository.findByAgoraUserIdInOrderByIdDesc(agoraUserIds, pageable);
     }
 
-    private Long getNextCursor(List<Chat> chats) {
+    private List<Long> extractAgoraUserIds(final List<AgoraUser> agoraUsers) {
+        return agoraUsers.stream()
+                .map(AgoraUser::getId)
+                .toList();
+    }
 
-        if (chats.size() > 0 && chats.get(chats.size() - 1).getId().equals(1L)) {
-            return Cursor.NONE_KEY;
+    private PageRequest createPageable(final Cursor cursor) {
+        return PageRequest.of(0, cursor.getEffectiveSize());
+    }
+
+    private Cursor calculateNextCursor(final Cursor currentCursor, final List<Chat> chats) {
+        if (chats.isEmpty() || chats.get(chats.size() - 1).getId().equals(1L)) {
+            return currentCursor.next(Cursor.NONE_KEY);
         }
+        return currentCursor.next(findMinChatId(chats));
+    }
 
+    private long findMinChatId(final List<Chat> chats) {
         return chats.stream()
                 .mapToLong(Chat::getId)
                 .min()
                 .orElse(Cursor.NONE_KEY);
     }
 
-    private static List<ChatData> mapChatsToChatData(Map<Long, AgoraUser> agoraUserMap, List<Chat> chats) {
+    private List<ChatData> createChatData(final List<AgoraUser> agoraUsers, final List<Chat> chats) {
+        Map<Long, AgoraUser> agoraUserMap = createAgoraUserMap(agoraUsers);
         return chats.stream()
-                .map(chat -> {
-                    AgoraUser agoraUser = agoraUserMap.get(chat.getAgoraUser().getId());
-                    return new ChatData(chat, agoraUser);
-                })
+                .map(chat -> new ChatData(chat, agoraUserMap.get(chat.getAgoraUser().getId())))
                 .toList();
     }
 
-    private static Map<Long, AgoraUser> mapAgoraUserIdToAgoraUser(List<AgoraUser> agoraUsers) {
+    private Map<Long, AgoraUser> createAgoraUserMap(final List<AgoraUser> agoraUsers) {
         return agoraUsers.stream()
                 .collect(Collectors.toMap(AgoraUser::getId, agoraUser -> agoraUser));
     }
 
-    private static List<Long> extractAgoraUserIds(List<AgoraUser> agoraUsers) {
-        return agoraUsers.stream()
-                .map(AgoraUser::getId)
-                .toList();
+    public GetChatParticipants getChatParticipants(final Long agoraId) {
+        validateAgoraExists(agoraId);
+
+        return new GetChatParticipants(findActiveParticipants(agoraId), agoraId);
     }
 
-    private Agora findAgoraById(Long agoraId) {
-        return agoraRepository.findById(agoraId)
-                .orElseThrow(() -> new NotFoundAgoraException(agoraId));
-    }
-
-    public GetChatParticipants getChatParticipants(Long agoraId) {
-
-        findAgoraById(agoraId);
-
-        return new GetChatParticipants(findByAgoraIdAndTypeIn(agoraId), agoraId);
-    }
-
-    private List<AgoraUser> findByAgoraIdAndTypeIn(Long agoraId) {
+    private List<AgoraUser> findActiveParticipants(final Long agoraId) {
         return agoraUserRepository.findByAgoraIdAndTypeInAndSessionIdIsNotNull(agoraId,
                 Arrays.asList(AgoraUserType.PROS, AgoraUserType.CONS));
     }
