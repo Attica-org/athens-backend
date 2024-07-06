@@ -1,13 +1,13 @@
 package com.attica.athens.domain.chat.domain;
 
-import com.attica.athens.domain.agoraUser.domain.AgoraUser;
-import com.attica.athens.domain.agoraUser.domain.AgoraUserType;
+import com.attica.athens.domain.agoraMember.domain.AgoraMember;
+import com.attica.athens.domain.agoraMember.domain.AgoraMemberType;
 
 public class TestDoubleFactory {
 
-    public static AgoraUser createBasicAgoraUser() {
-        return AgoraUser.builder()
-                .type(AgoraUserType.PROS)
+    public static AgoraMember createBasicAgoraMember() {
+        return AgoraMember.builder()
+                .type(AgoraMemberType.PROS)
                 .build();
     }
 
@@ -16,6 +16,6 @@ public class TestDoubleFactory {
     }
 
     public static Chat createBasicChat() {
-        return new Chat(ChatType.CHAT, createBasicChatContent(), createBasicAgoraUser());
+        return new Chat(ChatType.CHAT, createBasicChatContent(), createBasicAgoraMember());
     }
 }
