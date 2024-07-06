@@ -7,6 +7,7 @@ import com.attica.athens.domain.agoraUser.dao.AgoraUserRepository;
 import com.attica.athens.domain.agoraUser.domain.AgoraUser;
 import com.attica.athens.domain.chat.dao.ChatRepository;
 import com.attica.athens.domain.chat.domain.Chat;
+import com.attica.athens.domain.chat.domain.ChatContent;
 import com.attica.athens.domain.chat.dto.request.SendChatRequest;
 import com.attica.athens.domain.chat.dto.response.SendChatResponse;
 import com.attica.athens.global.auth.CustomUserDetails;
@@ -46,7 +47,7 @@ public class ChatCommandService {
     }
 
     private Chat createAndSaveChat(final SendChatRequest sendChatRequest, final AgoraUser agoraUser) {
-        Chat chat = Chat.createChat(sendChatRequest.type(), sendChatRequest.message(), agoraUser);
+        Chat chat = new Chat(sendChatRequest.type(), new ChatContent(sendChatRequest.message()), agoraUser);
 
         return chatRepository.save(chat);
     }

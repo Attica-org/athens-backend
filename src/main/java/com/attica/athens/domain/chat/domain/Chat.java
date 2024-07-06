@@ -2,7 +2,9 @@ package com.attica.athens.domain.chat.domain;
 
 import com.attica.athens.domain.agoraUser.domain.AgoraUser;
 import com.attica.athens.domain.common.AuditingFields;
+import com.attica.athens.global.auth.exception.NullFieldException;
 import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -11,7 +13,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
@@ -37,21 +38,38 @@ public class Chat extends AuditingFields {
     @Column(length = 50, nullable = false)
     private ChatType type;
 
-    @Lob
-    @Column(nullable = false)
-    private String content;
+    @Embedded
+    private ChatContent content;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "agora_user_id")
     private AgoraUser agoraUser;
 
-    private Chat(ChatType type, String content, AgoraUser agoraUser) {
+    public Chat(ChatType type, ChatContent content, AgoraUser agoraUser) {
+        validateType(type);
+        validateContent(content);
+        validateAgoraUser(agoraUser);
+
         this.type = type;
         this.content = content;
         this.agoraUser = agoraUser;
     }
 
-    public static Chat createChat(ChatType type, String content, AgoraUser user) {
-        return new Chat(type, content, user);
+    private void validateType(ChatType type) {
+        if (type == null) {
+            throw new NullFieldException("type");
+        }
+    }
+
+    private void validateContent(ChatContent content) {
+        if (content == null) {
+            throw new NullFieldException("content");
+        }
+    }
+
+    private void validateAgoraUser(AgoraUser agoraUser) {
+        if (agoraUser == null) {
+            throw new NullFieldException("agoraUser");
+        }
     }
 }

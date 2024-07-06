@@ -20,7 +20,7 @@ public record SendChatResponse(ChatType type, SendChatData data) {
             String createdAt
     ) {
         public SendChatData(Chat chat, AgoraUser agoraUser) {
-            this(chat.getId(), new UserData(agoraUser), chat.getContent(), format(chat.getCreatedAt()));
+            this(chat.getId(), new UserData(agoraUser), chat.getContent().getContent(), format(chat.getCreatedAt()));
         }
     }
 

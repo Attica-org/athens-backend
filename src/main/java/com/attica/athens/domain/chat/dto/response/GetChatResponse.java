@@ -16,7 +16,7 @@ public record GetChatResponse(List<ChatData> chats, Cursor meta) {
             String createdAt
     ) {
         public ChatData(Chat chat, AgoraUser agoraUser) {
-            this(chat.getId(), new UserData(agoraUser), chat.getContent(),
+            this(chat.getId(), new UserData(agoraUser), chat.getContent().getContent(),
                     format(chat.getCreatedAt()));
         }
     }
