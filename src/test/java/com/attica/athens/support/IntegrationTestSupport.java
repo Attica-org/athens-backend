@@ -1,5 +1,8 @@
-package com.attica.athens.domain;
+package com.attica.athens.support;
 
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+
+import com.attica.athens.config.TestSecurityConfig;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.micrometer.core.instrument.util.IOUtils;
 import java.io.IOException;
@@ -9,6 +12,7 @@ import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestConstructor;
@@ -21,12 +25,15 @@ import org.springframework.web.context.WebApplicationContext;
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
+@Import(TestSecurityConfig.SecurityConfig.class)
 @TestConstructor(autowireMode = TestConstructor.AutowireMode.ALL)
 @TestInstance(Lifecycle.PER_CLASS)
 @Transactional
 public class IntegrationTestSupport {
 
     public static final String API_V1 = "api/v1";
+    public static final String API_V1_OPEN = API_V1 + "/open";
+    public static final String API_V1_AUTH = API_V1 + "/auth";
 
     protected MockMvc mockMvc;
     protected ObjectMapper objectMapper;
@@ -45,6 +52,7 @@ public class IntegrationTestSupport {
     @BeforeEach
     void setUp(final WebApplicationContext context) {
         this.mockMvc = MockMvcBuilders.webAppContextSetup(context)
+                .apply(springSecurity())
                 .alwaysDo(MockMvcResultHandlers.print())
                 .build();
     }
