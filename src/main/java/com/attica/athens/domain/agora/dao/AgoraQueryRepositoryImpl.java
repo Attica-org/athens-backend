@@ -30,7 +30,8 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
     private final JPAQueryFactory jpaQueryFactory;
 
     @Override
-    public AgoraSlice<SimpleAgoraResult> findAgoraByKeyword(Long agoraId, List<AgoraStatus> status, String keyword) {
+    public AgoraSlice<SimpleAgoraResult> findActiveAgoraByKeyword(Long agoraId, List<AgoraStatus> status,
+                                                                  String keyword) {
         final int size = 10;
 
         List<SimpleAgoraResult> result = jpaQueryFactory
@@ -48,12 +49,12 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
                                 JPAExpressions.select(agoraMember.count())
                                         .from(agoraMember)
                                         .where(agoraMember.agora.id.eq(agora.id)
-                                                .and(agoraMember.type.eq(AgoraMemberType.PROS))
+                                                .and(agoraMember.type.eq(AgoraMemberType.CONS))
                                                 .and(agoraMember.sessionId.isNotNull())),
                                 JPAExpressions.select(agoraMember.count())
                                         .from(agoraMember)
                                         .where(agoraMember.agora.id.eq(agora.id)
-                                                .and(agoraMember.type.eq(AgoraMemberType.PROS))
+                                                .and(agoraMember.type.eq(AgoraMemberType.OBSERVER))
                                                 .and(agoraMember.sessionId.isNotNull()))
                         ),
                         agora.createdAt,
@@ -72,8 +73,36 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
     }
 
     @Override
-    public AgoraSlice<SimpleAgoraResult> findAgoraByCategory(Long agoraId, List<AgoraStatus> status,
-                                                             List<Long> categoryIds) {
+    public AgoraSlice<SimpleClosedAgoraVoteResult> findClosedAgoraByKeyword(Long agoraId, List<AgoraStatus> status,
+                                                                            String keyword) {
+        final int size = 10;
+
+        List<SimpleClosedAgoraVoteResult> result = jpaQueryFactory
+                .select(Projections.constructor(
+                        SimpleClosedAgoraVoteResult.class,
+                        agora.id,
+                        agora.prosCount,
+                        agora.consCount,
+                        agora.title,
+                        agora.color,
+                        agora.createdAt,
+                        agora.status
+                ))
+                .from(agora)
+                .where(gtAgoraId(agoraId),
+                        (containKeyword(keyword))
+                                .and((agora.status.in(status)))
+                )
+                .orderBy(agora.id.desc())
+                .limit(size + 1L)
+                .fetch();
+
+        return getAgoraResultSlice(size, result, SimpleClosedAgoraVoteResult::id);
+    }
+
+    @Override
+    public AgoraSlice<SimpleAgoraResult> findActiveAgoraByCategory(Long agoraId, List<AgoraStatus> status,
+                                                                   List<Long> categoryIds) {
         final int size = 10;
 
         List<SimpleAgoraResult> result = jpaQueryFactory
@@ -91,12 +120,12 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
                                 JPAExpressions.select(agoraMember.count())
                                         .from(agoraMember)
                                         .where(agoraMember.agora.id.eq(agora.id)
-                                                .and(agoraMember.type.eq(AgoraMemberType.PROS))
+                                                .and(agoraMember.type.eq(AgoraMemberType.CONS))
                                                 .and(agoraMember.sessionId.isNotNull())),
                                 JPAExpressions.select(agoraMember.count())
                                         .from(agoraMember)
                                         .where(agoraMember.agora.id.eq(agora.id)
-                                                .and(agoraMember.type.eq(AgoraMemberType.PROS))
+                                                .and(agoraMember.type.eq(AgoraMemberType.OBSERVER))
                                                 .and(agoraMember.sessionId.isNotNull()))
                         ),
                         agora.createdAt,
@@ -115,7 +144,7 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
     }
 
     @Override
-    public AgoraSlice<SimpleAgoraResult> findAgoraByAllCategory(Long agoraId, List<AgoraStatus> status) {
+    public AgoraSlice<SimpleAgoraResult> findActiveAgoraByAllCategory(Long agoraId, List<AgoraStatus> status) {
         final int size = 10;
 
         List<SimpleAgoraResult> result = jpaQueryFactory
@@ -133,12 +162,12 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
                                 JPAExpressions.select(agoraMember.count())
                                         .from(agoraMember)
                                         .where(agoraMember.agora.id.eq(agora.id)
-                                                .and(agoraMember.type.eq(AgoraMemberType.PROS))
+                                                .and(agoraMember.type.eq(AgoraMemberType.CONS))
                                                 .and(agoraMember.sessionId.isNotNull())),
                                 JPAExpressions.select(agoraMember.count())
                                         .from(agoraMember)
                                         .where(agoraMember.agora.id.eq(agora.id)
-                                                .and(agoraMember.type.eq(AgoraMemberType.PROS))
+                                                .and(agoraMember.type.eq(AgoraMemberType.OBSERVER))
                                                 .and(agoraMember.sessionId.isNotNull()))
                         ),
                         agora.createdAt,
@@ -154,9 +183,9 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
     }
 
     @Override
-    public AgoraSlice<SimpleClosedAgoraVoteResult> findClosedAgoraVoteResultsByStatusAndCategory(Long agoraId,
-                                                                                                 List<Long> categoryIds,
-                                                                                                 List<AgoraStatus> status) {
+    public AgoraSlice<SimpleClosedAgoraVoteResult> findClosedAgoraVoteResultsByCategory(Long agoraId,
+                                                                                        List<Long> categoryIds,
+                                                                                        List<AgoraStatus> status) {
 
         final int size = 10;
 
@@ -184,8 +213,8 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
     }
 
     @Override
-    public AgoraSlice<SimpleClosedAgoraVoteResult> findClosedAgoraVoteResultsByStatusAndAllCategory(Long agoraId,
-                                                                                                    List<AgoraStatus> status) {
+    public AgoraSlice<SimpleClosedAgoraVoteResult> findClosedAgoraVoteResultsByAllCategory(Long agoraId,
+                                                                                           List<AgoraStatus> status) {
 
         final int size = 10;
 
