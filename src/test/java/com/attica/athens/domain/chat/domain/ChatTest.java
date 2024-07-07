@@ -5,6 +5,7 @@ import static org.assertj.core.api.BDDAssertions.thenThrownBy;
 
 import com.attica.athens.domain.agoraMember.domain.AgoraMember;
 import com.attica.athens.global.auth.exception.NullFieldException;
+import com.attica.athens.support.TestDoubleFactory;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;

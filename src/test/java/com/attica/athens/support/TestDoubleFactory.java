@@ -1,7 +1,10 @@
-package com.attica.athens.domain.chat.domain;
+package com.attica.athens.support;
 
 import com.attica.athens.domain.agoraMember.domain.AgoraMember;
 import com.attica.athens.domain.agoraMember.domain.AgoraMemberType;
+import com.attica.athens.domain.chat.domain.Chat;
+import com.attica.athens.domain.chat.domain.ChatContent;
+import com.attica.athens.domain.chat.domain.ChatType;
 
 public class TestDoubleFactory {
 
