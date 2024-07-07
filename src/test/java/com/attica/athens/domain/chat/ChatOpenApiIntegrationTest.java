@@ -4,7 +4,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.attica.athens.domain.IntegrationTestSupport;
+import com.attica.athens.support.IntegrationTestSupport;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -26,7 +26,7 @@ public class ChatOpenApiIntegrationTest extends IntegrationTestSupport {
 
             // When
             final ResultActions result = mockMvc.perform(
-                    get("/{apiVersion}/open/agoras/{agoraId}/chats", API_V1, 1)
+                    get("/{prefix}/agoras/{agoraId}/chats", API_V1_OPEN, 1)
                             .contentType(MediaType.APPLICATION_JSON)
 
             );
@@ -52,13 +52,13 @@ public class ChatOpenApiIntegrationTest extends IntegrationTestSupport {
 
         @Test
         @DisplayName("채팅방 참여자를 조회한다")
-        @Sql("/sql/update-agora-participants.sql")
+        @Sql("/sql/enter-agora-members.sql")
         void getChatParticipants() throws Exception {
             // Given
 
             // When
             final ResultActions result = mockMvc.perform(
-                    get("/{apiVersion}/open/agoras/{agoraId}/users", API_V1, 1)
+                    get("/{prefix}/agoras/{agoraId}/users", API_V1_OPEN, 1)
                             .contentType(MediaType.APPLICATION_JSON)
 
             );
