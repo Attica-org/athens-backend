@@ -25,7 +25,6 @@ import com.attica.athens.domain.agora.exception.FullAgoraCapacityException;
 import com.attica.athens.domain.agora.exception.NotFoundAgoraException;
 import com.attica.athens.domain.agora.exception.NotFoundCategoryException;
 import com.attica.athens.domain.agora.exception.NotParticipateException;
-import com.attica.athens.domain.agora.exception.ObserverException;
 import com.attica.athens.domain.agoraMember.dao.AgoraMemberRepository;
 import com.attica.athens.domain.agoraMember.domain.AgoraMember;
 import com.attica.athens.domain.agoraMember.domain.AgoraMemberType;
@@ -48,6 +47,7 @@ public class AgoraService {
 
     private static final Integer PROS_COUNT = 0;
     private static final Integer CONS_COUNT = 0;
+    public static final String AGORA_TOPIC = "/topic/agoras/";
 
     private final AgoraRepository agoraRepository;
     private final CategoryRepository categoryRepository;
@@ -129,7 +129,8 @@ public class AgoraService {
                 category);
     }
 
-    private AgoraMember createAgoraMember(final Long memberId, final Long agoraId, final AgoraParticipateRequest request) {
+    private AgoraMember createAgoraMember(final Long memberId, final Long agoraId,
+                                          final AgoraParticipateRequest request) {
         return new AgoraMember(
                 request.type(),
                 request.nickname(),
@@ -178,97 +179,73 @@ public class AgoraService {
     }
 
     @Transactional
-    public StartAgoraResponse startAgora(Long agoraId, Long memberId) {
-
+    public StartAgoraResponse startAgora(final Long agoraId, final Long memberId) {
         Agora agora = findAgoraById(agoraId);
-
-        boolean isExists = existsByAgoraIdAndMemberId(agoraId, memberId);
-        if (!isExists) {
-            throw new NotParticipateException();
-        }
-
-        findAgoraMemberByAgoraIdAndMemberId(agoraId, memberId);
-
+        findValidAgoraMember(agoraId, memberId);
         agora.startAgora();
-
         sendAgoraStartMessage(agora);
 
         return new StartAgoraResponse(agora);
     }
 
-    private boolean existsByAgoraIdAndMemberId(Long agoraId, Long memberId) {
-        return agoraMemberRepository.existsByAgoraIdAndMemberId(agoraId, memberId);
+    private AgoraMember findValidAgoraMember(final Long agoraId, final Long memberId) {
+        return agoraMemberRepository.findByAgoraIdAndMemberId(agoraId, memberId)
+                .orElseThrow(NotParticipateException::new)
+                .validateSendMessage();
     }
 
-    private Agora findAgoraById(Long agoraId) {
+    private Agora findAgoraById(final Long agoraId) {
         return agoraRepository.findById(agoraId)
                 .orElseThrow(() -> new NotFoundAgoraException(agoraId));
     }
 
-    private void sendAgoraStartMessage(Agora agora) {
+    private void sendAgoraStartMessage(final Agora agora) {
         StartNotificationResponse notification = new StartNotificationResponse(ChatType.DISCUSSION_START,
                 new StartNotificationResponse.StartAgoraData(agora));
-
-        messagingTemplate.convertAndSend("/topic/agoras/" + agora.getId(), notification);
+        messagingTemplate.convertAndSend(AGORA_TOPIC + agora.getId(), notification);
     }
 
     @Transactional
-    public EndVoteAgoraResponse endVoteAgora(Long agoraId, Long memberId) {
-
+    public EndVoteAgoraResponse endVoteAgora(final Long agoraId, final Long memberId) {
         Agora agora = findAgoraById(agoraId);
-
-        findAgoraMemberAndMarkEndVoted(agoraId, memberId);
-
-        int participantCount = agoraMemberRepository.countByAgoraIdAndSessionIdIsNotNullAndTypeIsNot(agoraId,
-                AgoraMemberType.OBSERVER);
-        agora.endVoteAgora(participantCount);
-
-        if (agora.getStatus() == AgoraStatus.CLOSED) {
+        markEndVoted(agoraId, memberId);
+        agora.endVoteAgora(getParticipantCount(agoraId));
+        if (agora.isClosed()) {
             sendAgoraEndMessage(agora);
         }
 
         return new EndVoteAgoraResponse(agora);
     }
 
-    @Transactional
-    public EndAgoraResponse timeOutAgora(Long agoraId) {
-
-        Agora agora = findAgoraById(agoraId);
-
-        if (agora.getStatus() == AgoraStatus.CLOSED) {
-            return new EndAgoraResponse(agora);
-        }
-
-        sendAgoraEndMessage(agora);
-
-        agora.endAgora();
-
-        return new EndAgoraResponse(agora);
-    }
-
-    private void findAgoraMemberAndMarkEndVoted(Long agoraId, Long memberId) {
-        AgoraMember agoraMember = findAgoraMemberByAgoraIdAndMemberId(agoraId, memberId);
+    private void markEndVoted(final Long agoraId, final Long memberId) {
+        AgoraMember agoraMember = findValidAgoraMember(agoraId, memberId);
         if (agoraMember.getEndVoted()) {
             throw new AlreadyEndVotedException();
         }
         agoraMember.markEndVoted();
     }
 
-    private AgoraMember findAgoraMemberByAgoraIdAndMemberId(Long agoraId, Long memberId) {
-        return agoraMemberRepository.findByAgoraIdAndMemberId(agoraId, memberId)
-                .map(agoraMember -> {
-                    if (agoraMember.getType() == AgoraMemberType.OBSERVER) {
-                        throw new ObserverException();
-                    }
-                    return agoraMember;
-                })
-                .orElseThrow(NotParticipateException::new);
+    private int getParticipantCount(final Long agoraId) {
+        return agoraMemberRepository.countByAgoraIdAndSessionIdIsNotNullAndTypeIsNot(agoraId,
+                AgoraMemberType.OBSERVER);
+    }
+
+    @Transactional
+    public EndAgoraResponse timeOutAgora(Long agoraId) {
+        Agora agora = findAgoraById(agoraId);
+        if (agora.getStatus() == AgoraStatus.CLOSED) {
+            return new EndAgoraResponse(agora);
+        }
+        agora.endAgora();
+        sendAgoraEndMessage(agora);
+
+        return new EndAgoraResponse(agora);
     }
 
     private void sendAgoraEndMessage(Agora agora) {
         EndNotificationResponse notification = new EndNotificationResponse(ChatType.DISCUSSION_END,
                 new EndNotificationResponse.EndAgoraData(agora));
 
-        messagingTemplate.convertAndSend("/topic/agoras/" + agora.getId(), notification);
+        messagingTemplate.convertAndSend(AGORA_TOPIC + agora.getId(), notification);
     }
 }

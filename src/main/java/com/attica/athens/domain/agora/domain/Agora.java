@@ -154,8 +154,7 @@ public class Agora extends AuditingFields {
         this.consCount = consCount;
     }
 
-    public boolean isAgoraActive(List<AgoraMember> agoraMembers) {
-        return agoraMembers.stream()
-                .anyMatch(agoraMember -> agoraMember.getSessionId() != null);
+    public boolean isClosed() {
+        return this.status == AgoraStatus.CLOSED;
     }
 }
