@@ -26,7 +26,7 @@ import org.springframework.web.context.WebApplicationContext;
 @Transactional
 public class IntegrationTestSupport {
 
-    public static final String API_V1 = "/api/v1";
+    public static final String API_V1 = "api/v1";
 
     protected MockMvc mockMvc;
     protected ObjectMapper objectMapper;
