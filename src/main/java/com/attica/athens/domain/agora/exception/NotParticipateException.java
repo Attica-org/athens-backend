@@ -9,7 +9,7 @@ public class NotParticipateException extends CustomException {
     public NotParticipateException() {
         super(
                 HttpStatus.BAD_REQUEST,
-                ErrorCode.WRONG_REQUEST_TRANSMISSION,
+                ErrorCode.RESOURCE_ACCESS_FORBIDDEN,
                 "User is not participating in the agora"
         );
     }

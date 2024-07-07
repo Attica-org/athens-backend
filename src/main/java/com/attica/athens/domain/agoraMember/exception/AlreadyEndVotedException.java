@@ -8,8 +8,8 @@ public class AlreadyEndVotedException extends CustomException {
 
     public AlreadyEndVotedException() {
         super(
-                HttpStatus.BAD_REQUEST,
-                ErrorCode.WRONG_REQUEST_TRANSMISSION,
+                HttpStatus.CONFLICT,
+                ErrorCode.DUPLICATE_RESOURCE,
                 "User has already voted for ending the agora"
         );
     }

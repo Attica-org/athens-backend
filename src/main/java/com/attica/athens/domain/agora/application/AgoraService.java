@@ -30,7 +30,6 @@ import com.attica.athens.domain.agoraMember.dao.AgoraMemberRepository;
 import com.attica.athens.domain.agoraMember.domain.AgoraMember;
 import com.attica.athens.domain.agoraMember.domain.AgoraMemberType;
 import com.attica.athens.domain.agoraMember.exception.AlreadyEndVotedException;
-import com.attica.athens.domain.agoraMember.exception.NotFoundAgoraMemberException;
 import com.attica.athens.domain.chat.domain.ChatType;
 import com.attica.athens.domain.member.dao.BaseMemberRepository;
 import com.attica.athens.domain.member.domain.BaseMember;
@@ -185,7 +184,7 @@ public class AgoraService {
 
         boolean isExists = existsByAgoraIdAndMemberId(agoraId, memberId);
         if (!isExists) {
-            throw new NotFoundAgoraMemberException(agoraId, memberId);
+            throw new NotParticipateException();
         }
 
         findAgoraMemberByAgoraIdAndMemberId(agoraId, memberId);
