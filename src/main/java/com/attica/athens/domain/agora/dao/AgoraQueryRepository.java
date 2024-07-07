@@ -10,18 +10,21 @@ import java.util.Optional;
 
 public interface AgoraQueryRepository {
 
-    AgoraSlice<SimpleAgoraResult> findAgoraByKeyword(Long agoraId, List<AgoraStatus> status, String keyword);
+    AgoraSlice<SimpleAgoraResult> findActiveAgoraByKeyword(Long agoraId, List<AgoraStatus> status, String keyword);
 
-    AgoraSlice<SimpleAgoraResult> findAgoraByCategory(Long agoraId, List<AgoraStatus> status, List<Long> categoryIds);
+    AgoraSlice<SimpleClosedAgoraVoteResult> findClosedAgoraByKeyword(Long agoraId, List<AgoraStatus> status,
+                                                                     String keyword);
 
-    AgoraSlice<SimpleAgoraResult> findAgoraByAllCategory(Long agoraId, List<AgoraStatus> status);
+    AgoraSlice<SimpleAgoraResult> findActiveAgoraByCategory(Long agoraId, List<AgoraStatus> status, List<Long> categoryIds);
 
-    AgoraSlice<SimpleClosedAgoraVoteResult> findClosedAgoraVoteResultsByStatusAndCategory(Long agoraId,
-                                                                                          List<Long> categoryIds,
-                                                                                          List<AgoraStatus> status);
+    AgoraSlice<SimpleAgoraResult> findActiveAgoraByAllCategory(Long agoraId, List<AgoraStatus> status);
 
-    AgoraSlice<SimpleClosedAgoraVoteResult> findClosedAgoraVoteResultsByStatusAndAllCategory(Long agoraId,
-                                                                                             List<AgoraStatus> status);
+    AgoraSlice<SimpleClosedAgoraVoteResult> findClosedAgoraVoteResultsByCategory(Long agoraId,
+                                                                                 List<Long> categoryIds,
+                                                                                 List<AgoraStatus> status);
+
+    AgoraSlice<SimpleClosedAgoraVoteResult> findClosedAgoraVoteResultsByAllCategory(Long agoraId,
+                                                                                    List<AgoraStatus> status);
 
     List<Long> getAgoraIdList();
 
