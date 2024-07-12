@@ -1,11 +1,12 @@
 package com.attica.athens.domain.chat.domain;
 
+import static com.attica.athens.support.TestDoubleFactory.createBasicAgoraMember;
+import static com.attica.athens.support.TestDoubleFactory.createBasicChatContent;
 import static org.assertj.core.api.BDDAssertions.then;
 import static org.assertj.core.api.BDDAssertions.thenThrownBy;
 
 import com.attica.athens.domain.agoraMember.domain.AgoraMember;
 import com.attica.athens.global.auth.exception.NullFieldException;
-import com.attica.athens.support.TestDoubleFactory;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -15,7 +16,7 @@ class ChatTest {
 
     @Nested
     @DisplayName("채팅 생성 테스트")
-    public class ChatCreationTest extends TestDoubleFactory {
+    public class ChatCreationTest {
 
         @Test
         @DisplayName("유효한 파라미터가 주어지면 채팅이 올바르게 생성된다")

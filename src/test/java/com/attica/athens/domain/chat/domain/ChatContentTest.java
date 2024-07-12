@@ -12,6 +12,8 @@ import org.junit.jupiter.api.Test;
 @DisplayName("채팅 내용 테스트")
 class ChatContentTest {
 
+    public static final int MAX_LENGTH = 10000;
+
     @Nested
     @DisplayName("채팅 내용 생성 테스트")
     public class ChatContentCreationTest {
@@ -48,12 +50,12 @@ class ChatContentTest {
         }
 
         @Test
-        @DisplayName("채팅 내용이 10000자를 초과하면 예외를 발생한다")
+        @DisplayName("채팅 내용이 최대길이를 초과하면 예외를 발생한다")
         public void givenLongContent_whenCreateChatContent_thenThrowException() {
             // When & Then
-            thenThrownBy(() -> new ChatContent("a".repeat(10001)))
+            thenThrownBy(() -> new ChatContent("a".repeat(MAX_LENGTH + 1)))
                     .isInstanceOf(ContentExceedException.class)
-                    .hasMessage("Content length exceeds maximum limit of 10000 characters");
+                    .hasMessage(String.format("Content length exceeds maximum limit of %d characters", MAX_LENGTH));
         }
     }
 }
