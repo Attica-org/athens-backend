@@ -1,7 +1,7 @@
 package com.attica.athens.domain.agora.support;
 
 import com.attica.athens.domain.agora.dto.request.AgoraParticipateRequest;
-import com.attica.athens.domain.agoraUser.domain.AgoraUserType;
+import com.attica.athens.domain.agoraMember.domain.AgoraMemberType;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import java.util.Arrays;
@@ -12,7 +12,7 @@ public class AgoraParticipateValidator implements
 
     @Override
     public boolean isValid(AgoraParticipateRequest request, ConstraintValidatorContext context) {
-        boolean isTypeValid = Arrays.stream(AgoraUserType.values())
+        boolean isTypeValid = Arrays.stream(AgoraMemberType.values())
                 .anyMatch(type -> type.equals(request.type()));
 
         if (!isTypeValid) {
@@ -23,7 +23,7 @@ public class AgoraParticipateValidator implements
             return false;
         }
 
-        if (Objects.equals(request.type(), AgoraUserType.OBSERVER)) {
+        if (Objects.equals(request.type(), AgoraMemberType.OBSERVER)) {
             return true;
         }
 

@@ -1,7 +1,8 @@
 package com.attica.athens.domain.agora.dao;
 
+
 import static com.attica.athens.domain.agora.domain.QAgora.agora;
-import static com.attica.athens.domain.agoraUser.domain.QAgoraUser.agoraUser;
+import static com.attica.athens.domain.agoraMember.domain.QAgoraMember.agoraMember;
 
 import com.attica.athens.domain.agora.domain.Agora;
 import com.attica.athens.domain.agora.domain.AgoraStatus;
@@ -10,7 +11,7 @@ import com.attica.athens.domain.agora.dto.SimpleClosedAgoraVoteResult;
 import com.attica.athens.domain.agora.dto.SimpleParticipants;
 import com.attica.athens.domain.agora.dto.response.AgoraSlice;
 import com.attica.athens.domain.agora.exception.NotFoundAgoraIdException;
-import com.attica.athens.domain.agoraUser.domain.AgoraUserType;
+import com.attica.athens.domain.agoraMember.domain.AgoraMemberType;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.JPAExpressions;
@@ -40,21 +41,21 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
                         agora.title,
                         agora.color,
                         Projections.constructor(SimpleParticipants.class,
-                                JPAExpressions.select(agoraUser.count())
-                                        .from(agoraUser)
-                                        .where(agoraUser.agora.id.eq(agora.id)
-                                                .and(agoraUser.type.eq(AgoraUserType.PROS))
-                                                .and(agoraUser.sessionId.isNotNull())),
-                                JPAExpressions.select(agoraUser.count())
-                                        .from(agoraUser)
-                                        .where(agoraUser.agora.id.eq(agora.id)
-                                                .and(agoraUser.type.eq(AgoraUserType.CONS))
-                                                .and(agoraUser.sessionId.isNotNull())),
-                                JPAExpressions.select(agoraUser.count())
-                                        .from(agoraUser)
-                                        .where(agoraUser.agora.id.eq(agora.id)
-                                                .and(agoraUser.type.eq(AgoraUserType.OBSERVER))
-                                                .and(agoraUser.sessionId.isNotNull()))
+                                JPAExpressions.select(agoraMember.count())
+                                        .from(agoraMember)
+                                        .where(agoraMember.agora.id.eq(agora.id)
+                                                .and(agoraMember.type.eq(AgoraMemberType.PROS))
+                                                .and(agoraMember.sessionId.isNotNull())),
+                                JPAExpressions.select(agoraMember.count())
+                                        .from(agoraMember)
+                                        .where(agoraMember.agora.id.eq(agora.id)
+                                                .and(agoraMember.type.eq(AgoraMemberType.CONS))
+                                                .and(agoraMember.sessionId.isNotNull())),
+                                JPAExpressions.select(agoraMember.count())
+                                        .from(agoraMember)
+                                        .where(agoraMember.agora.id.eq(agora.id)
+                                                .and(agoraMember.type.eq(AgoraMemberType.OBSERVER))
+                                                .and(agoraMember.sessionId.isNotNull()))
                         ),
                         agora.createdAt,
                         agora.status
@@ -111,21 +112,21 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
                         agora.title,
                         agora.color,
                         Projections.constructor(SimpleParticipants.class,
-                                JPAExpressions.select(agoraUser.count())
-                                        .from(agoraUser)
-                                        .where(agoraUser.agora.id.eq(agora.id)
-                                                .and(agoraUser.type.eq(AgoraUserType.PROS))
-                                                .and(agoraUser.sessionId.isNotNull())),
-                                JPAExpressions.select(agoraUser.count())
-                                        .from(agoraUser)
-                                        .where(agoraUser.agora.id.eq(agora.id)
-                                                .and(agoraUser.type.eq(AgoraUserType.CONS))
-                                                .and(agoraUser.sessionId.isNotNull())),
-                                JPAExpressions.select(agoraUser.count())
-                                        .from(agoraUser)
-                                        .where(agoraUser.agora.id.eq(agora.id)
-                                                .and(agoraUser.type.eq(AgoraUserType.OBSERVER))
-                                                .and(agoraUser.sessionId.isNotNull()))
+                                JPAExpressions.select(agoraMember.count())
+                                        .from(agoraMember)
+                                        .where(agoraMember.agora.id.eq(agora.id)
+                                                .and(agoraMember.type.eq(AgoraMemberType.PROS))
+                                                .and(agoraMember.sessionId.isNotNull())),
+                                JPAExpressions.select(agoraMember.count())
+                                        .from(agoraMember)
+                                        .where(agoraMember.agora.id.eq(agora.id)
+                                                .and(agoraMember.type.eq(AgoraMemberType.CONS))
+                                                .and(agoraMember.sessionId.isNotNull())),
+                                JPAExpressions.select(agoraMember.count())
+                                        .from(agoraMember)
+                                        .where(agoraMember.agora.id.eq(agora.id)
+                                                .and(agoraMember.type.eq(AgoraMemberType.OBSERVER))
+                                                .and(agoraMember.sessionId.isNotNull()))
                         ),
                         agora.createdAt,
                         agora.status
@@ -153,21 +154,21 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
                         agora.title,
                         agora.color,
                         Projections.constructor(SimpleParticipants.class,
-                                JPAExpressions.select(agoraUser.count())
-                                        .from(agoraUser)
-                                        .where(agoraUser.agora.id.eq(agora.id)
-                                                .and(agoraUser.type.eq(AgoraUserType.PROS))
-                                                .and(agoraUser.sessionId.isNotNull())),
-                                JPAExpressions.select(agoraUser.count())
-                                        .from(agoraUser)
-                                        .where(agoraUser.agora.id.eq(agora.id)
-                                                .and(agoraUser.type.eq(AgoraUserType.CONS))
-                                                .and(agoraUser.sessionId.isNotNull())),
-                                JPAExpressions.select(agoraUser.count())
-                                        .from(agoraUser)
-                                        .where(agoraUser.agora.id.eq(agora.id)
-                                                .and(agoraUser.type.eq(AgoraUserType.OBSERVER))
-                                                .and(agoraUser.sessionId.isNotNull()))
+                                JPAExpressions.select(agoraMember.count())
+                                        .from(agoraMember)
+                                        .where(agoraMember.agora.id.eq(agora.id)
+                                                .and(agoraMember.type.eq(AgoraMemberType.PROS))
+                                                .and(agoraMember.sessionId.isNotNull())),
+                                JPAExpressions.select(agoraMember.count())
+                                        .from(agoraMember)
+                                        .where(agoraMember.agora.id.eq(agora.id)
+                                                .and(agoraMember.type.eq(AgoraMemberType.CONS))
+                                                .and(agoraMember.sessionId.isNotNull())),
+                                JPAExpressions.select(agoraMember.count())
+                                        .from(agoraMember)
+                                        .where(agoraMember.agora.id.eq(agora.id)
+                                                .and(agoraMember.type.eq(AgoraMemberType.OBSERVER))
+                                                .and(agoraMember.sessionId.isNotNull()))
                         ),
                         agora.createdAt,
                         agora.status

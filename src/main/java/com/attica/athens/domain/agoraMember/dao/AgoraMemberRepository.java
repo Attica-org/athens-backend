@@ -1,0 +1,37 @@
+package com.attica.athens.domain.agoraMember.dao;
+
+import com.attica.athens.domain.agoraMember.domain.AgoraMember;
+import com.attica.athens.domain.agoraMember.domain.AgoraMemberType;
+import com.attica.athens.domain.agoraMember.dto.response.SendMetaResponse.ParticipantsInfo;
+import java.util.List;
+import java.util.Optional;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+public interface AgoraMemberRepository extends JpaRepository<AgoraMember, Integer>, AgoraMemberQueryRepository {
+
+    boolean existsByAgoraIdAndMemberId(Long agoraId, Long memberId);
+
+    Optional<AgoraMember> findByAgoraIdAndMemberId(Long agoraId, Long memberId);
+
+    Optional<AgoraMember> findByAgoraIdAndMemberIdAndSessionIdIsNotNull(Long agoraId, Long userId);
+
+    @Query("SELECT new com.attica.athens.domain.agoraMember.dto.response.SendMetaResponse$ParticipantsInfo(au.type, COUNT(au)) "
+            +
+            "FROM AgoraMember au " +
+            "WHERE au.agora.id = :agoraId " +
+            "AND au.sessionId IS NOT NULL " +
+            "GROUP BY au.type")
+    List<ParticipantsInfo> countActiveAgoraMembersByType(@Param("agoraId") Long agoraId);
+
+    List<AgoraMember> findByAgoraId(Long agoraId);
+
+    List<AgoraMember> findByAgoraIdAndTypeInAndSessionIdIsNotNull(Long agoraId, List<AgoraMemberType> types);
+
+    int countByAgoraIdAndSessionIdIsNotNullAndTypeIsNot(Long agoraId, AgoraMemberType type);
+
+    Optional<AgoraMember> findBySessionId(String sessionName);
+
+    boolean existsByAgoraIdAndSessionIdIsNotNull(Long agoraId);
+}

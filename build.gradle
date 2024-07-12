@@ -4,6 +4,7 @@ plugins {
     id 'io.spring.dependency-management' version '1.1.4'
     id 'com.google.cloud.tools.jib' version '3.4.2'
     //id 'checkstyle'
+    id 'jacoco'
 }
 
 group = 'com.attica'
@@ -44,18 +45,46 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
     implementation 'org.springframework.security:spring-security-messaging'
 
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testImplementation 'org.springframework.security:spring-security-test'
-
     implementation 'com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.9.0'
-
     implementation 'org.springframework.boot:spring-boot-starter-quartz'
 
+    implementation 'io.micrometer:micrometer-core:1.11.0'
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.security:spring-security-test'
+    testImplementation 'com.h2database:h2'
 }
 
 tasks.named('test') {
     useJUnitPlatform()
+    finalizedBy('jacocoTestReport')
 }
+
+jacocoTestReport {
+    reports {
+        html {
+            required.set(true)
+            outputLocation.set(file("build/reports/jacocoHtml"))
+        }
+        xml.required.set(false)
+        csv.required.set(false)
+    }
+}
+//
+//jacocoTestCoverageVerification {
+//
+//    violationRules {
+//        rule {
+//            element = 'CLASS'
+//
+//            limit {
+//                counter = 'BRANCH'
+//                value = 'COVEREDRATIO'
+//                minimum = 0.8 // 80% 이상 커버리지가 되어야 빌드 성공
+//            }
+//        }
+//    }
+//}
 
 tasks.bootJar {
     enabled = false

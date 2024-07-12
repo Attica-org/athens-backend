@@ -1,21 +1,18 @@
 package com.attica.athens.domain.chat.application;
 
 import com.attica.athens.domain.agora.dao.AgoraRepository;
-import com.attica.athens.domain.agora.domain.Agora;
 import com.attica.athens.domain.agora.exception.NotFoundAgoraException;
-import com.attica.athens.domain.agoraUser.dao.AgoraUserRepository;
-import com.attica.athens.domain.agoraUser.domain.AgoraUser;
-import com.attica.athens.domain.agoraUser.domain.AgoraUserType;
+import com.attica.athens.domain.agoraMember.dao.AgoraMemberRepository;
+import com.attica.athens.domain.agoraMember.domain.AgoraMember;
+import com.attica.athens.domain.agoraMember.domain.AgoraMemberType;
 import com.attica.athens.domain.chat.dao.ChatRepository;
 import com.attica.athens.domain.chat.domain.Chat;
+import com.attica.athens.domain.chat.domain.Chats;
 import com.attica.athens.domain.chat.dto.Cursor;
 import com.attica.athens.domain.chat.dto.response.GetChatParticipants;
 import com.attica.athens.domain.chat.dto.response.GetChatResponse;
 import com.attica.athens.domain.chat.dto.response.GetChatResponse.ChatData;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -28,86 +25,48 @@ import org.springframework.transaction.annotation.Transactional;
 public class ChatQueryService {
 
     private final AgoraRepository agoraRepository;
-    private final AgoraUserRepository agoraUserRepository;
+    private final AgoraMemberRepository agoraMemberRepository;
     private final ChatRepository chatRepository;
 
-    public GetChatResponse getChatHistory(Long agoraId, Cursor cursor) {
+    public GetChatResponse getChatHistory(final Long agoraId, final Cursor cursor) {
+        validateAgoraExists(agoraId);
 
-        findAgoraById(agoraId);
+        List<AgoraMember> agoraMembers = findAgoraMembers(agoraId);
+        Chats chats = new Chats(findChats(cursor, agoraMembers));
+        List<ChatData> chatData = chats.createChatDataWithUsers(agoraMembers);
+        Cursor nextCursor = cursor.calculateNext(chats);
 
-        List<AgoraUser> agoraUsers = findAgoraUser(agoraId);
-
-        List<Chat> chats = findChatsByCursor(cursor, extractAgoraUserIds(agoraUsers));
-
-        Map<Long, AgoraUser> agoraUserMap = mapAgoraUserIdToAgoraUser(agoraUsers);
-        List<ChatData> chatData = mapChatsToChatData(agoraUserMap, chats);
-
-        Long nextKey = getNextCursor(chats);
-
-        return new GetChatResponse(chatData, cursor.next(nextKey));
+        return new GetChatResponse(chatData, nextCursor);
     }
 
-    private List<AgoraUser> findAgoraUser(Long agoraId) {
-        return agoraUserRepository.findByAgoraId(agoraId);
+    public GetChatParticipants getChatParticipants(final Long agoraId) {
+        validateAgoraExists(agoraId);
+
+        return new GetChatParticipants(findActiveParticipants(agoraId), agoraId);
     }
 
-    private List<Chat> findChatsByCursor(Cursor cursor, List<Long> agoraUserIds) {
-
-        Pageable pageable = PageRequest.of(0, cursor.getEffectiveSize());
-
-        if (cursor.hasKey()) {
-            return chatRepository.findByAgoraUserIdInAndIdLessThanOrderByIdDesc(agoraUserIds, cursor.key(),
-                    pageable);
-        }
-        return chatRepository.findByAgoraUserIdInOrderByIdDesc(agoraUserIds, pageable);
-    }
-
-    private Long getNextCursor(List<Chat> chats) {
-
-        if (chats.size() > 0 && chats.get(chats.size() - 1).getId().equals(1L)) {
-            return Cursor.NONE_KEY;
-        }
-
-        return chats.stream()
-                .mapToLong(Chat::getId)
-                .min()
-                .orElse(Cursor.NONE_KEY);
-    }
-
-    private static List<ChatData> mapChatsToChatData(Map<Long, AgoraUser> agoraUserMap, List<Chat> chats) {
-        return chats.stream()
-                .map(chat -> {
-                    AgoraUser agoraUser = agoraUserMap.get(chat.getAgoraUser().getId());
-                    return new ChatData(chat, agoraUser);
-                })
-                .toList();
-    }
-
-    private static Map<Long, AgoraUser> mapAgoraUserIdToAgoraUser(List<AgoraUser> agoraUsers) {
-        return agoraUsers.stream()
-                .collect(Collectors.toMap(AgoraUser::getId, agoraUser -> agoraUser));
-    }
-
-    private static List<Long> extractAgoraUserIds(List<AgoraUser> agoraUsers) {
-        return agoraUsers.stream()
-                .map(AgoraUser::getId)
-                .toList();
-    }
-
-    private Agora findAgoraById(Long agoraId) {
-        return agoraRepository.findById(agoraId)
+    private void validateAgoraExists(final Long agoraId) {
+        agoraRepository.findById(agoraId)
                 .orElseThrow(() -> new NotFoundAgoraException(agoraId));
     }
 
-    public GetChatParticipants getChatParticipants(Long agoraId) {
-
-        findAgoraById(agoraId);
-
-        return new GetChatParticipants(findByAgoraIdAndTypeIn(agoraId), agoraId);
+    private List<AgoraMember> findAgoraMembers(final Long agoraId) {
+        return agoraMemberRepository.findByAgoraId(agoraId);
     }
 
-    private List<AgoraUser> findByAgoraIdAndTypeIn(Long agoraId) {
-        return agoraUserRepository.findByAgoraIdAndTypeInAndSessionIdIsNotNull(agoraId,
-                Arrays.asList(AgoraUserType.PROS, AgoraUserType.CONS));
+    private List<Chat> findChats(final Cursor cursor, final List<AgoraMember> agoraMembers) {
+        List<Long> agoraMemberIds = agoraMembers.stream()
+                .map(AgoraMember::getId)
+                .toList();
+        Pageable pageable = PageRequest.of(0, cursor.getEffectiveSize());
+
+        return chatRepository.findChatsForAgoraMembers(agoraMemberIds,
+                cursor.hasKey() ? cursor.key() : null,
+                pageable);
+    }
+
+    private List<AgoraMember> findActiveParticipants(final Long agoraId) {
+        return agoraMemberRepository.findByAgoraIdAndTypeInAndSessionIdIsNotNull(agoraId,
+                List.of(AgoraMemberType.PROS, AgoraMemberType.CONS));
     }
 }

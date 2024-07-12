@@ -3,15 +3,13 @@ package com.attica.athens.domain.chat.application;
 import com.attica.athens.domain.agora.dao.AgoraRepository;
 import com.attica.athens.domain.agora.exception.NotFoundAgoraException;
 import com.attica.athens.domain.agora.exception.NotParticipateException;
-import com.attica.athens.domain.agora.exception.ObserverException;
-import com.attica.athens.domain.agoraUser.dao.AgoraUserRepository;
-import com.attica.athens.domain.agoraUser.domain.AgoraUser;
-import com.attica.athens.domain.agoraUser.domain.AgoraUserType;
+import com.attica.athens.domain.agoraMember.dao.AgoraMemberRepository;
+import com.attica.athens.domain.agoraMember.domain.AgoraMember;
 import com.attica.athens.domain.chat.dao.ChatRepository;
 import com.attica.athens.domain.chat.domain.Chat;
+import com.attica.athens.domain.chat.domain.ChatContent;
 import com.attica.athens.domain.chat.dto.request.SendChatRequest;
 import com.attica.athens.domain.chat.dto.response.SendChatResponse;
-import com.attica.athens.domain.chat.dto.response.SendChatResponse.SendChatData;
 import com.attica.athens.global.auth.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,39 +21,34 @@ import org.springframework.transaction.annotation.Transactional;
 public class ChatCommandService {
 
     private final AgoraRepository agoraRepository;
-    private final AgoraUserRepository agoraUserRepository;
+    private final AgoraMemberRepository agoraMemberRepository;
     private final ChatRepository chatRepository;
 
-    public SendChatResponse sendChat(CustomUserDetails userDetails, Long agoraId, SendChatRequest sendChatRequest) {
+    public SendChatResponse sendChat(final CustomUserDetails userDetails, final Long agoraId,
+                                     final SendChatRequest sendChatRequest) {
+        validateAgoraExists(agoraId);
 
-        if (!existsById(agoraId)) {
+        AgoraMember agoraMember = findValidAgoraMember(agoraId, userDetails.getUserId());
+        Chat chat = createAndSaveChat(sendChatRequest, agoraMember);
+
+        return new SendChatResponse(agoraMember, chat);
+    }
+
+    private void validateAgoraExists(final Long agoraId) {
+        if (!agoraRepository.existsById(agoraId)) {
             throw new NotFoundAgoraException(agoraId);
         }
-
-        AgoraUser agoraUser = findAgoraUserByAgoraIdAndUserId(agoraId, userDetails.getUserId());
-
-        Chat chat = chatRepository.save(
-                Chat.createChat(sendChatRequest.type(), sendChatRequest.message(), agoraUser)
-        );
-
-        return new SendChatResponse(
-                chat.getType(),
-                new SendChatData(chat, agoraUser)
-        );
     }
 
-    private AgoraUser findAgoraUserByAgoraIdAndUserId(Long agoraId, Long userId) {
-        return agoraUserRepository.findByAgoraIdAndUserId(agoraId, userId)
-                .map(agoraUser -> {
-                    if (agoraUser.getType() == AgoraUserType.OBSERVER) {
-                        throw new ObserverException();
-                    }
-                    return agoraUser;
-                })
-                .orElseThrow(NotParticipateException::new);
+    private AgoraMember findValidAgoraMember(final Long agoraId, final Long memberId) {
+        return agoraMemberRepository.findByAgoraIdAndMemberIdAndSessionIdIsNotNull(agoraId, memberId)
+                .orElseThrow(NotParticipateException::new)
+                .validateSendMessage();
     }
 
-    private boolean existsById(Long agoraId) {
-        return agoraRepository.existsById(agoraId);
+    private Chat createAndSaveChat(final SendChatRequest sendChatRequest, final AgoraMember agoraMember) {
+        Chat chat = new Chat(sendChatRequest.type(), new ChatContent(sendChatRequest.message()), agoraMember);
+
+        return chatRepository.save(chat);
     }
 }
