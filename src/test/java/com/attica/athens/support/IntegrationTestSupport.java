@@ -8,8 +8,6 @@ import io.micrometer.core.instrument.util.IOUtils;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.TestInstance;
-import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
@@ -27,23 +25,22 @@ import org.springframework.web.context.WebApplicationContext;
 @ActiveProfiles("test")
 @Import(TestSecurityConfig.SecurityConfig.class)
 @TestConstructor(autowireMode = TestConstructor.AutowireMode.ALL)
-@TestInstance(Lifecycle.PER_CLASS)
 @Transactional
-public class IntegrationTestSupport {
+public abstract class IntegrationTestSupport {
 
-    public static final String API_V1 = "api/v1";
-    public static final String API_V1_OPEN = API_V1 + "/open";
-    public static final String API_V1_AUTH = API_V1 + "/auth";
+    protected static final String API_V1 = "api/v1";
+    protected static final String API_V1_OPEN = API_V1 + "/open";
+    protected static final String API_V1_AUTH = API_V1 + "/auth";
 
     protected MockMvc mockMvc;
     protected ObjectMapper objectMapper;
     private ResourceLoader resourceLoader;
 
-    public IntegrationTestSupport() {
+    protected IntegrationTestSupport() {
     }
 
-    public IntegrationTestSupport(final MockMvc mockMvc, final ObjectMapper objectMapper,
-                                  final ResourceLoader resourceLoader) {
+    protected IntegrationTestSupport(final MockMvc mockMvc, final ObjectMapper objectMapper,
+                                     final ResourceLoader resourceLoader) {
         this.mockMvc = mockMvc;
         this.objectMapper = objectMapper;
         this.resourceLoader = resourceLoader;
