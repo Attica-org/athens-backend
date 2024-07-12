@@ -44,7 +44,7 @@ class ChatContentTest {
             // When & Then
             thenThrownBy(() -> new ChatContent(""))
                     .isInstanceOf(ContentEmptyException.class)
-                    .hasMessage("content must not be empty");
+                    .hasMessage("Content must not be empty");
         }
 
         @Test
@@ -53,7 +53,7 @@ class ChatContentTest {
             // When & Then
             thenThrownBy(() -> new ChatContent("a".repeat(10001)))
                     .isInstanceOf(ContentExceedException.class)
-                    .hasMessage("content length exceeds maximum limit of 10000 characters");
+                    .hasMessage("Content length exceeds maximum limit of 10000 characters");
         }
     }
 }

@@ -10,7 +10,7 @@ public class ContentExceedException extends CustomException {
         super(
                 HttpStatus.BAD_REQUEST,
                 ErrorCode.VALIDATION_FAILED,
-                "content length exceeds maximum limit of 10000 characters"
+                "Content length exceeds maximum limit of 10000 characters"
         );
     }
 }

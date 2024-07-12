@@ -18,7 +18,8 @@ public class AgoraMemberQueryRepositoryImpl implements AgoraMemberQueryRepositor
 
     @Override
     public boolean existsNickname(Long agoraId, String nickname) {
-        return jpaQueryFactory.selectFrom(agoraMember)
+        return jpaQueryFactory
+                .selectFrom(agoraMember)
                 .where(agoraMember.agora.id.eq(agoraId)
                         .and(agoraMember.nickname.lower().eq(nickname.toLowerCase()))
                 )

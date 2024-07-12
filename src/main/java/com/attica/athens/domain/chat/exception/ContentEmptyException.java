@@ -10,7 +10,7 @@ public class ContentEmptyException extends CustomException {
         super(
                 HttpStatus.BAD_REQUEST,
                 ErrorCode.VALIDATION_FAILED,
-                "content must not be empty"
+                "Content must not be empty"
         );
     }
 }
