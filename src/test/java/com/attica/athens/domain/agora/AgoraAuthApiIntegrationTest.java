@@ -170,7 +170,6 @@ public class AgoraAuthApiIntegrationTest extends IntegrationTestSupport {
             final ResultActions result = mockMvc.perform(
                     patch("/{prefix}/agoras/{agoraId}/close", API_V1_AUTH, 2)
                             .contentType(MediaType.APPLICATION_JSON)
-
             );
 
             // Then
