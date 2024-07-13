@@ -248,7 +248,7 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
         List<Long> agoraIdList = jpaQueryFactory
                 .select(agora.id)
                 .from(agora)
-                .limit(size + 1L)
+                .limit(size)
                 .fetch();
 
         if (agoraIdList.isEmpty()) {
