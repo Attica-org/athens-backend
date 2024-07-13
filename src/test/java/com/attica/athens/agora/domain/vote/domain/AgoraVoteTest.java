@@ -1,4 +1,4 @@
-package com.attica.athens.agora.domain.vote;
+package com.attica.athens.agora.domain.vote.domain;
 
 import static org.assertj.core.api.BDDAssertions.then;
 import static org.assertj.core.api.BDDAssertions.thenThrownBy;
