@@ -20,7 +20,7 @@ class AgoraTest {
 
     @BeforeEach
     void setup() {
-        category = new Category(1L, 0, "category");
+        category = new Category(0, "category");
     }
 
     @Test
