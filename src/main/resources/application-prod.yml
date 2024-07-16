@@ -35,6 +35,9 @@ logging:
     '[com.attica.athens]': DEBUG
     '[org.hibernate.type]': TRACE
 
+  config: classpath:logback-prod.xml
+
+
 frontend:
   local: http://localhost:3000, file:// # 로컬 URL 예시
 
