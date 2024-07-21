@@ -1,3 +1,4 @@
+set FOREIGN_KEY_CHECKS = 0;
 delete from category;
 alter table category AUTO_INCREMENT = 1;
 
