@@ -17,7 +17,10 @@ import org.springframework.test.context.jdbc.Sql;
 public class AgoraOpenApiIntegrationTest extends IntegrationTestSupport {
 
     @Nested
-    @Sql("/sql/get-agora.sql")
+    @Sql(scripts = {
+            "/sql/get-category.sql",
+            "/sql/get-agora.sql"
+    })
     @DisplayName("아고라를 조회한다.")
     class getAgoraTest {
 
