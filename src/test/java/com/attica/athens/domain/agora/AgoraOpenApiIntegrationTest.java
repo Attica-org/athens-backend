@@ -25,13 +25,11 @@ public class AgoraOpenApiIntegrationTest extends IntegrationTestSupport {
     class getAgoraTest {
 
         @Test
-        @DisplayName("허용되지 않는 상태는 예외를 발생시킨다.")
-        void invalidStatusThrowsException() throws Exception {
+        @DisplayName("유효하지 않은 상태는 예외를 발생시킨다.")
+        void 실패_아고라조회_유효하지않은_상태() throws Exception {
             // given
             AgoraRequest requestCategory = new AgoraRequest("not-allowed-status", 1L, null);
             SearchKeywordRequest requestKeyword = new SearchKeywordRequest("not-allowed-status", null);
-            String expectedCode = "1001";
-            String expectedMessage = "{\"status\":\"허용되지 않는 Status 입니다.\"}";
 
             // when & then
             mockMvc.perform(get("/{prefix}/agoras", API_V1_OPEN)
@@ -42,8 +40,8 @@ public class AgoraOpenApiIntegrationTest extends IntegrationTestSupport {
                     .andExpectAll(
                             jsonPath("$.success").value(false),
                             jsonPath("$.response").value(nullValue()),
-                            jsonPath("$.error.code").value(expectedCode),
-                            jsonPath("$.error.message").value(expectedMessage)
+                            jsonPath("$.error.code").value(1001),
+                            jsonPath("$.error.message").value("{\"status\":\"허용되지 않는 Status 입니다.\"}")
                     );
 
             mockMvc.perform(get("/{prefix}/agoras", API_V1_OPEN)
@@ -54,18 +52,16 @@ public class AgoraOpenApiIntegrationTest extends IntegrationTestSupport {
                     .andExpectAll(
                             jsonPath("$.success").value(false),
                             jsonPath("$.response").value(nullValue()),
-                            jsonPath("$.error.code").value(expectedCode),
-                            jsonPath("$.error.message").value(expectedMessage)
+                            jsonPath("$.error.code").value(1001),
+                            jsonPath("$.error.message").value("{\"status\":\"허용되지 않는 Status 입니다.\"}")
                     );
         }
 
         @Test
         @DisplayName("null 카테고리는 예외를 발생시킨다.")
-        void nullCategoryIdThrowsException() throws Exception {
+        void 실패_아고라조회_null_카테고리() throws Exception {
             // given
             AgoraRequest request = new AgoraRequest("active", null, null);
-            String expectedCode = "1001" ;
-            String expectedMessage = "{\"category\":\"must not be null\"}";
 
             // when & then
             mockMvc.perform(get("/{prefix}/agoras", API_V1_OPEN)
@@ -76,14 +72,14 @@ public class AgoraOpenApiIntegrationTest extends IntegrationTestSupport {
                     .andExpectAll(
                             jsonPath("$.success").value(false),
                             jsonPath("$.response").value(nullValue()),
-                            jsonPath("$.error.code").value(expectedCode),
-                            jsonPath("$.error.message").value(expectedMessage)
+                            jsonPath("$.error.code").value(1001),
+                            jsonPath("$.error.message").value("{\"category\":\"must not be null\"}")
                     );
         }
 
         @Test
-        @DisplayName("카테고리로 아고라를 조회한다.")
-        void getAgoraByCategorySortByIdDesc() throws Exception {
+        @DisplayName("카테고리로 정렬된 아고라를 조회한다.")
+        void 성공_아고라조회_유효한_카테고리() throws Exception {
             // given
             AgoraRequest request = new AgoraRequest("active", 1L, null);
 
@@ -119,8 +115,8 @@ public class AgoraOpenApiIntegrationTest extends IntegrationTestSupport {
         }
 
         @Test
-        @DisplayName("키워드로 아고라를 조회한다.")
-        void getAgoraByKeywordSortByIdDesc() throws Exception {
+        @DisplayName("키워드로 정렬된 아고라를 조회한다.")
+        void 성공_아고라조회_유효한_키워드() throws Exception {
             // given
             String keyword = "s";
             SearchKeywordRequest request = new SearchKeywordRequest("active", null);

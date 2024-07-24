@@ -25,7 +25,7 @@ class AgoraTest {
 
     @Test
     @DisplayName("아고라에 사용자를 추가한다.")
-    void addMemberAgora() {
+    void 성공_아고라사용자추가_사용자존재() {
         // given
         Agora agora = new Agora("title", 2, 10, "red", 0, 0, category);
         AgoraMember member = createBasicAgoraMember();
@@ -39,7 +39,7 @@ class AgoraTest {
 
     @Test
     @DisplayName("아고라 시작 시 상태는 RUNNING 이다.")
-    void startAgora() {
+    void 성공_아고라시작_RUNNING상태() {
         // given
         Agora agora = new Agora("title", 2, 10, "red", 0, 0, category);
 
@@ -47,13 +47,12 @@ class AgoraTest {
         agora.startAgora();
 
         // then
-        assertThat(agora.getStatus()).isNotEqualTo(QUEUED);
         assertThat(agora.getStatus()).isEqualTo(RUNNING);
     }
 
     @Test
     @DisplayName("아고라 종료 시 상태는 CLOSED 이다.")
-    void endAgora() {
+    void 성공_아고라종료_CLOSED상태() {
         // given
         Agora agora = new Agora("title", 2, 10, "red", 0, 0, category);
 
@@ -61,13 +60,12 @@ class AgoraTest {
         agora.endAgora();
 
         // then
-        assertThat(agora.getStatus()).isNotEqualTo(RUNNING);
         assertThat(agora.getStatus()).isEqualTo(CLOSED);
     }
 
     @Test
     @DisplayName("아고라 시작 상태가 QUEUED가 아니면 예외를 발생시킨다.")
-    void startAgoraException() {
+    void 실패_아고라시작상태_QUEUED가아닌상태() {
         // given
         Agora agora = new Agora("title", 2, 10, "red", 0, 0, category);
         AgoraStatus expectedStatus = AgoraStatus.QUEUED;
@@ -83,7 +81,7 @@ class AgoraTest {
 
     @Test
     @DisplayName("아고라 상태가 CLOSED 인지 확인한다.")
-    void checkClosedStatus() {
+    void 성공_아고라상태_CLOSED상태() {
         // given
         Agora agora = new Agora("title", 2, 10, "red", 0, 0, category);
 
@@ -97,7 +95,7 @@ class AgoraTest {
 
     @Test
     @DisplayName("아고라 찬반 투표를 반영한다.")
-    void updateVote() {
+    void 성공_아고라투표개수변경_투표반영() {
         // given
         Agora agora = new Agora("title", 2, 10, "red", 0, 0, category);
 

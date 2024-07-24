@@ -10,17 +10,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.attica.athens.domain.agora.dto.request.AgoraCreateRequest;
 import com.attica.athens.domain.agora.dto.request.AgoraParticipateRequest;
 import com.attica.athens.domain.agoraMember.domain.AgoraMemberType;
-import com.attica.athens.domain.member.dao.UserRepository;
-import com.attica.athens.domain.member.domain.Member;
 import com.attica.athens.support.IntegrationTestSupport;
 import com.attica.athens.support.annotation.WithMockCustomUser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.ResultActions;
@@ -333,12 +329,10 @@ public class AgoraAuthApiIntegrationTest extends IntegrationTestSupport {
         }
 
         @Test
-        @DisplayName("title이 빈 문자열인 경우 않으면 예외를 발생시킨다.")
-        void emptyTitleThrowsException() throws Exception {
+        @DisplayName("title이 빈 문자열인 경우 예외를 발생시킨다.")
+        void 실패_아고라생성_빈문자열제목() throws Exception {
             // given
             AgoraCreateRequest request = new AgoraCreateRequest("", 5, 60, "red", 1L);
-            String expectedCode = "1001";
-            String expectedMessage = "{\"title\":\"must not be blank\"}";
 
             // when & then
             mockMvc.perform(post("/{prefix}/agoras", API_V1_AUTH)
@@ -348,18 +342,16 @@ public class AgoraAuthApiIntegrationTest extends IntegrationTestSupport {
                     .andExpectAll(
                             jsonPath("$.success").value(false),
                             jsonPath("$.response").value(nullValue()),
-                            jsonPath("$.error.code").value(expectedCode),
-                            jsonPath("$.error.message").value(expectedMessage)
+                            jsonPath("$.error.code").value(1001),
+                            jsonPath("$.error.message").value("{\"title\":\"must not be blank\"}")
                     );
         }
 
         @Test
         @DisplayName("capacity가 1 미만인 경우 예외를 발생시킨다.")
-        void invalidCapacityThrowsException() throws Exception {
+        void 실패_아고라생성_참가자1미만() throws Exception {
             // given
             AgoraCreateRequest request = new AgoraCreateRequest("test-title", 0, 60, "red", 1L);
-            String expectedCode = "1001";
-            String expectedMessage = "{\"capacity\":\"must be greater than or equal to 1\"}";
 
             // when & then
             mockMvc.perform(post("/{prefix}/agoras", API_V1_AUTH)
@@ -369,18 +361,16 @@ public class AgoraAuthApiIntegrationTest extends IntegrationTestSupport {
                     .andExpectAll(
                             jsonPath("$.success").value(false),
                             jsonPath("$.response").value(nullValue()),
-                            jsonPath("$.error.code").value(expectedCode),
-                            jsonPath("$.error.message").value(expectedMessage)
+                            jsonPath("$.error.code").value(1001),
+                            jsonPath("$.error.message").value("{\"capacity\":\"must be greater than or equal to 1\"}")
                     );
         }
 
         @Test
         @DisplayName("duration이 1 미만인 경우 예외를 발생시킨다.")
-        void invalidDurationThrowsException() throws Exception {
+        void 실패_아고라생성_진행시간_1분_미만() throws Exception {
             // given
             AgoraCreateRequest request = new AgoraCreateRequest("test-title", 5, 0, "red", 1L);
-            String expectedCode = "1001";
-            String expectedMessage = "{\"duration\":\"must be greater than or equal to 1\"}";
 
             // when & then
             mockMvc.perform(post("/{prefix}/agoras", API_V1_AUTH)
@@ -390,18 +380,16 @@ public class AgoraAuthApiIntegrationTest extends IntegrationTestSupport {
                     .andExpectAll(
                             jsonPath("$.success").value(false),
                             jsonPath("$.response").value(nullValue()),
-                            jsonPath("$.error.code").value(expectedCode),
-                            jsonPath("$.error.message").value(expectedMessage)
+                            jsonPath("$.error.code").value(1001),
+                            jsonPath("$.error.message").value("{\"duration\":\"must be greater than or equal to 1\"}")
                     );
         }
 
         @Test
         @DisplayName("duration이 180을 초과하는 경우 예외를 발생시킨다.")
-        void excessiveDurationThrowsException() throws Exception {
+        void 실패_아고라생성_진행시간180분초과() throws Exception {
             // given
             AgoraCreateRequest request = new AgoraCreateRequest("test-title", 5, 181, "red", 1L);
-            String expectedCode = "1001";
-            String expectedMessage = "{\"duration\":\"must be less than or equal to 180\"}";
 
             // when & then
             mockMvc.perform(post("/{prefix}/agoras", API_V1_AUTH)
@@ -411,18 +399,16 @@ public class AgoraAuthApiIntegrationTest extends IntegrationTestSupport {
                     .andExpectAll(
                             jsonPath("$.success").value(false),
                             jsonPath("$.response").value(nullValue()),
-                            jsonPath("$.error.code").value(expectedCode),
-                            jsonPath("$.error.message").value(expectedMessage)
+                            jsonPath("$.error.code").value(1001),
+                            jsonPath("$.error.message").value("{\"duration\":\"must be less than or equal to 180\"}")
                     );
         }
 
         @Test
         @DisplayName("color가 빈 문자열인 경우 예외를 발생시킨다.")
-        void emptyColorThrowsException() throws Exception {
+        void 실패_아고라생성_빈문자열색상() throws Exception {
             // given
             AgoraCreateRequest request = new AgoraCreateRequest("test-title", 5, 180, "", 1L);
-            String expectedCode = "1001";
-            String expectedMessage = "{\"color\":\"must not be blank\"}";
 
             // when & then
             mockMvc.perform(post("/{prefix}/agoras", API_V1_AUTH)
@@ -432,18 +418,16 @@ public class AgoraAuthApiIntegrationTest extends IntegrationTestSupport {
                     .andExpectAll(
                             jsonPath("$.success").value(false),
                             jsonPath("$.response").value(nullValue()),
-                            jsonPath("$.error.code").value(expectedCode),
-                            jsonPath("$.error.message").value(expectedMessage)
+                            jsonPath("$.error.code").value(1001),
+                            jsonPath("$.error.message").value("{\"color\":\"must not be blank\"}")
                     );
         }
 
         @Test
         @DisplayName("categoryId가 null인 경우 예외를 발생시킨다.")
-        void nullCategoryIdThrowsException() throws Exception {
+        void 실패_아고라생성_널카테고리() throws Exception {
             // given
             AgoraCreateRequest request = new AgoraCreateRequest("test-title", 5, 180, "red", null);
-            String expectedCode = "1001";
-            String expectedMessage = "{\"categoryId\":\"must not be null\"}";
 
             // when & then
             mockMvc.perform(post("/{prefix}/agoras", API_V1_AUTH)
@@ -453,18 +437,16 @@ public class AgoraAuthApiIntegrationTest extends IntegrationTestSupport {
                     .andExpectAll(
                             jsonPath("$.success").value(false),
                             jsonPath("$.response").value(nullValue()),
-                            jsonPath("$.error.code").value(expectedCode),
-                            jsonPath("$.error.message").value(expectedMessage)
+                            jsonPath("$.error.code").value(1001),
+                            jsonPath("$.error.message").value("{\"categoryId\":\"must not be null\"}")
                     );
         }
 
         @Test
         @DisplayName("categoryId가 존재하지 않은경우 예외를 발생시킨다.")
-        void nonExistentCategoryIdThrowsException() throws Exception {
+        void 실패_아고라생성_존재하지않은카테고리() throws Exception {
             // given
             AgoraCreateRequest request = new AgoraCreateRequest("test-title", 5, 180, "red", 3L);
-            String expectedCode = "1301";
-            String expectedMessage = "Not found category. categoryId: " + request.categoryId();
 
             // when & then
             mockMvc.perform(post("/{prefix}/agoras", API_V1_AUTH)
@@ -474,14 +456,14 @@ public class AgoraAuthApiIntegrationTest extends IntegrationTestSupport {
                     .andExpectAll(
                             jsonPath("$.success").value(false),
                             jsonPath("$.response").value(nullValue()),
-                            jsonPath("$.error.code").value(expectedCode),
-                            jsonPath("$.error.message").value(expectedMessage)
+                            jsonPath("$.error.code").value(1301),
+                            jsonPath("$.error.message").value("Not found category. categoryId: " + request.categoryId())
                     );
         }
 
         @Test
-        @DisplayName("아고라를 생성한다.")
-        void createAgora() throws Exception {
+        @DisplayName("유효한 파라미터로 아고라를 생성한다.")
+        void 성공_아고라생성_유효한파라미터() throws Exception {
             // given
             AgoraCreateRequest request = new AgoraCreateRequest("test-agora", 5, 60, "red", 1L);
 
@@ -515,7 +497,7 @@ public class AgoraAuthApiIntegrationTest extends IntegrationTestSupport {
 
         @Test
         @DisplayName("찬성 역할로 아고라에 참가한다.")
-        void participateAgoraAsProsRole() throws Exception {
+        void 성공_아고라참가_찬성역할() throws Exception {
             // given
             Long userId = 1L;
             Long agoraId = 1L;
@@ -540,14 +522,15 @@ public class AgoraAuthApiIntegrationTest extends IntegrationTestSupport {
 
         @Test
         @DisplayName("반대 역할로 아고라에 참가한다.")
-        void participateAgoraAsConsRole() throws Exception {
+        void 성공_아고라참가_반대역할() throws Exception {
             // given
             Long userId = 1L;
             Long agoraId = 1L;
             AgoraParticipateRequest request = new AgoraParticipateRequest(
                     "test-nickname",
                     1,
-                    AgoraMemberType.CONS);
+                    AgoraMemberType.CONS
+            );
 
             // when & then
             mockMvc.perform(post("/{prefix}/agoras/{agoraId}/participants", API_V1_AUTH, agoraId)
@@ -565,7 +548,7 @@ public class AgoraAuthApiIntegrationTest extends IntegrationTestSupport {
 
         @Test
         @DisplayName("관찰자 역할로 아고라에 참가한다.")
-        void participateAgoraAsObserverRole() throws Exception {
+        void 성공_아고라참가_관찰자역할() throws Exception {
             // given
             Long userId = 1L;
             Long agoraId = 1L;
@@ -590,7 +573,7 @@ public class AgoraAuthApiIntegrationTest extends IntegrationTestSupport {
 
         @Test
         @DisplayName("찬성, 반대 역할은 닉네임을 설정하지 않으면 예외를 발생시킨다.")
-        void emptyNicknameThrowsException() throws Exception {
+        void 실패_아고라참가_관찰자역할이아닌경우_비어있는닉네임() throws Exception {
             // given
             Long agoraId = 1L;
             AgoraParticipateRequest request = new AgoraParticipateRequest(

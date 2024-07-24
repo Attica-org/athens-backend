@@ -42,7 +42,7 @@ class AgoraQueryRepositoryImplTest {
 
     @Test
     @DisplayName("ID로 아고라를 조회한다.")
-    void findAgoraById() {
+    void 성공_아고라조회_존재하는_ID() {
         // given
         Agora agora = repository.save(
                 new Agora("title", 2, 10, "red", 0, 0, category));
@@ -51,13 +51,12 @@ class AgoraQueryRepositoryImplTest {
         Agora result = repository.findById(agora.getId()).orElseThrow();
 
         // then
-        assertThat(result.getId()).isNotNull();
         assertThat(result.getId()).isEqualTo(agora.getId());
     }
 
     @Test
     @DisplayName("30개 이하 아고라를 가져온다.")
-    void getAgorasUpTo30() {
+    void 성공_아고라조회_30개이하() {
         // given
         int maxSize = 30;
         List<Agora> agoras = new ArrayList<>();
@@ -80,7 +79,7 @@ class AgoraQueryRepositoryImplTest {
 
     @Test
     @DisplayName("키워드로 종료되지 않은 아고라를 조회한다.")
-    void findActiveAgoraByKeyword() {
+    void 성공_아고라조회_유효한키워드_종료되지않은상태() {
         // given
         Agora agora = repository.save(
                 new Agora("title", 2, 10, "red", 0, 0, category));
@@ -102,7 +101,7 @@ class AgoraQueryRepositoryImplTest {
 
     @Test
     @DisplayName("키워드로 종료된 아고라를 조회한다.")
-    void findClosedAgoraByKeywordAndStatus() {
+    void 성공_아고라조회_유효한키워드_종료된상태() {
         // given
         Agora agora = repository.save(
                 new Agora("title", 2, 10, "red", 0, 0, category));
@@ -125,7 +124,7 @@ class AgoraQueryRepositoryImplTest {
 
     @Test
     @DisplayName("특정 카테고리로 종료되지 않은 아고라를 조회한다.")
-    void findActiveAgoraByCategory() {
+    void 성공_아고라조회_특정카테고리_종료되지않은상태() {
         // given
         Agora agora = repository.save(
                 new Agora("title", 2, 10, "red", 0, 0, category));
@@ -148,7 +147,7 @@ class AgoraQueryRepositoryImplTest {
 
     @Test
     @DisplayName("전체 카테고리로 종료되지 않은 아고라를 조회한다.")
-    void findActiveAgoraByAllCategory() {
+    void 성공_아고라조회_전체카테고리_종료되지않은상태() {
         // given
         Agora agora = repository.save(
                 new Agora("title", 2, 10, "red", 0, 0, category));
@@ -169,7 +168,7 @@ class AgoraQueryRepositoryImplTest {
 
     @Test
     @DisplayName("특정 카테고리로 종료된 아고라를 조회한다.")
-    void findClosedAgoraByCategory() {
+    void 성공_아고라조회_특정카테고리_종료된상태() {
         // given
         Agora agora = repository.save(
                 new Agora("title", 2, 10, "red", 0, 0, category));
@@ -193,7 +192,7 @@ class AgoraQueryRepositoryImplTest {
 
     @Test
     @DisplayName("전체 카테고리로 종료된 아고라를 조회한다.")
-    void findClosedAgoraByAllCategory() {
+    void 성공_아고라조회_전체카테고리_종료된상태() {
         // given
         Agora agora = repository.save(
                 new Agora("title", 2, 10, "red", 0, 0, category));
