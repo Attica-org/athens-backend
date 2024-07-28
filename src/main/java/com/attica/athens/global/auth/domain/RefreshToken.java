@@ -7,6 +7,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import java.util.Date;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -31,6 +32,7 @@ public class RefreshToken {
     @Column(nullable = false)
     private Date expiration;
 
+    @Builder
     private RefreshToken(Long userId, String refresh, Date expiration) {
         this.userId = userId;
         this.refresh = refresh;
