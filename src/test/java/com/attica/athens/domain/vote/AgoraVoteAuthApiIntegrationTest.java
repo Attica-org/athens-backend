@@ -21,6 +21,8 @@ import org.springframework.test.web.servlet.ResultActions;
 @DisplayName("아고라 투표 API 통합 테스트")
 public class AgoraVoteAuthApiIntegrationTest extends IntegrationTestSupport {
 
+    private static final int NOT_EXIST_AGORA_ID = 50;
+
     @Nested
     @DisplayName("투표 테스트")
     class AgoraVoteTest {
@@ -99,7 +101,7 @@ public class AgoraVoteAuthApiIntegrationTest extends IntegrationTestSupport {
 
             //when
             final ResultActions result = mockMvc.perform(
-                    patch("/{prefix}/agoras/{agoraId}/vote", API_V1_AUTH, 412902)
+                    patch("/{prefix}/agoras/{agoraId}/vote", API_V1_AUTH, NOT_EXIST_AGORA_ID)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(jsonContent)
             );
@@ -273,7 +275,7 @@ public class AgoraVoteAuthApiIntegrationTest extends IntegrationTestSupport {
         void 실패_아고라조회_존재하지않는아고라ID전달() throws Exception {
             //when
             final ResultActions result = mockMvc.perform(
-                    get("/{prefix}/agoras/{agoraId}/results", API_V1_AUTH, 412902)
+                    get("/{prefix}/agoras/{agoraId}/results", API_V1_AUTH, NOT_EXIST_AGORA_ID)
                             .contentType(MediaType.APPLICATION_JSON)
             );
 
