@@ -1,6 +1,7 @@
 package com.attica.athens.domain.chat;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -75,6 +76,29 @@ public class ChatOpenApiIntegrationTest extends IntegrationTestSupport {
                             jsonPath("$.response.participants[0].nickname").isString(),
                             jsonPath("$.response.participants[0].photoNumber").isNumber(),
                             jsonPath("$.response.participants[0].type").isString()
+                    );
+        }
+
+        @Test
+        @DisplayName("유효하지 않은 아고라 아이디로 채팅방 참여자를 조회한다")
+        void getChatParticipantsWithInvalidAgoraId() throws Exception {
+            // Given
+
+            // When
+            final ResultActions result = mockMvc.perform(
+                    get("/{prefix}/agoras/{agoraId}/users", API_V1_OPEN, 999)
+                            .contentType(MediaType.APPLICATION_JSON)
+
+            );
+
+            // Then
+            result.andExpect(status().isNotFound())
+                    .andExpectAll(
+                            jsonPath("$.success").value(false),
+                            jsonPath("$.error").exists(),
+                            jsonPath("$.error.code").value(1301),
+                            jsonPath("$.error.message").value("Not found agora. agoraId: 999"),
+                            jsonPath("$.response").doesNotExist()
                     );
         }
     }
