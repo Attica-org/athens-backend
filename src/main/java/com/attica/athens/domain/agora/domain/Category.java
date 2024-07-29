@@ -33,8 +33,7 @@ public class Category {
     @Column(length = 50, nullable = false)
     private String name;
 
-    public Category(Long id, Integer level, String name) {
-        this.id = id;
+    public Category(Integer level, String name) {
         this.level = level;
         this.name = name;
     }
