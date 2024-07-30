@@ -25,9 +25,10 @@ public class ChatAuthController {
 
     @MessageMapping("/agoras/{agoraId}/chats")
     @SendTo(value = "/topic/agoras/{agoraId}/chats")
-    public SendChatResponse sendChat(@DestinationVariable("agoraId") Long agoraId,
-                                     @Payload @Valid SendChatRequest sendChatRequest,
-                                     @AuthenticationPrincipal CustomUserDetails userDetails) {
+    public SendChatResponse sendChat(
+            @DestinationVariable("agoraId") Long agoraId,
+            @Payload @Valid SendChatRequest sendChatRequest,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
 
         return chatCommandService.sendChat(userDetails, agoraId, sendChatRequest);
     }
