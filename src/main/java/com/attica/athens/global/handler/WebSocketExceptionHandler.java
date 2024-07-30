@@ -41,14 +41,15 @@ public class WebSocketExceptionHandler {
 
     @MessageExceptionHandler(RuntimeException.class)
     @SendToUser("/queue/errors")
-    public ErrorResponse handleRuntimeException() {
+    public ErrorResponse handleRuntimeException(RuntimeException e) {
+        log.error(e.getMessage());
         return new ErrorResponse(2000, "Runtime Exception");
     }
 
     @MessageExceptionHandler
     @SendToUser("/queue/errors")
     public ErrorResponse handleValidationException(MethodArgumentNotValidException ex) {
-
+        log.error(ex.getMessage());
         return new ErrorResponse(
                 1001,
                 ex.getBindingResult()
