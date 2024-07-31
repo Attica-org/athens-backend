@@ -1,7 +1,6 @@
 package com.attica.athens.support;
 
-import com.attica.athens.config.TestSecurityConfig;
-import com.attica.athens.domain.chat.dto.response.SendChatResponse;
+import com.attica.athens.config.TestSecurityConfig.TestCustomUserDetailsServiceConfig;
 import com.attica.athens.global.auth.CustomUserDetails;
 import com.attica.athens.global.auth.jwt.JwtUtils;
 import java.lang.reflect.Type;
@@ -23,7 +22,7 @@ import org.springframework.web.socket.messaging.WebSocketStompClient;
 public abstract class WebSocketIntegrationTestSupport extends IntegrationTestSupport {
 
     @Autowired
-    private TestSecurityConfig.SecurityConfig securityConfig;
+    private TestCustomUserDetailsServiceConfig testCustomUserDetailsServiceConfig;
 
     @Autowired
     private JwtUtils jwtUtils;
@@ -43,15 +42,16 @@ public abstract class WebSocketIntegrationTestSupport extends IntegrationTestSup
     }
 
     protected StompSession connectAndSubscribe(final String topic, final String username, final Long agoraId,
-                                               final CompletableFuture<String> resultFuture) throws Exception {
+                                               final CompletableFuture<String> resultFuture, Class<?> payloadType
+    ) throws Exception {
         StompSession session = connectToWebSocket(username, agoraId);
-        subscribeToTopic(topic, session, resultFuture);
+        subscribeToTopic(topic, session, resultFuture, payloadType);
         return session;
     }
 
     private StompSession connectToWebSocket(String username, Long agoraId)
             throws Exception {
-        CustomUserDetails userDetails = (CustomUserDetails) securityConfig.testCustomUserDetailsService()
+        CustomUserDetails userDetails = (CustomUserDetails) testCustomUserDetailsServiceConfig.testCustomUserDetailsService()
                 .loadUserByUsername(username);
         String token = jwtUtils.createJwtToken(username, userDetails.getUserId(),
                 userDetails.getAuthorities().iterator().next().getAuthority());
@@ -69,10 +69,10 @@ public abstract class WebSocketIntegrationTestSupport extends IntegrationTestSup
         ).get(5, TimeUnit.SECONDS);
     }
 
-    private void subscribeToTopic(final String topic, final StompSession session,
-                                  CompletableFuture<String> resultFuture) {
+    private <T> void subscribeToTopic(final String topic, final StompSession session,
+                                      CompletableFuture<String> resultFuture, Class<T> payloadType) {
         session.subscribe(topic,
-                createStompFrameHandler(SendChatResponse.class, resultFuture));
+                createStompFrameHandler(payloadType, resultFuture));
     }
 
     private <T> StompFrameHandler createStompFrameHandler(Class<T> payloadType,
