@@ -2,7 +2,7 @@ package com.attica.athens.support;
 
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 
-import com.attica.athens.config.TestSecurityConfig;
+import com.attica.athens.config.TestSecurityConfig.TestCustomUserDetailsServiceConfig;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.micrometer.core.instrument.util.IOUtils;
 import java.io.IOException;
@@ -23,7 +23,7 @@ import org.springframework.web.context.WebApplicationContext;
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
-@Import(TestSecurityConfig.SecurityConfig.class)
+@Import(TestCustomUserDetailsServiceConfig.class)
 @Transactional
 public abstract class IntegrationTestSupport {
 
