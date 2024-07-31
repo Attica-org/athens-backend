@@ -343,7 +343,7 @@ public class AgoraAuthApiIntegrationTest extends IntegrationTestSupport {
                             jsonPath("$.success").value(false),
                             jsonPath("$.response").value(nullValue()),
                             jsonPath("$.error.code").value(1001),
-                            jsonPath("$.error.message").value("{\"title\":\"must not be blank\"}")
+                            jsonPath("$.error.message.title").value("must not be blank")
                     );
         }
 
@@ -362,7 +362,7 @@ public class AgoraAuthApiIntegrationTest extends IntegrationTestSupport {
                             jsonPath("$.success").value(false),
                             jsonPath("$.response").value(nullValue()),
                             jsonPath("$.error.code").value(1001),
-                            jsonPath("$.error.message").value("{\"capacity\":\"must be greater than or equal to 1\"}")
+                            jsonPath("$.error.message.capacity").value("must be greater than or equal to 1")
                     );
         }
 
@@ -381,7 +381,7 @@ public class AgoraAuthApiIntegrationTest extends IntegrationTestSupport {
                             jsonPath("$.success").value(false),
                             jsonPath("$.response").value(nullValue()),
                             jsonPath("$.error.code").value(1001),
-                            jsonPath("$.error.message").value("{\"duration\":\"must be greater than or equal to 1\"}")
+                            jsonPath("$.error.message.duration").value("must be greater than or equal to 1")
                     );
         }
 
@@ -400,7 +400,7 @@ public class AgoraAuthApiIntegrationTest extends IntegrationTestSupport {
                             jsonPath("$.success").value(false),
                             jsonPath("$.response").value(nullValue()),
                             jsonPath("$.error.code").value(1001),
-                            jsonPath("$.error.message").value("{\"duration\":\"must be less than or equal to 180\"}")
+                            jsonPath("$.error.message.duration").value("must be less than or equal to 180")
                     );
         }
 
@@ -419,7 +419,7 @@ public class AgoraAuthApiIntegrationTest extends IntegrationTestSupport {
                             jsonPath("$.success").value(false),
                             jsonPath("$.response").value(nullValue()),
                             jsonPath("$.error.code").value(1001),
-                            jsonPath("$.error.message").value("{\"color\":\"must not be blank\"}")
+                            jsonPath("$.error.message.color").value("must not be blank")
                     );
         }
 
@@ -438,7 +438,7 @@ public class AgoraAuthApiIntegrationTest extends IntegrationTestSupport {
                             jsonPath("$.success").value(false),
                             jsonPath("$.response").value(nullValue()),
                             jsonPath("$.error.code").value(1001),
-                            jsonPath("$.error.message").value("{\"categoryId\":\"must not be null\"}")
+                            jsonPath("$.error.message.categoryId").value("must not be null")
                     );
         }
 
@@ -581,9 +581,6 @@ public class AgoraAuthApiIntegrationTest extends IntegrationTestSupport {
                     1,
                     AgoraMemberType.PROS);
 
-            String expectedCode = "1001";
-            String expectedMessage = "{\"nickname\":\"nickname can not be null\"}";
-
             // when & then
             mockMvc.perform(post("/{prefix}/agoras/{agoraId}/participants", API_V1_AUTH, agoraId)
                             .contentType(MediaType.APPLICATION_JSON)
@@ -592,8 +589,8 @@ public class AgoraAuthApiIntegrationTest extends IntegrationTestSupport {
                     .andExpectAll(
                             jsonPath("$.success").value(false),
                             jsonPath("$.response").value(nullValue()),
-                            jsonPath("$.error.code").value(expectedCode),
-                            jsonPath("$.error.message").value(expectedMessage)
+                            jsonPath("$.error.code").value(1001),
+                            jsonPath("$.error.message.nickname").value("nickname can not be null")
                     );
         }
     }

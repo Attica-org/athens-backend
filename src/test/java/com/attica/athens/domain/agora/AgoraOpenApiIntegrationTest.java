@@ -41,7 +41,7 @@ public class AgoraOpenApiIntegrationTest extends IntegrationTestSupport {
                             jsonPath("$.success").value(false),
                             jsonPath("$.response").value(nullValue()),
                             jsonPath("$.error.code").value(1001),
-                            jsonPath("$.error.message").value("{\"status\":\"허용되지 않는 Status 입니다.\"}")
+                            jsonPath("$.error.message.status").value("허용되지 않는 Status 입니다.")
                     );
 
             mockMvc.perform(get("/{prefix}/agoras", API_V1_OPEN)
@@ -53,7 +53,7 @@ public class AgoraOpenApiIntegrationTest extends IntegrationTestSupport {
                             jsonPath("$.success").value(false),
                             jsonPath("$.response").value(nullValue()),
                             jsonPath("$.error.code").value(1001),
-                            jsonPath("$.error.message").value("{\"status\":\"허용되지 않는 Status 입니다.\"}")
+                            jsonPath("$.error.message.status").value("허용되지 않는 Status 입니다.")
                     );
         }
 
@@ -73,7 +73,7 @@ public class AgoraOpenApiIntegrationTest extends IntegrationTestSupport {
                             jsonPath("$.success").value(false),
                             jsonPath("$.response").value(nullValue()),
                             jsonPath("$.error.code").value(1001),
-                            jsonPath("$.error.message").value("{\"category\":\"must not be null\"}")
+                            jsonPath("$.error.message.category").value("must not be null")
                     );
         }
 
