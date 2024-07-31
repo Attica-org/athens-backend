@@ -16,12 +16,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    private final ObjectMapper objectMapper;
-
-    public GlobalExceptionHandler(ObjectMapper objectMapper) {
-        this.objectMapper = objectMapper;
-    }
-
     @ExceptionHandler(CustomException.class)
     public ResponseEntity<?> handleCustomException(
             CustomException exception
@@ -38,18 +32,16 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<?> handleMethodArgumentValidException(
             MethodArgumentNotValidException exception
-    ) throws JsonProcessingException {
+    ) {
         BindingResult br = exception.getBindingResult();
         Map<String, String> map = new HashMap<>();
         for (FieldError fieldError : br.getFieldErrors()) {
             map.put(fieldError.getField(), fieldError.getDefaultMessage());
         }
 
-        String message = objectMapper.writeValueAsString(map);
-
         ErrorResponse response = new ErrorResponse(
                 ErrorCode.VALIDATION_FAILED.getCode(),
-                message
+                map
         );
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)

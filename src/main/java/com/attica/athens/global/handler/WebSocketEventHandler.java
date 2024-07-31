@@ -1,6 +1,6 @@
 package com.attica.athens.global.handler;
 
-import com.attica.athens.domain.agoraUser.application.AgoraUserService;
+import com.attica.athens.domain.agoraMember.application.AgoraMemberService;
 import com.attica.athens.global.auth.CustomUserDetails;
 import java.util.List;
 import java.util.Map;
@@ -25,7 +25,7 @@ import org.springframework.web.socket.messaging.SessionUnsubscribeEvent;
 @RequiredArgsConstructor
 public class WebSocketEventHandler {
 
-    private final AgoraUserService agoraUserService;
+    private final AgoraMemberService agoraMemberService;
 
     @EventListener
     public void handleWebSocketSessionConnect(SessionConnectEvent event) {
@@ -35,18 +35,18 @@ public class WebSocketEventHandler {
     private void logConnectEvent(SessionConnectEvent event) {
         StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(event.getMessage(), StompHeaderAccessor.class);
         Authentication authentication = (Authentication) Objects.requireNonNull(accessor.getUser());
-        String username = authentication.getName();
-        String userRole = getUserRole(authentication);
+        String memberName = authentication.getName();
+        String memberRole = getMemberRole(authentication);
 
-        log.debug("WebSocket {}: username={}, userRole={}", event.getClass().getSimpleName(), username, userRole);
+        log.debug("WebSocket {}: memberName={}, memberRole={}", event.getClass().getSimpleName(), memberName, memberRole);
     }
 
-    private String getUserRole(Authentication authentication) {
+    private String getMemberRole(Authentication authentication) {
         return authentication.getAuthorities()
                 .stream()
                 .findFirst()
                 .map(GrantedAuthority::getAuthority)
-                .orElseThrow(() -> new IllegalArgumentException("User role is not exist."));
+                .orElseThrow(() -> new IllegalArgumentException("Member role is not exist."));
     }
 
     @EventListener
@@ -60,8 +60,8 @@ public class WebSocketEventHandler {
             Long agoraId = getAgoraId(nativeHeaders);
             String sessionId = (String) generic.getHeaders().get("simpSessionId");
 
-            agoraUserService.updateSessionId(agoraId, userId, sessionId);
-            agoraUserService.sendMetaToActiveUsers(agoraId);
+            agoraMemberService.updateSessionId(agoraId, userId, sessionId);
+            agoraMemberService.sendMetaToActiveMembers(agoraId);
 
             log.info("SessionId updated: agoraId={}, userId={}, sessionId={}", agoraId, userId, sessionId);
         }
@@ -81,11 +81,11 @@ public class WebSocketEventHandler {
     @EventListener
     public void handleWebSocketSessionDisconnected(SessionDisconnectEvent event) {
         String sessionId = event.getSessionId();
-        Long agoraId = agoraUserService.findAgoraIdBySessionId(sessionId);
+        Long agoraId = agoraMemberService.findAgoraIdBySessionId(sessionId);
         Long userId = getUserId(StompHeaderAccessor.wrap(event.getMessage()));
 
-        agoraUserService.removeSessionId(sessionId);
-        agoraUserService.sendMetaToActiveUsers(agoraId);
+        agoraMemberService.removeSessionId(sessionId);
+        agoraMemberService.sendMetaToActiveMembers(agoraId);
 
         log.info("WebSocket Disconnected: sessionId={}, agoraId={}, userId={}", sessionId, agoraId, userId);
     }

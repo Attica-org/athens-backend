@@ -25,16 +25,14 @@ import com.attica.athens.domain.agora.exception.FullAgoraCapacityException;
 import com.attica.athens.domain.agora.exception.NotFoundAgoraException;
 import com.attica.athens.domain.agora.exception.NotFoundCategoryException;
 import com.attica.athens.domain.agora.exception.NotParticipateException;
-import com.attica.athens.domain.agora.exception.ObserverException;
-import com.attica.athens.domain.agoraUser.dao.AgoraUserRepository;
-import com.attica.athens.domain.agoraUser.domain.AgoraUser;
-import com.attica.athens.domain.agoraUser.domain.AgoraUserType;
-import com.attica.athens.domain.agoraUser.exception.AlreadyEndVotedException;
-import com.attica.athens.domain.agoraUser.exception.NotFoundAgoraUserException;
+import com.attica.athens.domain.agoraMember.dao.AgoraMemberRepository;
+import com.attica.athens.domain.agoraMember.domain.AgoraMember;
+import com.attica.athens.domain.agoraMember.domain.AgoraMemberType;
+import com.attica.athens.domain.agoraMember.exception.AlreadyEndVotedException;
 import com.attica.athens.domain.chat.domain.ChatType;
-import com.attica.athens.domain.user.dao.BaseUserRepository;
-import com.attica.athens.domain.user.domain.BaseUser;
-import com.attica.athens.domain.user.exception.NotFoundUserException;
+import com.attica.athens.domain.member.dao.BaseMemberRepository;
+import com.attica.athens.domain.member.domain.BaseMember;
+import com.attica.athens.domain.member.exception.NotFoundMemberException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -49,11 +47,12 @@ public class AgoraService {
 
     private static final Integer PROS_COUNT = 0;
     private static final Integer CONS_COUNT = 0;
+    public static final String AGORA_TOPIC = "/topic/agoras/";
 
     private final AgoraRepository agoraRepository;
     private final CategoryRepository categoryRepository;
-    private final BaseUserRepository baseUserRepository;
-    private final AgoraUserRepository agoraUserRepository;
+    private final BaseMemberRepository baseMemberRepository;
+    private final AgoraMemberRepository agoraMemberRepository;
     private final SimpMessagingTemplate messagingTemplate;
 
     @Transactional
@@ -91,34 +90,34 @@ public class AgoraService {
     }
 
     @Transactional
-    public AgoraParticipateResponse participate(final Long userId, final Long agoraId,
+    public AgoraParticipateResponse participate(final Long memberId, final Long agoraId,
                                                 final AgoraParticipateRequest request) {
         Agora agora = agoraRepository.findAgoraById(agoraId)
                 .orElseThrow(() -> new NotFoundAgoraException(agoraId));
 
-        if (!Objects.equals(AgoraUserType.OBSERVER, request.type())) {
-            int typeCount = agoraUserRepository.countCapacityByAgoraUserType(agora.getId(), request.type());
+        if (!Objects.equals(AgoraMemberType.OBSERVER, request.type())) {
+            int typeCount = agoraMemberRepository.countCapacityByAgoraMemberType(agora.getId(), request.type());
             if (typeCount >= agora.getCapacity()) {
                 throw new FullAgoraCapacityException();
             }
 
-            boolean existsNickname = agoraUserRepository.existsNickname(agoraId, request.nickname());
+            boolean existsNickname = agoraMemberRepository.existsNickname(agoraId, request.nickname());
             if (existsNickname) {
                 throw new DuplicatedNicknameException(request.nickname());
             }
         }
 
-        agoraUserRepository.findByAgoraIdAndUserId(agora.getId(), userId)
-                .ifPresent(agoraUser -> {
-                            throw new AlreadyParticipateException(agora.getId(), userId);
+        agoraMemberRepository.findByAgoraIdAndMemberId(agora.getId(), memberId)
+                .ifPresent(agoraMember -> {
+                            throw new AlreadyParticipateException(agora.getId(), memberId);
                         }
                 );
 
-        AgoraUser created = createAgoraUser(userId, agoraId, request);
-        AgoraUser agoraUser = agoraUserRepository.save(created);
-        agora.addUser(agoraUser);
+        AgoraMember created = createAgoraMember(memberId, agoraId, request);
+        AgoraMember agoraMember = agoraMemberRepository.save(created);
+        agora.addMember(agoraMember);
 
-        return new AgoraParticipateResponse(created.getAgora().getId(), userId, created.getType());
+        return new AgoraParticipateResponse(created.getAgora().getId(), memberId, created.getType());
     }
 
     private Agora createAgora(final AgoraCreateRequest request, final Category category) {
@@ -130,18 +129,19 @@ public class AgoraService {
                 category);
     }
 
-    private AgoraUser createAgoraUser(final Long userId, final Long agoraId, final AgoraParticipateRequest request) {
-        return new AgoraUser(
+    private AgoraMember createAgoraMember(final Long memberId, final Long agoraId,
+                                          final AgoraParticipateRequest request) {
+        return new AgoraMember(
                 request.type(),
                 request.nickname(),
                 request.photoNum(),
                 findAgoraById(agoraId),
-                findUserById(userId)
+                findMemberById(memberId)
         );
     }
 
-    private BaseUser findUserById(final Long userId) {
-        return baseUserRepository.findById(userId).orElseThrow(() -> new NotFoundUserException(userId));
+    private BaseMember findMemberById(final Long memberId) {
+        return baseMemberRepository.findById(memberId).orElseThrow(() -> new NotFoundMemberException(memberId));
     }
 
     private List<Long> findParentCategoryById(final Long categoryId) {
@@ -179,97 +179,73 @@ public class AgoraService {
     }
 
     @Transactional
-    public StartAgoraResponse startAgora(Long agoraId, Long userId) {
-
+    public StartAgoraResponse startAgora(final Long agoraId, final Long memberId) {
         Agora agora = findAgoraById(agoraId);
-
-        boolean isExists = existsByAgoraIdAndUserId(agoraId, userId);
-        if (!isExists) {
-            throw new NotFoundAgoraUserException(agoraId, userId);
-        }
-
-        findAgoraUserByAgoraIdAndUserId(agoraId, userId);
-
+        findValidAgoraMember(agoraId, memberId);
         agora.startAgora();
-
         sendAgoraStartMessage(agora);
 
         return new StartAgoraResponse(agora);
     }
 
-    private boolean existsByAgoraIdAndUserId(Long agoraId, Long userId) {
-        return agoraUserRepository.existsByAgoraIdAndUserId(agoraId, userId);
+    private AgoraMember findValidAgoraMember(final Long agoraId, final Long memberId) {
+        return agoraMemberRepository.findByAgoraIdAndMemberId(agoraId, memberId)
+                .orElseThrow(NotParticipateException::new)
+                .validateSendMessage();
     }
 
-    private Agora findAgoraById(Long agoraId) {
+    private Agora findAgoraById(final Long agoraId) {
         return agoraRepository.findById(agoraId)
                 .orElseThrow(() -> new NotFoundAgoraException(agoraId));
     }
 
-    private void sendAgoraStartMessage(Agora agora) {
+    private void sendAgoraStartMessage(final Agora agora) {
         StartNotificationResponse notification = new StartNotificationResponse(ChatType.DISCUSSION_START,
                 new StartNotificationResponse.StartAgoraData(agora));
-
-        messagingTemplate.convertAndSend("/topic/agoras/" + agora.getId(), notification);
+        messagingTemplate.convertAndSend(AGORA_TOPIC + agora.getId(), notification);
     }
 
     @Transactional
-    public EndVoteAgoraResponse endVoteAgora(Long agoraId, Long userId) {
-
+    public EndVoteAgoraResponse endVoteAgora(final Long agoraId, final Long memberId) {
         Agora agora = findAgoraById(agoraId);
-
-        findAgoraUserAndMarkEndVoted(agoraId, userId);
-
-        int participantCount = agoraUserRepository.countByAgoraIdAndSessionIdIsNotNullAndTypeIsNot(agoraId,
-                AgoraUserType.OBSERVER);
-        agora.endVoteAgora(participantCount);
-
-        if (agora.getStatus() == AgoraStatus.CLOSED) {
+        markEndVoted(agoraId, memberId);
+        agora.endVoteAgora(getParticipantCount(agoraId));
+        if (agora.isClosed()) {
             sendAgoraEndMessage(agora);
         }
 
         return new EndVoteAgoraResponse(agora);
     }
 
+    private void markEndVoted(final Long agoraId, final Long memberId) {
+        AgoraMember agoraMember = findValidAgoraMember(agoraId, memberId);
+        if (agoraMember.getEndVoted()) {
+            throw new AlreadyEndVotedException();
+        }
+        agoraMember.markEndVoted();
+    }
+
+    private int getParticipantCount(final Long agoraId) {
+        return agoraMemberRepository.countByAgoraIdAndSessionIdIsNotNullAndTypeIsNot(agoraId,
+                AgoraMemberType.OBSERVER);
+    }
+
     @Transactional
     public EndAgoraResponse timeOutAgora(Long agoraId) {
-
         Agora agora = findAgoraById(agoraId);
-
         if (agora.getStatus() == AgoraStatus.CLOSED) {
             return new EndAgoraResponse(agora);
         }
-
+        agora.endAgora();
         sendAgoraEndMessage(agora);
 
-        agora.endAgora();
-
         return new EndAgoraResponse(agora);
-    }
-
-    private void findAgoraUserAndMarkEndVoted(Long agoraId, Long userId) {
-        AgoraUser agoraUser = findAgoraUserByAgoraIdAndUserId(agoraId, userId);
-        if (agoraUser.getEndVoted()) {
-            throw new AlreadyEndVotedException();
-        }
-        agoraUser.markEndVoted();
-    }
-
-    private AgoraUser findAgoraUserByAgoraIdAndUserId(Long agoraId, Long userId) {
-        return agoraUserRepository.findByAgoraIdAndUserId(agoraId, userId)
-                .map(agoraUser -> {
-                    if (agoraUser.getType() == AgoraUserType.OBSERVER) {
-                        throw new ObserverException();
-                    }
-                    return agoraUser;
-                })
-                .orElseThrow(NotParticipateException::new);
     }
 
     private void sendAgoraEndMessage(Agora agora) {
         EndNotificationResponse notification = new EndNotificationResponse(ChatType.DISCUSSION_END,
                 new EndNotificationResponse.EndAgoraData(agora));
 
-        messagingTemplate.convertAndSend("/topic/agoras/" + agora.getId(), notification);
+        messagingTemplate.convertAndSend(AGORA_TOPIC + agora.getId(), notification);
     }
 }

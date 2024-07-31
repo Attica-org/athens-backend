@@ -6,9 +6,9 @@ import lombok.Getter;
 public class ErrorResponse {
 
     private int code;
-    private String message;
+    private Object message;
 
-    public ErrorResponse(int code, String message) {
+    public ErrorResponse(int code, Object message) {
         this.code = code;
         this.message = message;
     }
