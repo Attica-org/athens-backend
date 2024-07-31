@@ -10,7 +10,7 @@ public class ObserverException extends CustomException {
         super(
                 HttpStatus.FORBIDDEN,
                 ErrorCode.RESOURCE_ACCESS_FORBIDDEN,
-                "observer cannot send this request"
+                "Observer cannot send this request"
         );
     }
 }

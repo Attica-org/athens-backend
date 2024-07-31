@@ -150,7 +150,7 @@ public class AgoraAuthApiIntegrationTest extends IntegrationTestSupport {
                             jsonPath("$.response").doesNotExist(),
                             jsonPath("$.error").exists(),
                             jsonPath("$.error.code").value(1102),
-                            jsonPath("$.error.message").value("observer cannot send this request")
+                            jsonPath("$.error.message").value("Observer cannot send this request")
                     );
         }
     }
@@ -234,7 +234,7 @@ public class AgoraAuthApiIntegrationTest extends IntegrationTestSupport {
                             jsonPath("$.response").doesNotExist(),
                             jsonPath("$.error").exists(),
                             jsonPath("$.error.code").value(1102),
-                            jsonPath("$.error.message").value("observer cannot send this request")
+                            jsonPath("$.error.message").value("Observer cannot send this request")
                     );
         }
 
