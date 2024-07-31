@@ -11,7 +11,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 public class TestSecurityConfig {
 
     @TestConfiguration
-    public static class SecurityConfig {
+    public static class TestCustomUserDetailsServiceConfig {
 
         private static final Map<String, CustomUserDetails> customUserDetailsMap = new HashMap<>();
 
