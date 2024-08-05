@@ -4,7 +4,6 @@ import com.attica.athens.domain.agoraMember.application.AgoraMemberService;
 import com.attica.athens.global.auth.CustomUserDetails;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
@@ -34,11 +33,16 @@ public class WebSocketEventHandler {
 
     private void logConnectEvent(SessionConnectEvent event) {
         StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(event.getMessage(), StompHeaderAccessor.class);
-        Authentication authentication = (Authentication) Objects.requireNonNull(accessor.getUser());
+        if (accessor.getUser() == null) {
+            log.warn("Unauthenticated connection attempt");
+            return;
+        }
+        Authentication authentication = (Authentication) accessor.getUser();
         String memberName = authentication.getName();
         String memberRole = getMemberRole(authentication);
 
-        log.debug("WebSocket {}: memberName={}, memberRole={}", event.getClass().getSimpleName(), memberName, memberRole);
+        log.info("WebSocket {}: memberName={}, memberRole={}", event.getClass().getSimpleName(), memberName,
+                memberRole);
     }
 
     private String getMemberRole(Authentication authentication) {
@@ -55,17 +59,22 @@ public class WebSocketEventHandler {
         GenericMessage generic = (GenericMessage) accessor.getHeader("simpConnectMessage");
         Map nativeHeaders = (Map) generic.getHeaders().get("nativeHeaders");
 
-        if (accessor.getUser() != null && nativeHeaders.containsKey("AgoraId")) {
+        if (accessor.getUser() != null) {
             Long userId = getUserId(accessor);
-            Long agoraId = getAgoraId(nativeHeaders);
-            String sessionId = (String) generic.getHeaders().get("simpSessionId");
+            if (nativeHeaders.containsKey("AgoraId")) {
+                Long agoraId = getAgoraId(nativeHeaders);
+                String sessionId = (String) generic.getHeaders().get("simpSessionId");
 
-            agoraMemberService.updateSessionId(agoraId, userId, sessionId);
-            agoraMemberService.sendMetaToActiveMembers(agoraId);
-
-            log.info("SessionId updated: agoraId={}, userId={}, sessionId={}", agoraId, userId, sessionId);
+                agoraMemberService.updateSessionId(agoraId, userId, sessionId);
+                agoraMemberService.sendMetaToActiveMembers(agoraId);
+                log.info("SessionId updated: agoraId={}, userId={}, sessionId={}", agoraId, userId, sessionId);
+            } else {
+                log.warn("AgoraId is not exist in headers");
+            }
+        } else {
+            log.warn("User is not exist in headers");
         }
-        log.debug("WebSocket Connected");
+        log.info("WebSocket Connected");
     }
 
     private Long getUserId(StompHeaderAccessor accessor) {
@@ -92,11 +101,11 @@ public class WebSocketEventHandler {
 
     @EventListener(SessionSubscribeEvent.class)
     public void handleWebSocketSessionSubscribe() {
-        log.debug("WebSocket Subscribe");
+        log.info("WebSocket Subscribe");
     }
 
     @EventListener(SessionUnsubscribeEvent.class)
     public void handleWebSocketSessionUnsubscribe() {
-        log.debug("WebSocket Unsubscribe");
+        log.info("WebSocket Unsubscribe");
     }
 }
