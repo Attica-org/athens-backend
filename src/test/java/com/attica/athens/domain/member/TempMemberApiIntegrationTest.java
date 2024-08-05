@@ -1,5 +1,6 @@
 package com.attica.athens.domain.member;
 
+import static org.hamcrest.Matchers.nullValue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -17,13 +18,13 @@ public class TempMemberApiIntegrationTest extends IntegrationTestSupport {
     @Test
     @DisplayName("임시 유저를 생성한다.")
     void 성공_임시유저생성_유효한파라미터전달() throws Exception {
-        //when
+        // when
         final ResultActions result = mockMvc.perform(
                 post("/{prefix}/temp-user", API_V1)
                         .contentType(MediaType.APPLICATION_JSON)
         );
 
-        //then
+        // then
         result.andExpect(status().isOk())
                 .andExpectAll(
                         jsonPath("$.success").value(true),
@@ -32,7 +33,7 @@ public class TempMemberApiIntegrationTest extends IntegrationTestSupport {
                         jsonPath("$.response.accessToken").exists(),
                         jsonPath("$.response.accessToken").value(
                                 Matchers.matchesRegex("^[\\w-]+\\.[\\w-]+\\.[\\w-]+$")),
-                        jsonPath("$.error").doesNotExist()
+                        jsonPath("$.error").value(nullValue())
                 );
     }
 }

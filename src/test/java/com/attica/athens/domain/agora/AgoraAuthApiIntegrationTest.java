@@ -468,8 +468,8 @@ public class AgoraAuthApiIntegrationTest extends IntegrationTestSupport {
 
             // when & then
             mockMvc.perform(post("/{prefix}/agoras", API_V1_AUTH)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isOk())
                     .andExpectAll(
                             jsonPath("$.success").value(true),
