@@ -1,7 +1,6 @@
 package com.attica.athens.domain.chat;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -22,7 +21,7 @@ public class ChatOpenApiIntegrationTest extends IntegrationTestSupport {
 
         @Test
         @DisplayName("채팅 내역을 조회한다")
-        void getChatHistory() throws Exception {
+        void 성공_채팅조회_유효한AgoraId() throws Exception {
             // Given
 
             // When
@@ -54,7 +53,7 @@ public class ChatOpenApiIntegrationTest extends IntegrationTestSupport {
         @Test
         @DisplayName("채팅방 참여자를 조회한다")
         @Sql("/sql/enter-agora-members.sql")
-        void getChatParticipants() throws Exception {
+        void 성공_참여자조회_유효한AgoraId() throws Exception {
             // Given
 
             // When
@@ -81,7 +80,7 @@ public class ChatOpenApiIntegrationTest extends IntegrationTestSupport {
 
         @Test
         @DisplayName("유효하지 않은 아고라 아이디로 채팅방 참여자를 조회한다")
-        void getChatParticipantsWithInvalidAgoraId() throws Exception {
+        void 실패_참여자조회_유효하지않은AgoraId() throws Exception {
             // Given
 
             // When

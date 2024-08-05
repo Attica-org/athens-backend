@@ -34,6 +34,7 @@ public class WebSocketEventHandler {
     private void logConnectEvent(SessionConnectEvent event) {
         StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(event.getMessage(), StompHeaderAccessor.class);
         if (accessor.getUser() == null) {
+            log.warn("Unauthenticated connection attempt");
             return;
         }
         Authentication authentication = (Authentication) accessor.getUser();

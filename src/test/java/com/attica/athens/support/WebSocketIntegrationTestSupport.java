@@ -60,13 +60,13 @@ public abstract class WebSocketIntegrationTestSupport extends IntegrationTestSup
         connectHeaders.add("Authorization", "Bearer " + token);
         connectHeaders.add("AgoraId", agoraId.toString());
 
-        return stompClient.connect(
+        return stompClient.connectAsync(
                 WEBSOCKET_URI.replace("{port}", String.valueOf(port)),
                 new WebSocketHttpHeaders(),
                 connectHeaders,
                 new StompSessionHandlerAdapter() {
                 }
-        ).get(5, TimeUnit.SECONDS);
+        ).get(3, TimeUnit.SECONDS);
     }
 
     private <T> void subscribeToTopic(final String topic, final StompSession session,
@@ -88,7 +88,7 @@ public abstract class WebSocketIntegrationTestSupport extends IntegrationTestSup
                 try {
                     T typedPayload = payloadType.cast(payload);
                     resultFuture.complete(typedPayload.toString());
-                } catch (ClassCastException e) {
+                } catch (Exception e) {
                     resultFuture.completeExceptionally(e);
                 }
             }
