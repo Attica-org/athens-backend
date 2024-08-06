@@ -22,6 +22,7 @@ import com.attica.athens.domain.agora.dto.response.StartNotificationResponse;
 import com.attica.athens.domain.agora.exception.AlreadyParticipateException;
 import com.attica.athens.domain.agora.exception.DuplicatedNicknameException;
 import com.attica.athens.domain.agora.exception.FullAgoraCapacityException;
+import com.attica.athens.domain.agora.exception.InvalidAgoraStatusException;
 import com.attica.athens.domain.agora.exception.NotFoundAgoraException;
 import com.attica.athens.domain.agora.exception.NotFoundCategoryException;
 import com.attica.athens.domain.agora.exception.NotParticipateException;
@@ -233,13 +234,16 @@ public class AgoraService {
     @Transactional
     public EndAgoraResponse timeOutAgora(Long agoraId) {
         Agora agora = findAgoraById(agoraId);
-        if (agora.getStatus() == AgoraStatus.CLOSED) {
+        boolean isAgoraClosed = agora.isAgoraClosed(agora);
+
+        if (isAgoraClosed) {
+            throw new InvalidAgoraStatusException(AgoraStatus.RUNNING);
+        } else {
+            agora.endAgora();
+            sendAgoraEndMessage(agora);
+
             return new EndAgoraResponse(agora);
         }
-        agora.endAgora();
-        sendAgoraEndMessage(agora);
-
-        return new EndAgoraResponse(agora);
     }
 
     private void sendAgoraEndMessage(Agora agora) {
