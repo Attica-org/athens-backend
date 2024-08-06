@@ -2,7 +2,6 @@ package com.attica.athens.domain.agora.domain;
 
 import static com.attica.athens.domain.agora.domain.AgoraConstants.END_VOTE_RATIO;
 
-import com.attica.athens.domain.agora.dto.response.EndAgoraResponse;
 import com.attica.athens.domain.agora.exception.InvalidAgoraStatusChangeException;
 import com.attica.athens.domain.agora.exception.InvalidAgoraStatusException;
 import com.attica.athens.domain.agora.vote.dto.request.AgoraVoteRequest;

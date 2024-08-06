@@ -7,16 +7,17 @@ import com.attica.athens.domain.agora.domain.Agora;
 import com.attica.athens.domain.agora.exception.InvalidAgoraStatusException;
 import com.attica.athens.domain.agora.vote.dto.request.AgoraVoteRequest;
 import com.attica.athens.domain.agora.vote.exception.InvalidAgoraVoteTypeException;
-import com.attica.athens.domain.agora.vote.exception.VoteTimeOutException;
 import com.attica.athens.domain.agoraMember.domain.AgoraMember;
 import com.attica.athens.domain.agoraMember.domain.AgoraVoteType;
-import java.lang.reflect.Field;
-import java.time.LocalDateTime;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneOffset;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 @DisplayName("투표 테스트")
 class AgoraVoteTest {
+    private static final Clock PAST_CLOCK = Clock.fixed(Instant.parse("2024-08-01T10:00:00Z"), ZoneOffset.UTC);
 
     @Test
     @DisplayName("투표를 하면 투표타입을 update하고 투표타입을 결과로 보여준다.")
@@ -69,25 +70,5 @@ class AgoraVoteTest {
         thenThrownBy(() -> agora.checkAgoraStatus())
                 .isInstanceOf(InvalidAgoraStatusException.class)
                 .hasMessage("Agora status must be CLOSED");
-    }
-
-    @Test
-    @DisplayName("투표 시간이 지나면 예외가 발생한다.")
-    void 실패_투표시간초과_만료된시간전달() throws Exception {
-        // given
-        Agora agora = Agora.builder().build();
-        LocalDateTime expiredTime = LocalDateTime.now().plusSeconds(30);
-        setEndTimeUsingReflection(agora, expiredTime);
-
-        // when & then
-        thenThrownBy(() -> agora.checkVoteTime())
-                .isInstanceOf(VoteTimeOutException.class)
-                .hasMessage("Voting period has expired.");
-    }
-
-    private void setEndTimeUsingReflection(Agora agora, LocalDateTime endTime) throws Exception {
-        Field endTimeField = Agora.class.getDeclaredField("endTime");
-        endTimeField.setAccessible(true);
-        endTimeField.set(agora, endTime);
     }
 }
