@@ -70,13 +70,13 @@ public abstract class WebSocketIntegrationTestSupport extends IntegrationTestSup
         ).get(3, TimeUnit.SECONDS);
     }
 
-    private <T> void subscribeToTopic(final String topic, final StompSession session,
+    private void subscribeToTopic(final String topic, final StompSession session,
                                       CompletableFuture<String> resultFuture) {
         session.subscribe(topic,
                 createStompFrameHandler(resultFuture));
     }
 
-    private <T> StompFrameHandler createStompFrameHandler(CompletableFuture<String> resultFuture) {
+    private StompFrameHandler createStompFrameHandler(CompletableFuture<String> resultFuture) {
         return new StompFrameHandler() {
             @Override
             public Type getPayloadType(StompHeaders headers) {
