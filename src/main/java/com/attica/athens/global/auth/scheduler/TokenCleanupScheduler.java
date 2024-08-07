@@ -18,15 +18,12 @@ public class TokenCleanupScheduler {
 
     @Scheduled(cron = "0 0 0 * * ?")
     public void cleanUpExpiredTokens() {
-        Date date = getDate();
-        List<RefreshToken> refreshTokensByExpiration = refreshTokenRepository.findByExpirationBefore(date);
+        LocalDateTime expirationDateTime = getExpirationDateTime();
+        List<RefreshToken> refreshTokensByExpiration = refreshTokenRepository.findByExpirationBefore(expirationDateTime);
         refreshTokenRepository.deleteAll(refreshTokensByExpiration);
     }
 
-    public Date getDate() {
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime before = now.minusDays(1);
-        Date date = Date.from(before.atZone(ZoneId.systemDefault()).toInstant());
-        return date;
+    private LocalDateTime getExpirationDateTime() {
+        return LocalDateTime.now().minusDays(1);
     }
 }

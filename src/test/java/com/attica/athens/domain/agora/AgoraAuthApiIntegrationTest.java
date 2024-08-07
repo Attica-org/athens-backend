@@ -150,7 +150,7 @@ public class AgoraAuthApiIntegrationTest extends IntegrationTestSupport {
                             jsonPath("$.response").doesNotExist(),
                             jsonPath("$.error").exists(),
                             jsonPath("$.error.code").value(1102),
-                            jsonPath("$.error.message").value("observer cannot send this request")
+                            jsonPath("$.error.message").value("Observer cannot send this request")
                     );
         }
     }
@@ -170,7 +170,6 @@ public class AgoraAuthApiIntegrationTest extends IntegrationTestSupport {
             final ResultActions result = mockMvc.perform(
                     patch("/{prefix}/agoras/{agoraId}/close", API_V1_AUTH, 2)
                             .contentType(MediaType.APPLICATION_JSON)
-
             );
 
             // Then
@@ -234,7 +233,7 @@ public class AgoraAuthApiIntegrationTest extends IntegrationTestSupport {
                             jsonPath("$.response").doesNotExist(),
                             jsonPath("$.error").exists(),
                             jsonPath("$.error.code").value(1102),
-                            jsonPath("$.error.message").value("observer cannot send this request")
+                            jsonPath("$.error.message").value("Observer cannot send this request")
                     );
         }
 
@@ -469,8 +468,8 @@ public class AgoraAuthApiIntegrationTest extends IntegrationTestSupport {
 
             // when & then
             mockMvc.perform(post("/{prefix}/agoras", API_V1_AUTH)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isOk())
                     .andExpectAll(
                             jsonPath("$.success").value(true),

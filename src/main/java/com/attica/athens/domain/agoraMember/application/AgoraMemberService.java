@@ -2,6 +2,7 @@ package com.attica.athens.domain.agoraMember.application;
 
 import com.attica.athens.domain.agora.dao.AgoraRepository;
 import com.attica.athens.domain.agora.domain.Agora;
+import com.attica.athens.domain.agora.domain.AgoraStatus;
 import com.attica.athens.domain.agora.exception.NotFoundAgoraException;
 import com.attica.athens.domain.agoraMember.dao.AgoraMemberRepository;
 import com.attica.athens.domain.agoraMember.domain.AgoraMember;
@@ -40,6 +41,9 @@ public class AgoraMemberService {
     }
 
     public void checkAgoraStatus(Agora agora) {
+        if (agora.getStatus() == AgoraStatus.CLOSED) {
+            return;
+        }
         boolean isAnyAgoraMembersActive = agoraMemberRepository.existsByAgoraIdAndSessionIdIsNotNull(agora.getId());
         if (!isAnyAgoraMembersActive) {
             agora.endAgora();

@@ -22,6 +22,7 @@ import io.jsonwebtoken.security.SecurityException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Optional;
@@ -70,8 +71,7 @@ public class AuthService {
         Long userId = createRefreshTokenRequest.userId();
         String refresh = createRefreshTokenRequest.refresh();
 
-        Date expiration = jwtUtils.getClaims(createRefreshTokenRequest.refresh())
-                .getExpiration();
+        LocalDateTime expiration = jwtUtils.getExpirationAsLocalDateTime(createRefreshTokenRequest.refresh());
 
         RefreshToken refreshEntity = RefreshToken.createRefreshToken(userId, refresh, expiration);
 

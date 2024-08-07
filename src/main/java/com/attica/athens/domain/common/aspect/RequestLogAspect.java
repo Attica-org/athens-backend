@@ -18,8 +18,6 @@ public class RequestLogAspect {
 
     @Around("bean(*Controller)")
     public Object aroundLogging(final ProceedingJoinPoint pjp) throws Throwable {
-        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
-
         long start = System.currentTimeMillis();
         Object result = null;
         try {
@@ -29,22 +27,43 @@ public class RequestLogAspect {
             throw ex;
         } finally {
             long executionTime = System.currentTimeMillis() - start;
-            String method = request.getMethod();
-            String requestUrl = request.getRequestURL().toString();
-            String clientIp = request.getHeader("X-Forwarded-For");
             String declaringType = pjp.getSignature().getDeclaringTypeName();
             String callMethod = pjp.getSignature().getName();
             Object[] requestArgs = pjp.getArgs();
 
-            logger.info("Request: {} {} from IP: {}, Method: {}.{}, Args: {}, ExecutionTime: {} ms",
-                    method,
-                    requestUrl,
-                    clientIp,
-                    declaringType,
-                    callMethod,
-                    requestArgs,
-                    executionTime
-            );
+            try {
+                ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+                if (attributes != null) {
+                    HttpServletRequest request = attributes.getRequest();
+                    String method = request.getMethod();
+                    String requestUrl = request.getRequestURL().toString();
+                    String clientIp = request.getHeader("X-Forwarded-For");
+
+                    logger.info("HTTP Request: {} {} from IP: {}, Method: {}.{}, Args: {}, ExecutionTime: {} ms",
+                            method,
+                            requestUrl,
+                            clientIp,
+                            declaringType,
+                            callMethod,
+                            requestArgs,
+                            executionTime
+                    );
+                } else {
+                    logger.info("Non-HTTP Request: Method: {}.{}, Args: {}, ExecutionTime: {} ms",
+                            declaringType,
+                            callMethod,
+                            requestArgs,
+                            executionTime
+                    );
+                }
+            } catch (IllegalStateException e) {
+                logger.info("WebSocket/Other Request: Method: {}.{}, Args: {}, ExecutionTime: {} ms",
+                        declaringType,
+                        callMethod,
+                        requestArgs,
+                        executionTime
+                );
+            }
         }
 
         return result;

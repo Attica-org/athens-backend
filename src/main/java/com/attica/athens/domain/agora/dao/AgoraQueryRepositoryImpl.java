@@ -1,6 +1,5 @@
 package com.attica.athens.domain.agora.dao;
 
-
 import static com.attica.athens.domain.agora.domain.QAgora.agora;
 import static com.attica.athens.domain.agoraMember.domain.QAgoraMember.agoraMember;
 
@@ -20,6 +19,7 @@ import jakarta.persistence.LockModeType;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -248,7 +248,8 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
         List<Long> agoraIdList = jpaQueryFactory
                 .select(agora.id)
                 .from(agora)
-                .limit(size)
+                .orderBy(agora.id.asc())
+                .limit(size + 1L)
                 .fetch();
 
         if (agoraIdList.isEmpty()) {
