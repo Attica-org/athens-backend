@@ -41,8 +41,7 @@ public class WebSocketEventHandler {
         String memberName = authentication.getName();
         String memberRole = getMemberRole(authentication);
 
-        log.info("WebSocket {}: memberName={}, memberRole={}", event.getClass().getSimpleName(), memberName,
-                memberRole);
+        log.info("WebSocket {}: memberName={}, memberRole={}", event.getClass().getSimpleName(), memberName, memberRole);
     }
 
     private String getMemberRole(Authentication authentication) {
