@@ -24,6 +24,10 @@ class ChatWebSocketApiIntegrationTest extends WebSocketIntegrationTestSupport {
 
     private final String CHAT_TOPIC_URL = "/topic/agoras/{agoraId}/chats";
     private final String CHAT_APP_URL = "/app/agoras/{agoraId}/chats";
+    private final String JOIN_TOPIC_URL = "/topic/agoras/{agoraId}/join";
+    private final String JOIN_APP_URL = "/app/agoras/{agoraId}/join";
+    private final String EXIT_TOPIC_URL = "/topic/agoras/{agoraId}/exit";
+    private final String EXIT_APP_URL = "/app/agoras/{agoraId}/exit";
     private final String ERROR_URL = "/user/queue/errors";
 
     @BeforeAll
@@ -185,6 +189,52 @@ class ChatWebSocketApiIntegrationTest extends WebSocketIntegrationTestSupport {
                 assertThat(result).contains("1102");
                 assertThat(result).contains("Observer cannot send this request");
             });
+        }
+    }
+
+    @Nested
+    @DisplayName("아고라 멤버 입장 채팅 메시지 생성")
+    class sendJoinChatTest {
+        @Test
+        @DisplayName("유저가 아고라에 참여할 경우 메시지를 생성한다.")
+        @Sql("/sql/send-valid-chat.sql")
+        void 성공_아고라참여멤버메시지생성_유효한파라미터사용() throws Exception {
+            // given
+            Long agoraId = 1L;
+            String metaTopicUrl = JOIN_TOPIC_URL.replace("{agoraId}", agoraId.toString());
+            CompletableFuture<String> resultFuture = new CompletableFuture<>();
+            StompSession session = connectAndSubscribe(metaTopicUrl, "EnvironmentalActivist", agoraId, resultFuture);
+
+            // when
+            session.send(JOIN_APP_URL.replace("{agoraId}", agoraId.toString()), "");
+
+            // then
+            String result = resultFuture.get(15, TimeUnit.SECONDS);
+            assertThat(result).contains(
+                    "\"type\":\"META\",\"data\":{\"agoraId\":1,\"memberId\":1,\"username\":\"EnvironmentalActivist\"");
+        }
+    }
+
+    @Nested
+    @DisplayName("아고라 멤버 퇴장 채팅 메시지 생성")
+    class sendExitChatTest {
+        @Test
+        @DisplayName("유저가 아고라에 퇴장할 경우 메시지를 생성한다.")
+        @Sql("/sql/send-valid-chat.sql")
+        void 성공_아고라참퇴장멤버메시지생성_유효한파라미터사용() throws Exception {
+            // given
+            Long agoraId = 1L;
+            String metaTopicUrl = EXIT_TOPIC_URL.replace("{agoraId}", agoraId.toString());
+            CompletableFuture<String> resultFuture = new CompletableFuture<>();
+            StompSession session = connectAndSubscribe(metaTopicUrl, "EnvironmentalActivist", agoraId, resultFuture);
+
+            // when
+            session.send(EXIT_APP_URL.replace("{agoraId}", agoraId.toString()), "");
+
+            // then
+            String result = resultFuture.get(15, TimeUnit.SECONDS);
+            assertThat(result).contains(
+                    "\"type\":\"META\",\"data\":{\"agoraId\":1,\"memberId\":1,\"username\":\"EnvironmentalActivist\"");
         }
     }
 }
