@@ -1,5 +1,6 @@
 package com.attica.athens.domain.agora.dao;
 
+import static com.attica.athens.domain.agora.domain.AgoraStatus.CLOSED;
 import static com.attica.athens.domain.agora.domain.QAgora.agora;
 import static com.attica.athens.domain.agoraMember.domain.QAgoraMember.agoraMember;
 import static com.attica.athens.domain.chat.domain.QChat.chat;
@@ -283,7 +284,7 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
                 .leftJoin(agoraMember).on(agora.id.eq(agoraMember.agora.id))
                 .leftJoin(chat).on(chat.agoraMember.eq(agoraMember)
                         .and(chat.createdAt.between(before, now)))
-                .where(agora.status.ne(AgoraStatus.CLOSED))
+                .where(agora.status.ne(CLOSED))
                 .groupBy(agora.id)
                 .having(agoraMember.id.count().goe(minMemberCount).or(chat.id.count().goe(minChatCount)))
                 .fetch();
@@ -318,7 +319,8 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
                         agora.status
                 ))
                 .from(agora)
-                .where(agora.id.in(ids))
+                .where(agora.id.in(ids)
+                        .and(agora.status.ne(CLOSED)))
                 .fetch();
     }
 
