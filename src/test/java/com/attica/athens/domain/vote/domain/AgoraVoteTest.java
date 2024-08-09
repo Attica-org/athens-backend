@@ -9,15 +9,11 @@ import com.attica.athens.domain.agora.vote.dto.request.AgoraVoteRequest;
 import com.attica.athens.domain.agora.vote.exception.InvalidAgoraVoteTypeException;
 import com.attica.athens.domain.agoraMember.domain.AgoraMember;
 import com.attica.athens.domain.agoraMember.domain.AgoraVoteType;
-import java.time.Clock;
-import java.time.Instant;
-import java.time.ZoneOffset;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 @DisplayName("투표 테스트")
 class AgoraVoteTest {
-    private static final Clock PAST_CLOCK = Clock.fixed(Instant.parse("2024-08-01T10:00:00Z"), ZoneOffset.UTC);
 
     @Test
     @DisplayName("투표를 하면 투표타입을 update하고 투표타입을 결과로 보여준다.")
