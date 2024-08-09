@@ -289,6 +289,39 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
                 .fetch();
     }
 
+    @Override
+    public List<SimpleAgoraResult> findAgoraByIds(List<Long> ids) {
+        return jpaQueryFactory
+                .select(Projections.constructor(
+                        SimpleAgoraResult.class,
+                        agora.id,
+                        agora.title,
+                        agora.color,
+                        Projections.constructor(SimpleParticipants.class,
+                                JPAExpressions.select(agoraMember.count())
+                                        .from(agoraMember)
+                                        .where(agoraMember.agora.id.eq(agora.id)
+                                                .and(agoraMember.type.eq(AgoraMemberType.PROS))
+                                        ),
+                                JPAExpressions.select(agoraMember.count())
+                                        .from(agoraMember)
+                                        .where(agoraMember.agora.id.eq(agora.id)
+                                                .and(agoraMember.type.eq(AgoraMemberType.CONS))
+                                        ),
+                                JPAExpressions.select(agoraMember.count())
+                                        .from(agoraMember)
+                                        .where(agoraMember.agora.id.eq(agora.id)
+                                                .and(agoraMember.type.eq(AgoraMemberType.OBSERVER))
+                                        )
+                        ),
+                        agora.createdAt,
+                        agora.status
+                ))
+                .from(agora)
+                .where(agora.id.in(ids))
+                .fetch();
+    }
+
     private <T> AgoraSlice<T> getAgoraResultSlice(final int size, final List<T> result, Function<T, Long> idExtractor) {
         boolean hasNext = false;
         Long lastAgoraId = null;

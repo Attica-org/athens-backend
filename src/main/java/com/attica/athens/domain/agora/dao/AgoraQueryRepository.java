@@ -33,4 +33,6 @@ public interface AgoraQueryRepository {
     Optional<Agora> findAgoraById(Long agoraId);
 
     List<AgoraMetrics> findAgoraWithMetricsByDateRange(int minMemberCount, int MinChatCount, LocalDateTime now, LocalDateTime before);
+
+    List<SimpleAgoraResult> findAgoraByIds(List<Long> ids);
 }
