@@ -32,4 +32,20 @@ public class ChatAuthController {
 
         return chatCommandService.sendChat(userDetails, agoraId, sendChatRequest);
     }
+
+    @MessageMapping("/agoras/{agoraId}/join")
+    public void sendJoinChat(
+            @DestinationVariable("agoraId") Long agoraId,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        chatCommandService.sendJoinChat(agoraId, userDetails);
+    }
+
+    @MessageMapping("/agoras/{agoraId}/exit")
+    public void sendExitChat(
+            @DestinationVariable("agoraId") Long agoraId,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        chatCommandService.sendExitChat(agoraId, userDetails);
+    }
 }

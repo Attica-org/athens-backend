@@ -17,7 +17,6 @@ import com.attica.athens.domain.agora.dto.response.CreateAgoraResponse;
 import com.attica.athens.domain.agora.dto.response.EndAgoraResponse;
 import com.attica.athens.domain.agora.dto.response.EndNotificationResponse;
 import com.attica.athens.domain.agora.dto.response.EndVoteAgoraResponse;
-import com.attica.athens.domain.agora.dto.response.EnterNotificationResponse;
 import com.attica.athens.domain.agora.dto.response.StartAgoraResponse;
 import com.attica.athens.domain.agora.dto.response.StartNotificationResponse;
 import com.attica.athens.domain.agora.exception.AlreadyParticipateException;
@@ -50,7 +49,6 @@ public class AgoraService {
     private static final Integer PROS_COUNT = 0;
     private static final Integer CONS_COUNT = 0;
     public static final String AGORA_TOPIC = "/topic/agoras/";
-    public static final String ENTRY_AGORA_MEMBER_TOPIC = "/topic/agoras/entry";
 
     private final AgoraRepository agoraRepository;
     private final CategoryRepository categoryRepository;
@@ -120,16 +118,7 @@ public class AgoraService {
         AgoraMember agoraMember = agoraMemberRepository.save(created);
         agora.addMember(agoraMember);
 
-        sendAgoraMemberEntryMessage(agora, agoraMember);
-
         return new AgoraParticipateResponse(created.getAgora().getId(), memberId, created.getType());
-    }
-
-    private void sendAgoraMemberEntryMessage(Agora agora, AgoraMember agoraMember) {
-        EnterNotificationResponse notification = new EnterNotificationResponse(ChatType.META,
-                new EnterNotificationResponse.EnterAgoraMemberData(agora.getId(), agoraMember.getId(), agoraMember.getNickname()));
-
-        messagingTemplate.convertAndSend(ENTRY_AGORA_MEMBER_TOPIC + agora.getId(), notification);
     }
 
     private Agora createAgora(final AgoraCreateRequest request, final Category category) {
