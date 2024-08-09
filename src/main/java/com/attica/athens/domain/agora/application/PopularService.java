@@ -1,0 +1,137 @@
+package com.attica.athens.domain.agora.application;
+
+import static com.attica.athens.domain.agora.domain.AgoraConstants.CHAT_WEIGHT;
+import static com.attica.athens.domain.agora.domain.AgoraConstants.COUNT_MULTIPLIER;
+import static com.attica.athens.domain.agora.domain.AgoraConstants.DEFAULT_METRIC_COUNT;
+import static com.attica.athens.domain.agora.domain.AgoraConstants.HOUR_INTERVAL;
+import static com.attica.athens.domain.agora.domain.AgoraConstants.INVERSE_BASE;
+import static com.attica.athens.domain.agora.domain.AgoraConstants.MIN_CHAT_COUNT;
+import static com.attica.athens.domain.agora.domain.AgoraConstants.MIN_MEMBER_COUNT;
+import static com.attica.athens.domain.agora.domain.AgoraConstants.USER_WEIGHT;
+import static com.attica.athens.domain.agora.domain.AgoraConstants.ZERO_VALUE;
+
+import com.attica.athens.domain.agora.dao.AgoraRepository;
+import com.attica.athens.domain.agora.dao.PopularRepository;
+import com.attica.athens.domain.agora.domain.Agora;
+import com.attica.athens.domain.agora.domain.Popular;
+import com.attica.athens.domain.agora.dto.AgoraMetrics;
+import com.attica.athens.domain.agora.exception.NotFoundAgoraException;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Service;
+
+@Service
+@RequiredArgsConstructor
+@Slf4j
+public class PopularService {
+
+    private final AgoraRepository agoraRepository;
+    private final PopularRepository popularRepository;
+
+    @Scheduled(cron = "0 * * * * *")
+    public void calculatePopularAgoraMetrics() {
+        log.info("스케줄링 작업 시작: calculatePopularAgoraMetrics");
+        popularRepository.deleteAll();
+
+        LocalDateTime now = LocalDateTime.now().truncatedTo(ChronoUnit.HOURS);
+        LocalDateTime before = now.minusHours(HOUR_INTERVAL);
+
+        try {
+            List<AgoraMetrics> agoras = agoraRepository
+                    .findAgoraWithMetricsByDateRange(MIN_MEMBER_COUNT, MIN_CHAT_COUNT, now, before);
+
+            final long maxMembersCount = getMaxMemberCount(agoras);
+            final long maxChatCount = getMaxChatCount(agoras);
+
+            Map<AgoraMetrics, Double> scores = getAgoraScore(agoras);
+            double maxScore = getMaxScore(maxMembersCount, maxChatCount, scores);
+
+            normalizedScore(scores, maxScore);
+            List<Popular> populars = getTopPopularAgora(scores);
+            popularRepository.saveAll(populars);
+
+            log.info("스케줄링 작업 완료: calculatePopularAgoraMetrics");
+        } catch (Exception e) {
+            log.error("스케줄링 작업 중 오류 발생: calculatePopularAgoraMetrics", e);
+        }
+    }
+
+    private List<Popular> getTopPopularAgora(Map<AgoraMetrics, Double> scores) {
+        int size = 10;
+
+        return scores.entrySet().stream()
+                .sorted(Entry.<AgoraMetrics, Double>comparingByValue().reversed())
+                .limit(size)
+                .map(entry -> {
+                    long agoraId = entry.getKey().agoraId();
+                    Agora agora = agoraRepository.findById(agoraId)
+                            .orElseThrow(() -> new NotFoundAgoraException(agoraId));
+
+                    return toPopular(entry.getValue(), agora);
+                })
+                .toList();
+
+    }
+
+    private Popular toPopular(Double score, Agora agora) {
+        return new Popular(score, agora);
+    }
+
+    private void normalizedScore(Map<AgoraMetrics, Double> scores, double maxScore) {
+        for (Entry<AgoraMetrics, Double> entry : scores.entrySet()) {
+            double normalizedScore = (maxScore != ZERO_VALUE) ? entry.getValue() / maxScore : ZERO_VALUE;
+            scores.replace(entry.getKey(), normalizedScore);
+        }
+    }
+
+    private double getMaxScore(long maxMembersCount, long maxChatCount, Map<AgoraMetrics, Double> scores) {
+        final double maxMembersCountInverse = (maxMembersCount != ZERO_VALUE) ? INVERSE_BASE / maxMembersCount : ZERO_VALUE;
+        final double maxChatCountInverse = (maxChatCount != ZERO_VALUE) ? INVERSE_BASE / maxChatCount : ZERO_VALUE;
+
+        return scores.entrySet().stream()
+                .mapToDouble(entry -> {
+                    double originalValue = entry.getValue();
+                    long agoraMembersCount = (long) (originalValue / COUNT_MULTIPLIER);
+                    long agoraChatCount = (long) (originalValue % COUNT_MULTIPLIER);
+
+                    double normalizedMembers = agoraMembersCount * maxMembersCountInverse;
+                    double normalizedChats = agoraChatCount * maxChatCountInverse;
+
+                    double score = (USER_WEIGHT * normalizedMembers) + (CHAT_WEIGHT * normalizedChats);
+                    entry.setValue(score);
+                    return score;
+                })
+                .max()
+                .orElse(ZERO_VALUE);
+    }
+
+    private Map<AgoraMetrics, Double> getAgoraScore(List<AgoraMetrics> agoras) {
+        return agoras.stream()
+                .collect(
+                    Collectors.toMap(
+                        agora -> agora,
+                        agora -> (double) agora.membersCount() * COUNT_MULTIPLIER));
+    }
+
+    private long getMaxMemberCount(List<AgoraMetrics> agoras) {
+        return agoras.stream()
+                .max(Comparator.comparingLong(AgoraMetrics::membersCount))
+                .map(AgoraMetrics::membersCount)
+                .orElse(DEFAULT_METRIC_COUNT);
+    }
+
+    private long getMaxChatCount(List<AgoraMetrics> agoras) {
+        return agoras.stream()
+                .max(Comparator.comparingLong(AgoraMetrics::chatCount))
+                .map(AgoraMetrics::chatCount)
+                .orElse(DEFAULT_METRIC_COUNT);
+    }
+}
