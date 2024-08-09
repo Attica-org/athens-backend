@@ -4,6 +4,7 @@ import com.attica.athens.config.TestSecurityConfig.TestCustomUserDetailsServiceC
 import com.attica.athens.global.auth.CustomUserDetails;
 import com.attica.athens.global.auth.jwt.JwtUtils;
 import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,10 +43,10 @@ public abstract class WebSocketIntegrationTestSupport extends IntegrationTestSup
     }
 
     protected StompSession connectAndSubscribe(final String topic, final String username, final Long agoraId,
-                                               final CompletableFuture<String> resultFuture, Class<?> payloadType
+                                               final CompletableFuture<String> resultFuture
     ) throws Exception {
         StompSession session = connectToWebSocket(username, agoraId);
-        subscribeToTopic(topic, session, resultFuture, payloadType);
+        subscribeToTopic(topic, session, resultFuture);
         return session;
     }
 
@@ -69,25 +70,28 @@ public abstract class WebSocketIntegrationTestSupport extends IntegrationTestSup
         ).get(3, TimeUnit.SECONDS);
     }
 
-    private <T> void subscribeToTopic(final String topic, final StompSession session,
-                                      CompletableFuture<String> resultFuture, Class<T> payloadType) {
+    private void subscribeToTopic(final String topic, final StompSession session,
+                                      CompletableFuture<String> resultFuture) {
         session.subscribe(topic,
-                createStompFrameHandler(payloadType, resultFuture));
+                createStompFrameHandler(resultFuture));
     }
 
-    private <T> StompFrameHandler createStompFrameHandler(Class<T> payloadType,
-                                                          CompletableFuture<String> resultFuture) {
+    private StompFrameHandler createStompFrameHandler(CompletableFuture<String> resultFuture) {
         return new StompFrameHandler() {
             @Override
             public Type getPayloadType(StompHeaders headers) {
-                return payloadType;
+                return byte[].class;
             }
 
             @Override
             public void handleFrame(StompHeaders headers, Object payload) {
                 try {
-                    T typedPayload = payloadType.cast(payload);
-                    resultFuture.complete(typedPayload.toString());
+                    if (payload instanceof byte[]) {
+                        String strPayload = new String((byte[]) payload, StandardCharsets.UTF_8);
+                        resultFuture.complete(strPayload);
+                    } else {
+                        resultFuture.completeExceptionally(new IllegalArgumentException("Unexpected payload type"));
+                    }
                 } catch (Exception e) {
                     resultFuture.completeExceptionally(e);
                 }
