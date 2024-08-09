@@ -2,9 +2,11 @@ package com.attica.athens.domain.agora.application;
 
 import com.attica.athens.domain.agora.dao.AgoraRepository;
 import com.attica.athens.domain.agora.dao.CategoryRepository;
+import com.attica.athens.domain.agora.dao.PopularRepository;
 import com.attica.athens.domain.agora.domain.Agora;
 import com.attica.athens.domain.agora.domain.AgoraStatus;
 import com.attica.athens.domain.agora.domain.Category;
+import com.attica.athens.domain.agora.dto.SimpleAgoraResult;
 import com.attica.athens.domain.agora.dto.request.AgoraCreateRequest;
 import com.attica.athens.domain.agora.dto.request.AgoraParticipateRequest;
 import com.attica.athens.domain.agora.dto.request.AgoraRequest;
@@ -37,6 +39,7 @@ import com.attica.athens.domain.member.exception.NotFoundMemberException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
@@ -55,6 +58,7 @@ public class AgoraService {
     private final BaseMemberRepository baseMemberRepository;
     private final AgoraMemberRepository agoraMemberRepository;
     private final SimpMessagingTemplate messagingTemplate;
+    private final PopularRepository popularRepository;
 
     @Transactional
     public CreateAgoraResponse create(final AgoraCreateRequest request) {
@@ -119,6 +123,17 @@ public class AgoraService {
         agora.addMember(agoraMember);
 
         return new AgoraParticipateResponse(created.getAgora().getId(), memberId, created.getType());
+    }
+
+    public List<SimpleAgoraResult> findPopularAgora() {
+        List<Long> agoraIds = popularRepository.findAllIdsByPopular();
+        List<SimpleAgoraResult> agoras = agoraRepository.findAgoraByIds(agoraIds);
+
+        return agoraIds.stream()
+                .map(id -> agoras.stream()
+                        .collect(Collectors.toMap(SimpleAgoraResult::id, element -> element))
+                        .get(id))
+                .collect(Collectors.toList());
     }
 
     private Agora createAgora(final AgoraCreateRequest request, final Category category) {
