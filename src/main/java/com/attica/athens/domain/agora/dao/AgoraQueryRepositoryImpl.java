@@ -2,9 +2,11 @@ package com.attica.athens.domain.agora.dao;
 
 import static com.attica.athens.domain.agora.domain.QAgora.agora;
 import static com.attica.athens.domain.agoraMember.domain.QAgoraMember.agoraMember;
+import static com.attica.athens.domain.chat.domain.QChat.chat;
 
 import com.attica.athens.domain.agora.domain.Agora;
 import com.attica.athens.domain.agora.domain.AgoraStatus;
+import com.attica.athens.domain.agora.dto.AgoraMetrics;
 import com.attica.athens.domain.agora.dto.SimpleAgoraResult;
 import com.attica.athens.domain.agora.dto.SimpleClosedAgoraVoteResult;
 import com.attica.athens.domain.agora.dto.SimpleParticipants;
@@ -16,6 +18,7 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.LockModeType;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
@@ -265,6 +268,25 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
                 .setLockMode(LockModeType.PESSIMISTIC_WRITE)
                 .fetchOne()
         );
+    }
+
+    @Override
+    public List<AgoraMetrics> findAgoraWithMetricsByDateRange(int minMemberCount, int minChatCount, LocalDateTime now, LocalDateTime before) {
+        return jpaQueryFactory
+                .select(Projections.constructor(
+                        AgoraMetrics.class,
+                        agora.id,
+                        agoraMember.id.count(),
+                        chat.id.count()
+                ))
+                .from(agora)
+                .leftJoin(agoraMember).on(agora.id.eq(agoraMember.agora.id))
+                .leftJoin(chat).on(chat.agoraMember.eq(agoraMember)
+                        .and(chat.createdAt.between(before, now)))
+                .where(agora.status.ne(AgoraStatus.CLOSED))
+                .groupBy(agora.id)
+                .having(agoraMember.id.count().goe(minMemberCount).or(chat.id.count().goe(minChatCount)))
+                .fetch();
     }
 
     private <T> AgoraSlice<T> getAgoraResultSlice(final int size, final List<T> result, Function<T, Long> idExtractor) {
