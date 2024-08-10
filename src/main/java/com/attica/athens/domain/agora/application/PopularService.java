@@ -36,27 +36,19 @@ public class PopularService {
     private final AgoraRepository agoraRepository;
     private final PopularRepository popularRepository;
 
-    @Scheduled(cron = "0 0 * * * *")
+    @Scheduled(cron = "0 * * * * *")
     public void calculatePopularAgoraMetrics() {
         log.info("스케줄링 작업 시작: calculatePopularAgoraMetrics");
-        popularRepository.deleteAll();
 
+        popularRepository.deleteAll();
         LocalDateTime now = LocalDateTime.now().truncatedTo(ChronoUnit.HOURS);
-        LocalDateTime before = now.minusHours(HOUR_INTERVAL);
 
         try {
-            List<AgoraMetrics> agoras = agoraRepository
-                    .findAgoraWithMetricsByDateRange(MIN_MEMBER_COUNT, MIN_CHAT_COUNT, now, before);
-
-            final long maxMembersCount = getMaxMemberCount(agoras);
-            final long maxChatCount = getMaxChatCount(agoras);
-
+            List<AgoraMetrics> agoras = agoraRepository.findAgoraWithMetricsByDateRange(MIN_MEMBER_COUNT, MIN_CHAT_COUNT, now, now.minusHours(HOUR_INTERVAL));
             Map<AgoraMetrics, Double> scores = getAgoraScore(agoras);
-            double maxScore = getMaxScore(maxMembersCount, maxChatCount, scores);
-
+            double maxScore = getMaxScore(agoras, scores);
             normalizedScore(scores, maxScore);
-            List<Popular> populars = getTopPopularAgora(scores);
-            popularRepository.saveAll(populars);
+            saveTopPopularAgora(scores);
 
             log.info("스케줄링 작업 완료: calculatePopularAgoraMetrics");
         } catch (Exception e) {
@@ -64,10 +56,11 @@ public class PopularService {
         }
     }
 
-    private List<Popular> getTopPopularAgora(Map<AgoraMetrics, Double> scores) {
+    private void saveTopPopularAgora(Map<AgoraMetrics, Double> scores) {
         int size = 10;
 
-        return scores.entrySet().stream()
+        popularRepository.saveAll(
+                scores.entrySet().stream()
                 .sorted(Entry.<AgoraMetrics, Double>comparingByValue().reversed())
                 .limit(size)
                 .map(entry -> {
@@ -77,8 +70,8 @@ public class PopularService {
 
                     return toPopular(entry.getValue(), agora);
                 })
-                .toList();
-
+                .toList()
+        );
     }
 
     private Popular toPopular(Double score, Agora agora) {
@@ -92,10 +85,17 @@ public class PopularService {
         }
     }
 
-    private double getMaxScore(long maxMembersCount, long maxChatCount, Map<AgoraMetrics, Double> scores) {
+    private double getMaxScore(List<AgoraMetrics> agoras, Map<AgoraMetrics, Double> scores) {
+        final long maxMembersCount = getMaxMemberCount(agoras);
+        final long maxChatCount = getMaxChatCount(agoras);
+
         final double maxMembersCountInverse = (maxMembersCount != ZERO_VALUE) ? INVERSE_BASE / maxMembersCount : ZERO_VALUE;
         final double maxChatCountInverse = (maxChatCount != ZERO_VALUE) ? INVERSE_BASE / maxChatCount : ZERO_VALUE;
 
+        return calculateScoreAndMaxScore(scores, maxMembersCountInverse, maxChatCountInverse);
+    }
+
+    private double calculateScoreAndMaxScore(Map<AgoraMetrics, Double> scores, double maxMembersCountInverse, double maxChatCountInverse) {
         return scores.entrySet().stream()
                 .mapToDouble(entry -> {
                     double originalValue = entry.getValue();
