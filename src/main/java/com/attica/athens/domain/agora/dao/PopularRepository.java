@@ -7,6 +7,6 @@ import org.springframework.data.jpa.repository.Query;
 
 public interface PopularRepository extends JpaRepository<Popular, Long> {
 
-    @Query("select p.agora.id from Popular p order by p.score desc")
+    @Query("select p.agora.id from Popular p")
     List<Long> findAllIdsByPopular();
 }
