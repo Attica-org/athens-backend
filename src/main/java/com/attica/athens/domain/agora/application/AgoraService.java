@@ -38,6 +38,7 @@ import com.attica.athens.domain.member.domain.BaseMember;
 import com.attica.athens.domain.member.exception.NotFoundMemberException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -129,11 +130,15 @@ public class AgoraService {
         List<Long> agoraIds = popularRepository.findAllIdsByPopular();
         List<SimpleAgoraResult> agoras = agoraRepository.findAgoraByIds(agoraIds);
 
+        Map<Long, SimpleAgoraResult> agoraMap = agoras.stream()
+                .collect(
+                    Collectors.toMap(
+                        SimpleAgoraResult::id,
+                        element -> element));
+
         return agoraIds.stream()
-                .map(id -> agoras.stream()
-                        .collect(Collectors.toMap(SimpleAgoraResult::id, element -> element))
-                        .get(id))
-                .collect(Collectors.toList());
+                .map(agoraMap::get)
+                .toList();
     }
 
     private Agora createAgora(final AgoraCreateRequest request, final Category category) {
