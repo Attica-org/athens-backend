@@ -118,7 +118,8 @@ public class PopularService {
                 .collect(
                     Collectors.toMap(
                         agora -> agora,
-                        agora -> (double) agora.membersCount() * COUNT_MULTIPLIER));
+                        agora -> (double) (agora.membersCount() * COUNT_MULTIPLIER + agora.chatCount()))
+                    );
     }
 
     private long getMaxMemberCount(List<AgoraMetrics> agoras) {
