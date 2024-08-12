@@ -9,7 +9,7 @@ public final class AgoraConstants {
     public static final double USER_WEIGHT = 0.5;
     public static final double CHAT_WEIGHT = 0.5;
     public static final int COUNT_MULTIPLIER = 1000000;
-    public static final long DEFAULT_METRIC_COUNT = 0L;
+    public static final int DEFAULT_METRIC_COUNT = 0;
     public static final long HOUR_INTERVAL = 1L;
     public static final int MIN_MEMBER_COUNT = 2;
     public static final int MIN_CHAT_COUNT = 1;

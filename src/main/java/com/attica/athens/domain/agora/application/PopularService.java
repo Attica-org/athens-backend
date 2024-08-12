@@ -41,7 +41,7 @@ public class PopularService {
         log.info("스케줄링 작업 시작: calculatePopularAgoraMetrics");
 
         popularRepository.deleteAll();
-        LocalDateTime now = LocalDateTime.now().truncatedTo(ChronoUnit.HOURS);
+        LocalDateTime now = LocalDateTime.now();
 
         try {
             List<AgoraMetrics> agoras = agoraRepository.findAgoraWithMetricsByDateRange(MIN_MEMBER_COUNT, MIN_CHAT_COUNT, now, now.minusHours(HOUR_INTERVAL));
@@ -86,8 +86,8 @@ public class PopularService {
     }
 
     private double getMaxScore(List<AgoraMetrics> agoras, Map<AgoraMetrics, Double> scores) {
-        final long maxMembersCount = getMaxMemberCount(agoras);
-        final long maxChatCount = getMaxChatCount(agoras);
+        final int maxMembersCount = getMaxMemberCount(agoras);
+        final int maxChatCount = getMaxChatCount(agoras);
 
         final double maxMembersCountInverse = (maxMembersCount != ZERO_VALUE) ? INVERSE_BASE / maxMembersCount : ZERO_VALUE;
         final double maxChatCountInverse = (maxChatCount != ZERO_VALUE) ? INVERSE_BASE / maxChatCount : ZERO_VALUE;
@@ -122,14 +122,14 @@ public class PopularService {
                     );
     }
 
-    private long getMaxMemberCount(List<AgoraMetrics> agoras) {
+    private int getMaxMemberCount(List<AgoraMetrics> agoras) {
         return agoras.stream()
                 .max(Comparator.comparingLong(AgoraMetrics::membersCount))
                 .map(AgoraMetrics::membersCount)
                 .orElse(DEFAULT_METRIC_COUNT);
     }
 
-    private long getMaxChatCount(List<AgoraMetrics> agoras) {
+    private int getMaxChatCount(List<AgoraMetrics> agoras) {
         return agoras.stream()
                 .max(Comparator.comparingLong(AgoraMetrics::chatCount))
                 .map(AgoraMetrics::chatCount)
