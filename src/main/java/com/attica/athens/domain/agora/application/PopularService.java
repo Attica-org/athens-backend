@@ -68,14 +68,10 @@ public class PopularService {
                     Agora agora = agoraRepository.findById(agoraId)
                             .orElseThrow(() -> new NotFoundAgoraException(agoraId));
 
-                    return toPopular(entry.getValue(), agora);
+                    return new Popular(entry.getValue(), agora);
                 })
                 .toList()
         );
-    }
-
-    private Popular toPopular(Double score, Agora agora) {
-        return new Popular(score, agora);
     }
 
     private void normalizedScore(Map<AgoraMetrics, Double> scores, double maxScore) {
