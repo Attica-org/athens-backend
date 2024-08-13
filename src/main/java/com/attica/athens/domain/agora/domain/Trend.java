@@ -18,11 +18,11 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.format.annotation.DateTimeFormat;
 
 @Getter
-@Table(name = "popular_agora")
+@Table(name = "trend_agora")
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EntityListeners(AuditingEntityListener.class)
-public class Popular {
+public class Trend {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -39,7 +39,7 @@ public class Popular {
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    public Popular(Double score, Agora agora) {
+    public Trend(Double score, Agora agora) {
         this.score = score;
         this.agora = agora;
     }

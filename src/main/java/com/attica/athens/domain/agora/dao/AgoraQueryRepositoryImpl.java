@@ -283,7 +283,7 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
                 .from(agora)
                 .leftJoin(agoraMember)
                 .on(agora.id.eq(agoraMember.agora.id))
-                .leftJoin(chat)
+                .join(chat)
                 .on(chat.agoraMember.eq(agoraMember)
                         .and(chat.createdAt.between(before, now))
                 )

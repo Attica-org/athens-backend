@@ -13,11 +13,10 @@ import static com.attica.athens.domain.agora.domain.AgoraConstants.ZERO_VALUE;
 import com.attica.athens.domain.agora.dao.AgoraRepository;
 import com.attica.athens.domain.agora.dao.PopularRepository;
 import com.attica.athens.domain.agora.domain.Agora;
-import com.attica.athens.domain.agora.domain.Popular;
+import com.attica.athens.domain.agora.domain.Trend;
 import com.attica.athens.domain.agora.dto.AgoraMetrics;
 import com.attica.athens.domain.agora.exception.NotFoundAgoraException;
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -68,7 +67,7 @@ public class PopularService {
                     Agora agora = agoraRepository.findById(agoraId)
                             .orElseThrow(() -> new NotFoundAgoraException(agoraId));
 
-                    return new Popular(entry.getValue(), agora);
+                    return new Trend(entry.getValue(), agora);
                 })
                 .toList()
         );

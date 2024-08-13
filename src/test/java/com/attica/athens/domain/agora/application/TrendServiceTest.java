@@ -15,7 +15,7 @@ import java.io.PrintStream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-class PopularServiceTest {
+class TrendServiceTest {
 
     AgoraRepository mockAgoraRepository;
     PopularRepository mockPopularRepository;
