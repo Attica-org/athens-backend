@@ -1,14 +1,14 @@
 package com.attica.athens.domain.agora.application;
 
-import static com.attica.athens.domain.agora.domain.AgoraConstants.CHAT_WEIGHT;
-import static com.attica.athens.domain.agora.domain.AgoraConstants.COUNT_MULTIPLIER;
-import static com.attica.athens.domain.agora.domain.AgoraConstants.DEFAULT_METRIC_COUNT;
-import static com.attica.athens.domain.agora.domain.AgoraConstants.HOUR_INTERVAL;
-import static com.attica.athens.domain.agora.domain.AgoraConstants.INVERSE_BASE;
-import static com.attica.athens.domain.agora.domain.AgoraConstants.MIN_CHAT_COUNT;
-import static com.attica.athens.domain.agora.domain.AgoraConstants.MIN_MEMBER_COUNT;
-import static com.attica.athens.domain.agora.domain.AgoraConstants.USER_WEIGHT;
-import static com.attica.athens.domain.agora.domain.AgoraConstants.ZERO_VALUE;
+import static com.attica.athens.domain.agora.domain.TrendWeight.CHAT_WEIGHT;
+import static com.attica.athens.domain.agora.domain.TrendWeight.COUNT_MULTIPLIER;
+import static com.attica.athens.domain.agora.domain.TrendWeight.DEFAULT_METRIC_COUNT;
+import static com.attica.athens.domain.agora.domain.TrendWeight.HOUR_INTERVAL;
+import static com.attica.athens.domain.agora.domain.TrendWeight.INVERSE_BASE;
+import static com.attica.athens.domain.agora.domain.TrendWeight.MEMBER_WEIGHT;
+import static com.attica.athens.domain.agora.domain.TrendWeight.MIN_CHAT_COUNT;
+import static com.attica.athens.domain.agora.domain.TrendWeight.MIN_MEMBER_COUNT;
+import static com.attica.athens.domain.agora.domain.TrendWeight.ZERO_VALUE;
 
 import com.attica.athens.domain.agora.dao.AgoraRepository;
 import com.attica.athens.domain.agora.dao.PopularRepository;
@@ -43,7 +43,10 @@ public class TrendService {
         LocalDateTime now = LocalDateTime.now();
 
         try {
-            List<AgoraMetrics> agoras = agoraRepository.findAgoraWithMetricsByDateRange(MIN_MEMBER_COUNT, MIN_CHAT_COUNT, now, now.minusHours(HOUR_INTERVAL));
+            List<AgoraMetrics> agoras = agoraRepository.findAgoraWithMetricsByDateRange(
+                    (int) MIN_MEMBER_COUNT.getValue(), (int) MIN_CHAT_COUNT.getValue(),
+                    now, now.minusHours((long) HOUR_INTERVAL.getValue()));
+
             Map<AgoraMetrics, Double> scores = getAgoraScore(agoras);
             double maxScore = getMaxScore(agoras, scores);
             normalizedScore(scores, maxScore);
@@ -75,7 +78,7 @@ public class TrendService {
 
     private void normalizedScore(Map<AgoraMetrics, Double> scores, double maxScore) {
         for (Entry<AgoraMetrics, Double> entry : scores.entrySet()) {
-            double normalizedScore = (maxScore != ZERO_VALUE) ? entry.getValue() / maxScore : ZERO_VALUE;
+            double normalizedScore = (maxScore != ZERO_VALUE.getValue()) ? entry.getValue() / maxScore : ZERO_VALUE.getValue();
             scores.replace(entry.getKey(), normalizedScore);
         }
     }
@@ -84,8 +87,8 @@ public class TrendService {
         final int maxMembersCount = getMaxMemberCount(agoras);
         final int maxChatCount = getMaxChatCount(agoras);
 
-        final double maxMembersCountInverse = (maxMembersCount != ZERO_VALUE) ? INVERSE_BASE / maxMembersCount : ZERO_VALUE;
-        final double maxChatCountInverse = (maxChatCount != ZERO_VALUE) ? INVERSE_BASE / maxChatCount : ZERO_VALUE;
+        final double maxMembersCountInverse = (maxMembersCount != ZERO_VALUE.getValue()) ? INVERSE_BASE.getValue() / maxMembersCount : ZERO_VALUE.getValue();
+        final double maxChatCountInverse = (maxChatCount != ZERO_VALUE.getValue()) ? INVERSE_BASE.getValue() / maxChatCount : ZERO_VALUE.getValue();
 
         return calculateScoreAndMaxScore(scores, maxMembersCountInverse, maxChatCountInverse);
     }
@@ -94,18 +97,18 @@ public class TrendService {
         return scores.entrySet().stream()
                 .mapToDouble(entry -> {
                     double originalValue = entry.getValue();
-                    long agoraMembersCount = (long) (originalValue / COUNT_MULTIPLIER);
-                    long agoraChatCount = (long) (originalValue % COUNT_MULTIPLIER);
+                    long agoraMembersCount = (long) (originalValue / COUNT_MULTIPLIER.getValue());
+                    long agoraChatCount = (long) (originalValue % COUNT_MULTIPLIER.getValue());
 
                     double normalizedMembers = agoraMembersCount * maxMembersCountInverse;
                     double normalizedChats = agoraChatCount * maxChatCountInverse;
 
-                    double score = (USER_WEIGHT * normalizedMembers) + (CHAT_WEIGHT * normalizedChats);
+                    double score = (MEMBER_WEIGHT.getValue() * normalizedMembers) + (CHAT_WEIGHT.getValue() * normalizedChats);
                     entry.setValue(score);
                     return score;
                 })
                 .max()
-                .orElse(ZERO_VALUE);
+                .orElse(ZERO_VALUE.getValue());
     }
 
     private Map<AgoraMetrics, Double> getAgoraScore(List<AgoraMetrics> agoras) {
@@ -113,7 +116,7 @@ public class TrendService {
                 .collect(
                     Collectors.toMap(
                         agora -> agora,
-                        agora -> (double) (agora.membersCount() * COUNT_MULTIPLIER + agora.chatCount()))
+                        agora -> (double) (agora.membersCount() * COUNT_MULTIPLIER.getValue() + agora.chatCount()))
                     );
     }
 
@@ -121,13 +124,13 @@ public class TrendService {
         return agoras.stream()
                 .max(Comparator.comparingLong(AgoraMetrics::membersCount))
                 .map(AgoraMetrics::membersCount)
-                .orElse(DEFAULT_METRIC_COUNT);
+                .orElse((int) DEFAULT_METRIC_COUNT.getValue());
     }
 
     private int getMaxChatCount(List<AgoraMetrics> agoras) {
         return agoras.stream()
                 .max(Comparator.comparingLong(AgoraMetrics::chatCount))
                 .map(AgoraMetrics::chatCount)
-                .orElse(DEFAULT_METRIC_COUNT);
+                .orElse((int) DEFAULT_METRIC_COUNT.getValue());
     }
 }
