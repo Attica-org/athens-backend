@@ -30,12 +30,12 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class PopularService {
+public class TrendService {
 
     private final AgoraRepository agoraRepository;
     private final PopularRepository popularRepository;
 
-    @Scheduled(cron = "0 * * * * *")
+    @Scheduled(cron = "0 0 * * * *")
     public void calculatePopularAgoraMetrics() {
         log.info("스케줄링 작업 시작: calculatePopularAgoraMetrics");
 

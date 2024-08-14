@@ -19,19 +19,19 @@ class TrendServiceTest {
 
     AgoraRepository mockAgoraRepository;
     PopularRepository mockPopularRepository;
-    PopularService popularService;
+    TrendService trendService;
 
     @BeforeEach
     void setup() {
         mockAgoraRepository = mock(AgoraRepository.class);
         mockPopularRepository = mock(PopularRepository.class);
-        popularService = new PopularService(mockAgoraRepository, mockPopularRepository);
+        trendService = new TrendService(mockAgoraRepository, mockPopularRepository);
     }
 
     @Test
     void 성공_스케줄링실행_내부메소드호출() {
         // given & when
-        popularService.calculatePopularAgoraMetrics();
+        trendService.calculatePopularAgoraMetrics();
 
         // then
         verify(mockPopularRepository, times(1)).deleteAll();
@@ -46,7 +46,7 @@ class TrendServiceTest {
         System.setOut(new PrintStream(outContent));
 
         // when
-        popularService.calculatePopularAgoraMetrics();
+        trendService.calculatePopularAgoraMetrics();
         String output = outContent.toString();
 
         // then

@@ -30,7 +30,7 @@ public class Trend {
 
     private Double score;
 
-    @OneToOne
+    @OneToOne(optional = false)
     @JoinColumn(name = "agora_id")
     private Agora agora;
 
