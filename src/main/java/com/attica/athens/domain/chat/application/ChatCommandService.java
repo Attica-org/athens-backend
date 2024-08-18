@@ -13,6 +13,7 @@ import com.attica.athens.domain.chat.dto.request.SendChatRequest;
 import com.attica.athens.domain.chat.dto.response.InAndOutNotificationResponse;
 import com.attica.athens.domain.chat.dto.response.SendChatResponse;
 import com.attica.athens.global.auth.CustomUserDetails;
+import com.vane.badwordfiltering.BadWordFiltering;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
@@ -27,12 +28,14 @@ public class ChatCommandService {
     private final AgoraMemberRepository agoraMemberRepository;
     private final ChatRepository chatRepository;
     private final SimpMessagingTemplate messagingTemplate;
+    private final BadWordFiltering badWordFiltering;
 
     public SendChatResponse sendChat(final CustomUserDetails userDetails, final Long agoraId,
                                      final SendChatRequest sendChatRequest) {
         validateAgoraExists(agoraId);
 
         AgoraMember agoraMember = findValidAgoraMember(agoraId, userDetails.getUserId());
+
         Chat chat = createAndSaveChat(sendChatRequest, agoraMember);
 
         return new SendChatResponse(agoraMember, chat);
@@ -72,7 +75,10 @@ public class ChatCommandService {
     }
 
     private Chat createAndSaveChat(final SendChatRequest sendChatRequest, final AgoraMember agoraMember) {
-        Chat chat = new Chat(sendChatRequest.type(), new ChatContent(sendChatRequest.message()), agoraMember);
+        ChatContent chatContent = new ChatContent(sendChatRequest.message());
+        String filteredChat = chatContent.checkBadWordAndFiltering(chatContent.getContent(), badWordFiltering);
+
+        Chat chat = new Chat(sendChatRequest.type(), new ChatContent(filteredChat), agoraMember);
 
         return chatRepository.save(chat);
     }

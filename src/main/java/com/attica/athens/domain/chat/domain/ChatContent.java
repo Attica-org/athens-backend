@@ -2,6 +2,7 @@ package com.attica.athens.domain.chat.domain;
 
 import com.attica.athens.domain.chat.exception.ContentEmptyException;
 import com.attica.athens.domain.chat.exception.ContentExceedException;
+import com.vane.badwordfiltering.BadWordFiltering;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.Lob;
@@ -30,6 +31,13 @@ public class ChatContent {
         if (content.length() > 10000) {
             throw new ContentExceedException();
         }
+    }
+
+    public String checkBadWordAndFiltering(String content, BadWordFiltering badWordFiltering) {
+        if (badWordFiltering.check(content)) {
+            return badWordFiltering.change(content);
+        }
+        return content;
     }
 
     public String getContent() {
