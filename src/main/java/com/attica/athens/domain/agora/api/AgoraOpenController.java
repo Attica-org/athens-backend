@@ -1,6 +1,7 @@
 package com.attica.athens.domain.agora.api;
 
 import com.attica.athens.domain.agora.application.AgoraService;
+import com.attica.athens.domain.agora.dto.SimpleAgoraResult;
 import com.attica.athens.domain.agora.dto.request.AgoraRequest;
 import com.attica.athens.domain.agora.dto.request.SearchKeywordRequest;
 import com.attica.athens.domain.agora.dto.response.AgoraIdResponse;
@@ -10,6 +11,7 @@ import com.attica.athens.domain.agora.dto.response.EndAgoraResponse;
 import com.attica.athens.domain.common.ApiResponse;
 import com.attica.athens.domain.common.ApiUtil;
 import jakarta.validation.Valid;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -66,6 +68,13 @@ public class AgoraOpenController {
     public ResponseEntity<ApiResponse<?>> timeOutAgora(@PathVariable("agoraId") Long agoraId) {
 
         EndAgoraResponse response = agoraService.timeOutAgora(agoraId);
+
+        return ResponseEntity.ok(ApiUtil.success(response));
+    }
+
+    @GetMapping("/active")
+    public ResponseEntity<ApiResponse<?>> getTrendAgora() {
+        List<SimpleAgoraResult> response = agoraService.findTrendAgora();
 
         return ResponseEntity.ok(ApiUtil.success(response));
     }
