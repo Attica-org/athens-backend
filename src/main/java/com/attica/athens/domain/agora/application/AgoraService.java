@@ -65,7 +65,6 @@ public class AgoraService {
     private final AgoraMemberService agoraMemberService;
     private final PopularRepository popularRepository;
 
-
     @Transactional
     public CreateAgoraResponse create(final AgoraCreateRequest request) {
         Category category = findByCategory(request.categoryId());
