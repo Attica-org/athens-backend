@@ -34,5 +34,5 @@ public interface AgoraQueryRepository {
 
     List<AgoraMetrics> findAgoraWithMetricsByDateRange(int minMemberCount, int MinChatCount, LocalDateTime now, LocalDateTime before);
 
-    List<SimpleAgoraResult> findAgoraByIds(List<Long> ids);
+    List<SimpleAgoraResult> findAgoraByIdsWithRunning(List<Long> ids);
 }

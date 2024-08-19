@@ -73,8 +73,8 @@ public class AgoraOpenController {
     }
 
     @GetMapping("/active")
-    public ResponseEntity<ApiResponse<?>> getPopularAgora() {
-        List<SimpleAgoraResult> response = agoraService.findPopularAgora();
+    public ResponseEntity<ApiResponse<?>> getTrendAgora() {
+        List<SimpleAgoraResult> response = agoraService.findTrendAgora();
 
         return ResponseEntity.ok(ApiUtil.success(response));
     }

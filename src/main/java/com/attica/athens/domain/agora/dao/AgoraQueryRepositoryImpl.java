@@ -1,6 +1,7 @@
 package com.attica.athens.domain.agora.dao;
 
 import static com.attica.athens.domain.agora.domain.AgoraStatus.CLOSED;
+import static com.attica.athens.domain.agora.domain.AgoraStatus.RUNNING;
 import static com.attica.athens.domain.agora.domain.QAgora.agora;
 import static com.attica.athens.domain.agoraMember.domain.QAgoraMember.agoraMember;
 import static com.attica.athens.domain.chat.domain.QChat.chat;
@@ -287,14 +288,14 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
                 .on(chat.agoraMember.eq(agoraMember)
                         .and(chat.createdAt.between(before, now))
                 )
-                .where(agora.status.ne(CLOSED))
+                .where(agora.status.eq(RUNNING))
                 .groupBy(agora.id)
                 .having(agoraMember.id.count().goe(minMemberCount).or(chat.id.count().goe(minChatCount)))
                 .fetch();
     }
 
     @Override
-    public List<SimpleAgoraResult> findAgoraByIds(List<Long> ids) {
+    public List<SimpleAgoraResult> findAgoraByIdsWithRunning(List<Long> ids) {
         return jpaQueryFactory
                 .select(Projections.constructor(
                         SimpleAgoraResult.class,
@@ -326,7 +327,7 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
                 ))
                 .from(agora)
                 .where(agora.id.in(ids)
-                        .and(agora.status.ne(CLOSED)))
+                        .and(agora.status.eq(RUNNING)))
                 .fetch();
     }
 

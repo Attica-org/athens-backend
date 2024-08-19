@@ -126,9 +126,9 @@ public class AgoraService {
         return new AgoraParticipateResponse(created.getAgora().getId(), memberId, created.getType());
     }
 
-    public List<SimpleAgoraResult> findPopularAgora() {
+    public List<SimpleAgoraResult> findTrendAgora() {
         List<Long> agoraIds = popularRepository.findAllIdsByPopular();
-        List<SimpleAgoraResult> agoras = agoraRepository.findAgoraByIds(agoraIds);
+        List<SimpleAgoraResult> agoras = agoraRepository.findAgoraByIdsWithRunning(agoraIds);
 
         Map<Long, SimpleAgoraResult> agoraMap = agoras.stream()
                 .collect(
