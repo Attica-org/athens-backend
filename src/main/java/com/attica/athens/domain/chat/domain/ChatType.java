@@ -4,5 +4,6 @@ public enum ChatType {
     META,
     CHAT,
     DISCUSSION_START,
-    DISCUSSION_END
+    DISCUSSION_END,
+    REACTION
 }
