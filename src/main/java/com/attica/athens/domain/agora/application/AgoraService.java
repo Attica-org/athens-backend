@@ -135,9 +135,6 @@ public class AgoraService {
 
         agoraMember.updateSocketDisconnectTime(socketDisconnectTime, true);
 
-//        agoraMemberService.sendMetaToActiveMembers(agoraId,memberId);
-//        agoraMemberService.removeSessionId(agoraMember.getSessionId()); // 그니까 여기서 sessionId 지우고 disconnect에서 boolean값 대신 판단
-        // agoraMemberRepository.deleteByAgoraIdAndMemberId(agoraId,memberId);
         return new AgoraExitResponse(agora.getId(), memberId, agoraMember.getType(), socketDisconnectTime);
     }
 

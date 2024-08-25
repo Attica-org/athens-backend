@@ -24,10 +24,6 @@ class ChatWebSocketApiIntegrationTest extends WebSocketIntegrationTestSupport {
 
     private final String CHAT_TOPIC_URL = "/topic/agoras/{agoraId}/chats";
     private final String CHAT_APP_URL = "/app/agoras/{agoraId}/chats";
-    private final String JOIN_TOPIC_URL = "/topic/agoras/{agoraId}/join";
-    private final String JOIN_APP_URL = "/app/agoras/{agoraId}/join";
-    private final String EXIT_TOPIC_URL = "/topic/agoras/{agoraId}/exit";
-    private final String EXIT_APP_URL = "/app/agoras/{agoraId}/exit";
     private final String ERROR_URL = "/user/queue/errors";
 
     @BeforeAll
