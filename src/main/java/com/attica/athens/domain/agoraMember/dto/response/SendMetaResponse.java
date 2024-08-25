@@ -1,6 +1,7 @@
 package com.attica.athens.domain.agoraMember.dto.response;
 
 import com.attica.athens.domain.agora.domain.Agora;
+import com.attica.athens.domain.agoraMember.domain.AgoraMember;
 import com.attica.athens.domain.agoraMember.domain.AgoraMemberType;
 import com.attica.athens.domain.chat.domain.ChatType;
 import java.time.LocalDateTime;
@@ -14,10 +15,11 @@ public record SendMetaResponse(ChatType type, MetaData data) {
 
     public record MetaData(
             List<ParticipantsInfo> participants,
-            AgoraInfo agora
-    ) {
-        public MetaData(List<ParticipantsInfo> participants, Agora agora) {
-            this(participants, new AgoraInfo(agora));
+            AgoraInfo agora,
+            AgoraMemberInfo agoraMemberInfo) {
+        public MetaData(List<ParticipantsInfo> participants, Agora agora, AgoraMember agoraMember) {
+            this(participants, new AgoraInfo(agora), new AgoraMemberInfo(agora.getId(), agoraMember.getId(),
+                    agoraMember.getNickname()));
         }
     }
 
@@ -43,5 +45,15 @@ public record SendMetaResponse(ChatType type, MetaData data) {
             AgoraMemberType type,
             Long count
     ) {
+    }
+
+    public record AgoraMemberInfo(
+            Long agoraId,
+            Long memberId,
+            String username
+    ) {
+        public AgoraMemberInfo(Long agoraId, AgoraMember agoraMember) {
+            this(agoraId, agoraMember.getId(), agoraMember.getNickname());
+        }
     }
 }
