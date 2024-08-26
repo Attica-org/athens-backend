@@ -34,6 +34,14 @@ public class ChatCommandService {
     private final ChatRepository chatRepository;
     private final ReactionRepository reactionRepository;
 
+    private static final EnumMap<ReactionType, Long> EMPTY_ENUM_MAP = new EnumMap<>(ReactionType.class);
+
+    static {
+        for (ReactionType reactionType : ReactionType.values()) {
+            EMPTY_ENUM_MAP.put(reactionType, 0L);
+        }
+    }
+
     public SendChatResponse sendChat(final CustomUserDetails userDetails, final Long agoraId,
                                      final SendChatRequest sendChatRequest) {
         validateAgoraExists(agoraId);
@@ -73,7 +81,7 @@ public class ChatCommandService {
 
         ReactionType reactionType = sendReactionRequest.reactionType();
 
-        if (findReactionExists(chat.getId(), reactionType, agoraMember.getId())) {
+        if (hasReaction(chat.getId(), reactionType, agoraMember.getId())) {
             reactionRepository.deleteByChatIdAndAgoraMemberIdAndType(chatId, agoraMember.getId(), reactionType);
         } else {
             Reaction reaction = new Reaction(reactionType, chat, agoraMember);
@@ -81,7 +89,12 @@ public class ChatCommandService {
         }
 
         return new SendReactionResponse(chatId,
-                getReactionTypeIntegerEnumMap(chatId));
+                getReactionTypeEnumMap(chatId));
+    }
+
+    private Chat findChat(final Long chatId) {
+        return chatRepository.findById(chatId)
+                .orElseThrow(() -> new NotFoundChatException(chatId));
     }
 
     private void validIsNotWriter(final Long userId, final Long writerId) {
@@ -90,29 +103,18 @@ public class ChatCommandService {
         }
     }
 
-    private boolean findReactionExists(final Long chatId, final ReactionType type, final Long agoraMemberId) {
+    private boolean hasReaction(final Long chatId, final ReactionType type, final Long agoraMemberId) {
         return reactionRepository.existsByChatIdAndAgoraMemberIdAndType(chatId, agoraMemberId, type);
     }
 
-    private EnumMap<ReactionType, Long> getReactionTypeIntegerEnumMap(final Long chatId) {
-        EnumMap<ReactionType, Long> counts = new EnumMap<>(ReactionType.class);
-        for (ReactionType reactionType : ReactionType.values()) {
-            counts.put(reactionType, 0L);
-        }
-
+    public EnumMap<ReactionType, Long> getReactionTypeEnumMap(final Long chatId) {
+        EnumMap<ReactionType, Long> counts = new EnumMap<>(EMPTY_ENUM_MAP);
         List<Object[]> results = reactionRepository.countReactionsByChatId(chatId);
-
         for (Object[] result : results) {
             ReactionType type = (ReactionType) result[0];
             Long count = (Long) result[1];
             counts.put(type, count);
         }
-
         return counts;
-    }
-
-    private Chat findChat(final Long chatId) {
-        return chatRepository.findById(chatId)
-                .orElseThrow(() -> new NotFoundChatException(chatId));
     }
 }
