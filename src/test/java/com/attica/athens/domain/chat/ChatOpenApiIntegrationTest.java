@@ -22,16 +22,16 @@ public class ChatOpenApiIntegrationTest extends IntegrationTestSupport {
         @Test
         @DisplayName("채팅 내역을 조회한다")
         void 성공_채팅조회_유효한AgoraId() throws Exception {
-            // given
+            // Given
 
-            // when
+            // When
             final ResultActions result = mockMvc.perform(
                     get("/{prefix}/agoras/{agoraId}/chats", API_V1_OPEN, 1)
                             .contentType(MediaType.APPLICATION_JSON)
 
             );
 
-            // then
+            // Then
             result.andExpect(status().isOk())
                     .andExpectAll(
                             jsonPath("$.success").value(true),
@@ -54,16 +54,16 @@ public class ChatOpenApiIntegrationTest extends IntegrationTestSupport {
         @DisplayName("채팅방 참여자를 조회한다")
         @Sql("/sql/enter-agora-members.sql")
         void 성공_참여자조회_유효한AgoraId() throws Exception {
-            // given
+            // Given
 
-            // when
+            // When
             final ResultActions result = mockMvc.perform(
                     get("/{prefix}/agoras/{agoraId}/users", API_V1_OPEN, 1)
                             .contentType(MediaType.APPLICATION_JSON)
 
             );
 
-            // then
+            // Then
             result.andExpect(status().isOk())
                     .andExpectAll(
                             jsonPath("$.success").value(true),
@@ -81,16 +81,16 @@ public class ChatOpenApiIntegrationTest extends IntegrationTestSupport {
         @Test
         @DisplayName("유효하지 않은 아고라 아이디로 채팅방 참여자를 조회한다")
         void 실패_참여자조회_유효하지않은AgoraId() throws Exception {
-            // given
+            // Given
 
-            // when
+            // When
             final ResultActions result = mockMvc.perform(
                     get("/{prefix}/agoras/{agoraId}/users", API_V1_OPEN, 999)
                             .contentType(MediaType.APPLICATION_JSON)
 
             );
 
-            // then
+            // Then
             result.andExpect(status().isNotFound())
                     .andExpectAll(
                             jsonPath("$.success").value(false),
