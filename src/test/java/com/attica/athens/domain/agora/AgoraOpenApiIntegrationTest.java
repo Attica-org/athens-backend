@@ -21,59 +21,6 @@ import org.springframework.test.web.servlet.ResultActions;
 
 public class AgoraOpenApiIntegrationTest extends IntegrationTestSupport {
 
-    private static final int NOT_EXIST_AGORA_ID = 50;
-
-    @Nested
-    @DisplayName("아고라 Id 리스트 조회")
-    class getAgoraIdList {
-
-        @Test
-        @DisplayName("아고라 Id 리스트를 조회한다.")
-        void 성공_아고라ID리스트조회_존재함() throws Exception {
-            // when
-            final ResultActions result = mockMvc.perform(
-                    get("/{prefix}/agoras/ids", API_V1_OPEN)
-                            .contentType(MediaType.APPLICATION_JSON)
-            );
-
-            // then
-            result.andExpect(status().isOk())
-                    .andExpectAll(
-                            jsonPath("$.success").value(true),
-                            jsonPath("$.response").exists(),
-                            jsonPath("$.response.id").isArray(),
-                            jsonPath("$.response.id", hasSize(5)),
-                            jsonPath("$.response.id[0]").value(1),
-                            jsonPath("$.response.id[1]").value(2),
-                            jsonPath("$.response.id[2]").value(3),
-                            jsonPath("$.response.id[3]").value(4),
-                            jsonPath("$.response.id[4]").value(5),
-                            jsonPath("$.error").value(nullValue())
-                    );
-        }
-
-        @Test
-        @DisplayName("아고라 Id가 존재하지 않으면 예외를 발생시킨다.")
-        @Sql("/sql/agora-id-delete.sql")
-        void 실패_아고라ID리스트조회_존재하지않음() throws Exception {
-            // when
-            final ResultActions result = mockMvc.perform(
-                    get("/{prefix}/agoras/ids", API_V1_OPEN)
-                            .contentType(MediaType.APPLICATION_JSON)
-            );
-
-            // then
-            result.andExpect(status().isNotFound())
-                    .andExpectAll(
-                            jsonPath("$.success").value(false),
-                            jsonPath("$.response").value(nullValue()),
-                            jsonPath("$.error").exists(),
-                            jsonPath("$.error.code").value(1301),
-                            jsonPath("$.error.message").value("Not found agoraId.")
-                    );
-        }
-    }
-
     @Nested
     @DisplayName("아고라 Id 리스트 조회")
     class getAgoraIdList {
@@ -219,223 +166,45 @@ public class AgoraOpenApiIntegrationTest extends IntegrationTestSupport {
                             jsonPath("$.response.agoras[1].status").value("QUEUED"),
                             jsonPath("$.response.next").value(nullValue()),
                             jsonPath("$.response.hasNext").value(false),
-                            jsonPath("$.error").value(nullValue()));
-        }
-
-        @Nested
-        @DisplayName("아고라 Id 리스트 조회")
-        class getAgoraIdList {
-
-            @Test
-            @DisplayName("아고라 Id 리스트를 조회한다.")
-            void 성공_아고라ID리스트조회_존재함() throws Exception {
-                //when
-                final ResultActions result = mockMvc.perform(
-                        get("/{prefix}/agoras/ids", API_V1_OPEN)
-                                .contentType(MediaType.APPLICATION_JSON)
-                );
-
-                //then
-                result.andExpect(status().isOk())
-                        .andExpectAll(
-                                jsonPath("$.success").value(true),
-                                jsonPath("$.response").exists(),
-                                jsonPath("$.response.id").isArray(),
-                                jsonPath("$.response.id", hasSize(5)),
-                                jsonPath("$.response.id[0]").value(1),
-                                jsonPath("$.response.id[1]").value(2),
-                                jsonPath("$.response.id[2]").value(3),
-                                jsonPath("$.response.id[3]").value(4),
-                                jsonPath("$.response.id[4]").value(5),
-                                jsonPath("$.error").doesNotExist()
-                        );
-            }
-
-            @Test
-            @DisplayName("아고라 Id가 존재하지 않으면 예외 발생")
-            @Sql("/sql/agora-id-delete.sql")
-            void 실패_아고라ID리스트조회_존재하지않음() throws Exception {
-                //when
-                final ResultActions result = mockMvc.perform(
-                        get("/{prefix}/agoras/ids", API_V1_OPEN)
-                                .contentType(MediaType.APPLICATION_JSON)
-                );
-
-                //then
-                result.andExpect(status().isNotFound())
-                        .andExpectAll(
-                                jsonPath("$.success").value(false),
-                                jsonPath("$.response").doesNotExist(),
-                                jsonPath("$.error").exists(),
-                                jsonPath("$.error.code").value(1301),
-                                jsonPath("$.error.message").value("Not found agoraId.")
-                        );
-            }
-        }
-
-        @Nested
-        @DisplayName("타임아웃 시 아고라를 종료")
-        class timeoutAgora {
-
-            @Test
-            @DisplayName("타임아웃 시 아고라를 종료한다.")
-            void 성공_타임아웃체크_지속시간0인아고라전달() throws Exception {
-                //when
-                final ResultActions result = mockMvc.perform(
-                        patch("/{prefix}/agoras/{agoraId}/time-out", API_V1_OPEN, 1)
-                                .contentType(MediaType.APPLICATION_JSON)
-                );
-
-                //then
-                result.andExpect(status().isOk())
-                        .andExpectAll(
-                                jsonPath("$.success").value(true),
-                                jsonPath("$.response").exists(),
-                                jsonPath("$.response.agoraId").value(1),
-                                jsonPath("$.response.isClosed").value(true),
-                                jsonPath("$.response.endTime").exists(),
-                                jsonPath("$.response.endTime").isString(),
-                                jsonPath("$.response.endTime").value(
-                                        matchesPattern("\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}")),
-                                jsonPath("$.error").doesNotExist()
-                        );
-            }
-
-            @Test
-            @DisplayName("존재하지 않는 아고라ID 조회시 에러 발생")
-            void 실패_아고라조회_존재하지않는아고라ID전달() throws Exception {
-                //when
-                final ResultActions result = mockMvc.perform(
-                        patch("/{prefix}/agoras/{agoraId}/time-out", API_V1_OPEN, NOT_EXIST_AGORA_ID)
-                                .contentType(MediaType.APPLICATION_JSON)
-                );
-
-                //then
-                result.andExpect(status().isNotFound())
-                        .andExpectAll(
-                                jsonPath("$.success").value(false),
-                                jsonPath("$.response").doesNotExist(),
-                                jsonPath("$.error").exists(),
-                                jsonPath("$.error.code").value(1301),
-                                jsonPath("$.error.message").value("Not found agora. agoraId: 50")
-                        );
-            }
-        }
-
-        @Nested
-        @DisplayName("아고라 타이틀 조회")
-        class getAgoraTitle {
-            @Test
-            @DisplayName("아고라 타이틀을 조회한다.")
-            void 성공_아고라타이틀조회_아고라ID전달() throws Exception {
-                //when
-                final ResultActions result = mockMvc.perform(
-                        get("/{prefix}/agoras/{agoraId}/title", API_V1_OPEN, 1)
-                                .contentType(MediaType.APPLICATION_JSON)
-                );
-
-                //then
-                result.andExpect(status().isOk())
-                        .andExpectAll(
-                                jsonPath("$.success").value(true),
-                                jsonPath("$.response").exists(),
-                                jsonPath("$.response.title").value("기후 변화 대책에 대한 토론"),
-                                jsonPath("$.response.status").value("QUEUED"),
-                                jsonPath("$.error").doesNotExist()
-                        );
-            }
-
-            @Test
-            @DisplayName("존재하지 않는 아고라ID 조회시 에러 발생")
-            void 실패_아고라조회_존재하지않는아고라ID전달() throws Exception {
-                //when
-                final ResultActions result = mockMvc.perform(
-                        patch("/{prefix}/agoras/{agoraId}/time-out", API_V1_OPEN, NOT_EXIST_AGORA_ID)
-                                .contentType(MediaType.APPLICATION_JSON)
-                );
-
-                //then
-                result.andExpect(status().isNotFound())
-                        .andExpectAll(
-                                jsonPath("$.success").value(false),
-                                jsonPath("$.response").doesNotExist(),
-                                jsonPath("$.error").exists(),
-                                jsonPath("$.error.code").value(1301),
-                                jsonPath("$.error.message").value("Not found agora. agoraId: 50")
-                        );
-            }
-        }
-    }
-
-    @Nested
-    @DisplayName("아고라 타이틀 조회")
-    class getAgoraTitle {
-        @Test
-        @DisplayName("아고라 타이틀을 조회한다.")
-        void 성공_아고라타이틀조회_아고라ID전달() throws Exception {
-            // when
-            final ResultActions result = mockMvc.perform(
-                    get("/{prefix}/agoras/{agoraId}/title", API_V1_OPEN, 1)
-                            .contentType(MediaType.APPLICATION_JSON)
-            );
-
-            // then
-            result.andExpect(status().isOk())
-                    .andExpectAll(
-                            jsonPath("$.success").value(true),
-                            jsonPath("$.response").exists(),
-                            jsonPath("$.response.title").value("기후 변화 대책에 대한 토론"),
-                            jsonPath("$.response.status").value("QUEUED"),
-                            jsonPath("$.error").value(nullValue())
-                    );
-        }
-    }
-
-    @Nested
-    @DisplayName("타임아웃 시 아고라를 종료")
-    class timeoutAgora {
-
-        @Test
-        @DisplayName("타임아웃 시 아고라를 종료한다.")
-        void 성공_타임아웃체크_지속시간0인아고라전달() throws Exception {
-            // when
-            final ResultActions result = mockMvc.perform(
-                    patch("/{prefix}/agoras/{agoraId}/time-out", API_V1_OPEN, 1)
-                            .contentType(MediaType.APPLICATION_JSON)
-            );
-
-            // then
-            result.andExpect(status().isOk())
-                    .andExpectAll(
-                            jsonPath("$.success").value(true),
-                            jsonPath("$.response").exists(),
-                            jsonPath("$.response.agoraId").value(1),
-                            jsonPath("$.response.isClosed").value(true),
-                            jsonPath("$.response.endTime").exists(),
-                            jsonPath("$.response.endTime").isString(),
-                            jsonPath("$.response.endTime").value(
-                                    matchesPattern("\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}")),
                             jsonPath("$.error").value(nullValue())
                     );
         }
 
         @Test
-        @DisplayName("존재하지 않는 아고라ID 조회시 에러를 발생시킨다.")
-        void 실패_아고라조회_존재하지않는아고라ID전달() throws Exception {
-            // when
-            final ResultActions result = mockMvc.perform(
-                    patch("/{prefix}/agoras/{agoraId}/time-out", API_V1_OPEN, 50)
-                            .contentType(MediaType.APPLICATION_JSON)
-            );
+        @DisplayName("키워드로 정렬된 아고라를 조회한다.")
+        void 성공_아고라조회_유효한_키워드() throws Exception {
+            // given
+            String keyword = "s";
+            SearchKeywordRequest request = new SearchKeywordRequest("active", null);
 
-            // then
-            result.andExpect(status().isNotFound())
+            // when & then
+            mockMvc.perform(get("/{prefix}/agoras", API_V1_OPEN)
+                            .param("status", request.status())
+                            .param("agora-name", keyword)
+                            .param("next", request.next() != null ? request.next().toString() : ""))
+                    .andExpect(status().isOk())
                     .andExpectAll(
-                            jsonPath("$.success").value(false),
-                            jsonPath("$.response").value(nullValue()),
-                            jsonPath("$.error").exists(),
-                            jsonPath("$.error.code").value(1301),
-                            jsonPath("$.error.message").value("Not found agora. agoraId: 50")
+                            jsonPath("$.success").value(true),
+                            jsonPath("$.response.agoras.length()").value(2),
+                            jsonPath("$.response.agoras[0].id").value(2),
+                            jsonPath("$.response.agoras[0].agoraTitle").value("Tools"),
+                            jsonPath("$.response.agoras[0].agoraColor").value("Red"),
+                            jsonPath("$.response.agoras[0].participants.pros").value(0),
+                            jsonPath("$.response.agoras[0].participants.cons").value(0),
+                            jsonPath("$.response.agoras[0].participants.observer").value(0),
+                            jsonPath("$.response.agoras[0].createdAt").value("2023-09-13T14:12:15"),
+                            jsonPath("$.response.agoras[0].status").value("QUEUED"),
+                            jsonPath("$.response.agoras[1].id").value(1),
+                            jsonPath("$.response.agoras[1].agoraTitle").value("Games"),
+                            jsonPath("$.response.agoras[1].agoraColor").value("Green"),
+                            jsonPath("$.response.agoras[1].participants.pros").value(0),
+                            jsonPath("$.response.agoras[1].participants.cons").value(0),
+                            jsonPath("$.response.agoras[1].participants.observer").value(0),
+                            jsonPath("$.response.agoras[1].createdAt").value("2024-04-01T23:14:09"),
+                            jsonPath("$.response.agoras[1].status").value("QUEUED"),
+                            jsonPath("$.response.next").value(nullValue()),
+                            jsonPath("$.response.hasNext").value(false),
+                            jsonPath("$.error").value(nullValue())
                     );
         }
     }
