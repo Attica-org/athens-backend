@@ -130,7 +130,7 @@ public class AgoraService {
         Agora agora = agoraRepository.findAgoraById(agoraId)
                 .orElseThrow(() -> new NotFoundAgoraException(agoraId));
 
-        AgoraMember agoraMember = findValidAgoraMember(agoraId, memberId);
+        AgoraMember agoraMember = agoraMemberService.findAgoraMemberByAgoraIdAndMemberId(agoraId, memberId);
         LocalDateTime socketDisconnectTime = LocalDateTime.now();
 
         agoraMember.updateSocketDisconnectTime(socketDisconnectTime, true);

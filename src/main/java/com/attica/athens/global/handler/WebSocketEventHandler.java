@@ -32,7 +32,7 @@ public class WebSocketEventHandler {
 
     private final AgoraMemberService agoraMemberService;
     private final AgoraMemberRepository agoraMemberRepository;
-    private final long reconnectThreshold = 5000;
+    private final long reconnectThreshold = 10000;
 
     @EventListener
     public void handleWebSocketSessionConnect(SessionConnectEvent event) {

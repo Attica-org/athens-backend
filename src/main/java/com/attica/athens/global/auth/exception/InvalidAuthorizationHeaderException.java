@@ -7,7 +7,8 @@ import org.springframework.http.HttpStatus;
 public class InvalidAuthorizationHeaderException extends CustomException {
 
     public InvalidAuthorizationHeaderException() {
-        super(HttpStatus.BAD_REQUEST,
+        super(
+                HttpStatus.BAD_REQUEST,
                 ErrorCode.MISSING_PART,
                 "Authorization header is missing or does not start with Bearer"
         );
