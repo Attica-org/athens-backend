@@ -4,7 +4,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
 import com.attica.athens.domain.chat.domain.ChatType;
+import com.attica.athens.domain.chat.domain.ReactionType;
 import com.attica.athens.domain.chat.dto.request.SendChatRequest;
+import com.attica.athens.domain.chat.dto.request.SendReactionRequest;
 import com.attica.athens.support.WebSocketIntegrationTestSupport;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
@@ -24,6 +26,8 @@ class ChatWebSocketApiIntegrationTest extends WebSocketIntegrationTestSupport {
 
     private final String CHAT_TOPIC_URL = "/topic/agoras/{agoraId}/chats";
     private final String CHAT_APP_URL = "/app/agoras/{agoraId}/chats";
+    private final String REACTION_APP_URL = "/app/agoras/{agoraId}/chats/{chatId}/reactions";
+    private final String REACTION_TOPIC_URL = "/topic/agoras/{agoraId}/reactions";
     private final String ERROR_URL = "/user/queue/errors";
 
     @BeforeAll
@@ -184,6 +188,132 @@ class ChatWebSocketApiIntegrationTest extends WebSocketIntegrationTestSupport {
                 assertThat(result).contains("ERROR");
                 assertThat(result).contains("1102");
                 assertThat(result).contains("Observer cannot send this request");
+            });
+        }
+    }
+
+    @Nested
+    @DisplayName("채팅 반응 생성시")
+    class SendReactionTest {
+        @Test
+        @DisplayName("유효한 파라미터를 전송하면 성공적으로 반응이 전송된다")
+        @Sql("/sql/send-valid-reaction.sql")
+        void 성공_반응생성_유효한파라미터사용() throws Exception {
+            // given
+            Long agoraId = 1L;
+            String url = REACTION_TOPIC_URL.replace("{agoraId}", agoraId.toString());
+            CompletableFuture<String> resultFuture = new CompletableFuture<>();
+            StompSession session = connectAndSubscribe(url, "EnvironmentalActivist", agoraId, resultFuture);
+
+            // when
+            Long chatId = 2L;
+            SendReactionRequest reactionRequest = new SendReactionRequest(ChatType.REACTION, ReactionType.LIKE);
+            session.send(REACTION_APP_URL.replace("{agoraId}", agoraId.toString())
+                    .replace("{chatId}", chatId.toString()), reactionRequest);
+
+            // then
+            String result = resultFuture.get(10, TimeUnit.SECONDS);
+            assertAll(() -> {
+                assertThat(result).contains("REACTION");
+                assertThat(result).contains("\"chatId\":2");
+                assertThat(result).contains(
+                        "reactionCount\":{\"LIKE\":1,\"DISLIKE\":0,\"LOVE\":0,\"HAPPY\":0,\"SAD\":0}}}");
+            });
+        }
+
+        @Test
+        @DisplayName("존재하지 않은 agoraId를 전송하면 에러를 반환한다")
+        @Sql("/sql/send-valid-reaction.sql")
+        void 실패_반응전송_유효하지않은AgoraId() throws Exception {
+            // given
+            Long agoraId = 999L;
+            CompletableFuture<String> resultFuture = new CompletableFuture<>();
+            StompSession session = connectAndSubscribe(ERROR_URL, "EnvironmentalActivist", agoraId, resultFuture);
+
+            // when
+            Long chatId = 2L;
+            SendReactionRequest reactionRequest = new SendReactionRequest(ChatType.REACTION, ReactionType.LIKE);
+            session.send(REACTION_APP_URL.replace("{agoraId}", agoraId.toString())
+                    .replace("{chatId}", chatId.toString()), reactionRequest);
+
+            // then
+            String result = resultFuture.get(10, TimeUnit.SECONDS);
+            assertAll(() -> {
+                assertThat(result).contains("ERROR");
+                assertThat(result).contains("1301");
+                assertThat(result).contains("Not found agora. agoraId: 999");
+            });
+        }
+
+        @Test
+        @DisplayName("존재하지 않은 chatId를 전송하면 에러를 반환한다")
+        @Sql("/sql/send-valid-reaction.sql")
+        void 실패_반응전송_유효하지않은ChatId() throws Exception {
+            // given
+            Long agoraId = 1L;
+            CompletableFuture<String> resultFuture = new CompletableFuture<>();
+            StompSession session = connectAndSubscribe(ERROR_URL, "EnvironmentalActivist", agoraId, resultFuture);
+
+            // when
+            Long chatId = 999L;
+            SendReactionRequest reactionRequest = new SendReactionRequest(ChatType.REACTION, ReactionType.LIKE);
+            session.send(REACTION_APP_URL.replace("{agoraId}", agoraId.toString())
+                    .replace("{chatId}", chatId.toString()), reactionRequest);
+
+            // then
+            String result = resultFuture.get(10, TimeUnit.SECONDS);
+            assertAll(() -> {
+                assertThat(result).contains("ERROR");
+                assertThat(result).contains("1301");
+                assertThat(result).contains("Not found chat. chatId: 999");
+            });
+        }
+
+        @Test
+        @DisplayName("아고라에 참여하지 않은 유저일 경우 에러를 반환한다")
+        @Sql("/sql/send-valid-reaction.sql")
+        void 실패_반응전송_아고라참여하지않은유저() throws Exception {
+            // given
+            Long agoraId = 1L;
+            CompletableFuture<String> resultFuture = new CompletableFuture<>();
+            StompSession session = connectAndSubscribe(ERROR_URL, "TeacherUnion", agoraId, resultFuture);
+
+            // when
+            Long chatId = 2L;
+            SendReactionRequest reactionRequest = new SendReactionRequest(ChatType.REACTION, ReactionType.LIKE);
+            session.send(REACTION_APP_URL.replace("{agoraId}", agoraId.toString())
+                    .replace("{chatId}", chatId.toString()), reactionRequest);
+
+            // then
+            String result = resultFuture.get(10, TimeUnit.SECONDS);
+            assertAll(() -> {
+                assertThat(result).contains("ERROR");
+                assertThat(result).contains("1102");
+                assertThat(result).contains("User is not participating in the agora");
+            });
+        }
+
+        @Test
+        @DisplayName("자신의 댓글일 경우 에러를 반환한다")
+        @Sql("/sql/send-valid-reaction.sql")
+        void 실패_반응전송_자신의댓글() throws Exception {
+            // given
+            Long agoraId = 1L;
+            CompletableFuture<String> resultFuture = new CompletableFuture<>();
+            StompSession session = connectAndSubscribe(ERROR_URL, "EnvironmentalActivist", agoraId, resultFuture);
+
+            // when
+            Long chatId = 1L;
+            SendReactionRequest reactionRequest = new SendReactionRequest(ChatType.REACTION, ReactionType.LIKE);
+            session.send(REACTION_APP_URL.replace("{agoraId}", agoraId.toString())
+                    .replace("{chatId}", chatId.toString()), reactionRequest);
+
+            // then
+            String result = resultFuture.get(10, TimeUnit.SECONDS);
+            assertAll(() -> {
+                assertThat(result).contains("ERROR");
+                assertThat(result).contains("1102");
+                assertThat(result).contains("Chat writers cannot respond to themselves.");
             });
         }
     }
