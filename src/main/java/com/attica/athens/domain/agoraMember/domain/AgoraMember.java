@@ -53,13 +53,13 @@ public class AgoraMember extends AuditingFields {
     @Column(name = "photo_number")
     private Integer photoNumber;
 
-    @Column(name = "end_voted", nullable = false, columnDefinition = "BIT default 0")
+    @Column(name = "end_voted", nullable = false)
     private Boolean endVoted;
 
-    @Column(name = "is_opinion_voted", nullable = false, columnDefinition = "BIT default 0")
+    @Column(name = "is_opinion_voted", nullable = false)
     private Boolean isOpinionVoted;
 
-    @Column(name = "disconnect_type", nullable = false, columnDefinition = "BIT default 0")
+    @Column(name = "disconnect_type", nullable = false)
     private Boolean disconnectType;
 
     @Column(name = "socket_disconnect_time")

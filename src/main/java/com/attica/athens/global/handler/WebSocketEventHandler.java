@@ -68,13 +68,7 @@ public class WebSocketEventHandler {
         Map nativeHeaders = (Map) generic.getHeaders().get("nativeHeaders");
 
         Long memberId = getUserId(accessor);
-        if (memberId == null) {
-            log.warn("User is not present in headers");
-            return;
-        }
-
-        if (!nativeHeaders.containsKey("AgoraId")) {
-            log.warn("AgoraId is not present in headers");
+        if (!validateHeaders(nativeHeaders, memberId)) {
             return;
         }
 
@@ -91,6 +85,19 @@ public class WebSocketEventHandler {
         }
 
         log.info("WebSocket Connected: sessionId={}, agoraId={}, userId={}", sessionId, agoraId, memberId);
+    }
+
+    private static boolean validateHeaders(Map nativeHeaders, Long memberId) {
+        if (memberId == null) {
+            log.warn("User is not present in headers");
+            return false;
+        }
+
+        if (!nativeHeaders.containsKey("AgoraId")) {
+            log.warn("AgoraId is not present in headers");
+            return false;
+        }
+        return true;
     }
 
     private void handleReconnection(LocalDateTime disconnectTime, String sessionId, Long agoraId, Long userId) {
