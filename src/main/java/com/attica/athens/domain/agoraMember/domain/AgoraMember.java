@@ -100,8 +100,11 @@ public class AgoraMember extends AuditingFields {
         this.sessionId = sessionId;
     }
 
-    public void updateSocketDisconnectTime(LocalDateTime socketDisconnectTime, Boolean disconnectType) {
+    public void updateSocketDisconnectTime(LocalDateTime socketDisconnectTime) {
         this.socketDisconnectTime = socketDisconnectTime;
+    }
+
+    public void updateDisconnectType(Boolean disconnectType) {
         this.disconnectType = disconnectType;
     }
 

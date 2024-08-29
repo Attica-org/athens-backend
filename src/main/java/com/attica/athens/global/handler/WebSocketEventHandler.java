@@ -143,6 +143,8 @@ public class WebSocketEventHandler {
         if (agoraMember.getDisconnectType()) {
             processDisconnection(sessionId, agoraId, memberId);
         } else {
+            agoraMember.updateSocketDisconnectTime(LocalDateTime.now());
+            agoraMemberRepository.save(agoraMember);
             log.warn("Disconnection type check failed: agoraId={}, memberId={}", agoraId, memberId);
         }
     }

@@ -18,8 +18,7 @@ public record SendMetaResponse(ChatType type, MetaData data) {
             AgoraInfo agora,
             AgoraMemberInfo agoraMemberInfo) {
         public MetaData(List<ParticipantsInfo> participants, Agora agora, AgoraMember agoraMember) {
-            this(participants, new AgoraInfo(agora), new AgoraMemberInfo(agora.getId(), agoraMember.getId(),
-                    agoraMember.getNickname()));
+            this(participants, new AgoraInfo(agora), new AgoraMemberInfo(agora.getId(), agoraMember));
         }
     }
 
@@ -50,10 +49,11 @@ public record SendMetaResponse(ChatType type, MetaData data) {
     public record AgoraMemberInfo(
             Long agoraId,
             Long memberId,
-            String username
+            String username,
+            LocalDateTime socketDisconnectTime
     ) {
         public AgoraMemberInfo(Long agoraId, AgoraMember agoraMember) {
-            this(agoraId, agoraMember.getId(), agoraMember.getNickname());
+            this(agoraId, agoraMember.getId(), agoraMember.getNickname(), agoraMember.getSocketDisconnectTime());
         }
     }
 }

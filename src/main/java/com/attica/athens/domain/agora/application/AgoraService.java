@@ -139,7 +139,8 @@ public class AgoraService {
         AgoraMember agoraMember = agoraMemberService.findAgoraMemberByAgoraIdAndMemberId(agoraId, memberId);
         LocalDateTime socketDisconnectTime = LocalDateTime.now();
 
-        agoraMember.updateSocketDisconnectTime(socketDisconnectTime, true);
+        agoraMember.updateSocketDisconnectTime(socketDisconnectTime);
+        agoraMember.updateDisconnectType(true);
 
         return new AgoraExitResponse(agora.getId(), memberId, agoraMember.getType(), socketDisconnectTime);
     }
@@ -150,9 +151,9 @@ public class AgoraService {
 
         Map<Long, SimpleAgoraResult> agoraMap = agoras.stream()
                 .collect(
-                    Collectors.toMap(
-                        SimpleAgoraResult::id,
-                        element -> element));
+                        Collectors.toMap(
+                                SimpleAgoraResult::id,
+                                element -> element));
 
         return agoraIds.stream()
                 .map(agoraMap::get)
