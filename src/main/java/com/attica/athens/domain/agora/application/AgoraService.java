@@ -11,6 +11,7 @@ import com.attica.athens.domain.agora.dto.request.AgoraCreateRequest;
 import com.attica.athens.domain.agora.dto.request.AgoraParticipateRequest;
 import com.attica.athens.domain.agora.dto.request.AgoraRequest;
 import com.attica.athens.domain.agora.dto.request.SearchKeywordRequest;
+import com.attica.athens.domain.agora.dto.response.AgoraExitResponse;
 import com.attica.athens.domain.agora.dto.response.AgoraIdResponse;
 import com.attica.athens.domain.agora.dto.response.AgoraParticipateResponse;
 import com.attica.athens.domain.agora.dto.response.AgoraSlice;
@@ -28,6 +29,7 @@ import com.attica.athens.domain.agora.exception.InvalidAgoraStatusException;
 import com.attica.athens.domain.agora.exception.NotFoundAgoraException;
 import com.attica.athens.domain.agora.exception.NotFoundCategoryException;
 import com.attica.athens.domain.agora.exception.NotParticipateException;
+import com.attica.athens.domain.agoraMember.application.AgoraMemberService;
 import com.attica.athens.domain.agoraMember.dao.AgoraMemberRepository;
 import com.attica.athens.domain.agoraMember.domain.AgoraMember;
 import com.attica.athens.domain.agoraMember.domain.AgoraMemberType;
@@ -36,6 +38,7 @@ import com.attica.athens.domain.chat.domain.ChatType;
 import com.attica.athens.domain.member.dao.BaseMemberRepository;
 import com.attica.athens.domain.member.domain.BaseMember;
 import com.attica.athens.domain.member.exception.NotFoundMemberException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -59,7 +62,9 @@ public class AgoraService {
     private final BaseMemberRepository baseMemberRepository;
     private final AgoraMemberRepository agoraMemberRepository;
     private final SimpMessagingTemplate messagingTemplate;
+    private final AgoraMemberService agoraMemberService;
     private final PopularRepository popularRepository;
+
 
     @Transactional
     public CreateAgoraResponse create(final AgoraCreateRequest request) {
@@ -126,15 +131,29 @@ public class AgoraService {
         return new AgoraParticipateResponse(created.getAgora().getId(), memberId, created.getType());
     }
 
+    @Transactional
+    public AgoraExitResponse exit(final Long memberId, final Long agoraId) {
+        Agora agora = agoraRepository.findAgoraById(agoraId)
+                .orElseThrow(() -> new NotFoundAgoraException(agoraId));
+
+        AgoraMember agoraMember = agoraMemberService.findAgoraMemberByAgoraIdAndMemberId(agoraId, memberId);
+        LocalDateTime socketDisconnectTime = LocalDateTime.now();
+
+        agoraMember.updateSocketDisconnectTime(socketDisconnectTime);
+        agoraMember.updateDisconnectType(true);
+
+        return new AgoraExitResponse(agora.getId(), memberId, agoraMember.getType(), socketDisconnectTime);
+    }
+
     public List<SimpleAgoraResult> findTrendAgora() {
         List<Long> agoraIds = popularRepository.findAllIdsByPopular();
         List<SimpleAgoraResult> agoras = agoraRepository.findAgoraByIdsWithRunning(agoraIds);
 
         Map<Long, SimpleAgoraResult> agoraMap = agoras.stream()
                 .collect(
-                    Collectors.toMap(
-                        SimpleAgoraResult::id,
-                        element -> element));
+                        Collectors.toMap(
+                                SimpleAgoraResult::id,
+                                element -> element));
 
         return agoraIds.stream()
                 .map(agoraMap::get)

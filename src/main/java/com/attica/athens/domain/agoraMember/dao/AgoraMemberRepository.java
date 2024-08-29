@@ -34,4 +34,8 @@ public interface AgoraMemberRepository extends JpaRepository<AgoraMember, Intege
     Optional<AgoraMember> findBySessionId(String sessionName);
 
     boolean existsByAgoraIdAndSessionIdIsNotNull(Long agoraId);
+
+    Optional<AgoraMember> deleteByAgoraIdAndMemberId(Long agoraId, Long memberId);
+
+    Optional<AgoraMember> findByMemberId(Long memberId);
 }

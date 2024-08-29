@@ -29,6 +29,7 @@ public class ChatCommandService {
         validateAgoraExists(agoraId);
 
         AgoraMember agoraMember = findValidAgoraMember(agoraId, userDetails.getUserId());
+
         Chat chat = createAndSaveChat(sendChatRequest, agoraMember);
 
         return new SendChatResponse(agoraMember, chat);

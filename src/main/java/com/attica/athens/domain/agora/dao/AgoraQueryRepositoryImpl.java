@@ -17,6 +17,7 @@ import com.attica.athens.domain.agora.exception.NotFoundAgoraIdException;
 import com.attica.athens.domain.agoraMember.domain.AgoraMemberType;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.LockModeType;
@@ -88,6 +89,10 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
                         agora.id,
                         agora.prosCount,
                         agora.consCount,
+                        Expressions.numberTemplate(Integer.class, "cast({0} as integer)",
+                                JPAExpressions.select(agoraMember.count())
+                                        .from(agoraMember)
+                                        .where(agoraMember.agora.id.eq(agora.id))),
                         agora.title,
                         agora.color,
                         agora.createdAt,
@@ -200,6 +205,10 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
                         agora.id,
                         agora.prosCount,
                         agora.consCount,
+                        Expressions.numberTemplate(Integer.class, "cast({0} as integer)",
+                                JPAExpressions.select(agoraMember.count())
+                                        .from(agoraMember)
+                                        .where(agoraMember.agora.id.eq(agora.id))),
                         agora.title,
                         agora.color,
                         agora.createdAt,
@@ -229,6 +238,10 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
                         agora.id,
                         agora.prosCount,
                         agora.consCount,
+                        Expressions.numberTemplate(Integer.class, "cast({0} as integer)",
+                                JPAExpressions.select(agoraMember.count())
+                                        .from(agoraMember)
+                                        .where(agoraMember.agora.id.eq(agora.id))),
                         agora.title,
                         agora.color,
                         agora.createdAt,
