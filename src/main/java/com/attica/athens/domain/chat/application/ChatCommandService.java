@@ -5,6 +5,8 @@ import com.attica.athens.domain.agora.exception.NotFoundAgoraException;
 import com.attica.athens.domain.agora.exception.NotParticipateException;
 import com.attica.athens.domain.agoraMember.dao.AgoraMemberRepository;
 import com.attica.athens.domain.agoraMember.domain.AgoraMember;
+import com.attica.athens.domain.chat.component.BadWordFilter;
+import com.attica.athens.domain.chat.component.FilterResult;
 import com.attica.athens.domain.chat.dao.ChatRepository;
 import com.attica.athens.domain.chat.dao.ReactionRepository;
 import com.attica.athens.domain.chat.domain.Chat;
@@ -14,6 +16,7 @@ import com.attica.athens.domain.chat.domain.ReactionType;
 import com.attica.athens.domain.chat.dto.projection.ReactionCount;
 import com.attica.athens.domain.chat.dto.request.SendChatRequest;
 import com.attica.athens.domain.chat.dto.request.SendReactionRequest;
+import com.attica.athens.domain.chat.dto.response.BadWordResponse;
 import com.attica.athens.domain.chat.dto.response.SendChatResponse;
 import com.attica.athens.domain.chat.dto.response.SendReactionResponse;
 import com.attica.athens.domain.chat.exception.NotFoundChatException;
@@ -23,6 +26,7 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,6 +38,7 @@ public class ChatCommandService {
     private final AgoraRepository agoraRepository;
     private final AgoraMemberRepository agoraMemberRepository;
     private final ChatRepository chatRepository;
+    private final BadWordFilter badWordFilter;
     private final ReactionRepository reactionRepository;
 
     private static final EnumMap<ReactionType, Long> EMPTY_ENUM_MAP = new EnumMap<>(ReactionType.class);
@@ -125,5 +130,19 @@ public class ChatCommandService {
             counts.put(result.getType(), result.getCount());
         }
         return counts;
+    }
+
+    public ResponseEntity<?> checkBadWord(final CustomUserDetails userDetails, final Long agoraId,
+                                          final SendChatRequest sendChatRequest) {
+        validateAgoraExists(agoraId);
+        findValidAgoraMember(agoraId, userDetails.getUserId());
+
+        FilterResult filter = badWordFilter.filter(sendChatRequest.message());
+
+        if (!filter.getBadword().isEmpty()) {
+            return ResponseEntity.badRequest()
+                    .body(new BadWordResponse(badWordFilter.filter(sendChatRequest.message())));
+        }
+        return ResponseEntity.ok("비속어가 포함되어있지 않습니다.");
     }
 }

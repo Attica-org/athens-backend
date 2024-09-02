@@ -9,11 +9,15 @@ import com.attica.athens.global.auth.CustomUserDetails;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -44,5 +48,13 @@ public class ChatAuthController {
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         return chatCommandService.sendReaction(userDetails, agoraId, chatId, sendReactionRequest);
+    }
+    @GetMapping("/agoras/{agoraId}/chats/filter")
+    public ResponseEntity<?> filterChat(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable("agoraId") Long agoraId,
+            @RequestBody SendChatRequest sendChatRequest) {
+
+        return chatCommandService.checkBadWord(userDetails, agoraId, sendChatRequest);
     }
 }

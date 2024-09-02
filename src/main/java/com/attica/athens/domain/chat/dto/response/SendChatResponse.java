@@ -32,5 +32,3 @@ public record SendChatResponse(ChatType type, SendChatData data) {
         }
     }
 }
-
-
