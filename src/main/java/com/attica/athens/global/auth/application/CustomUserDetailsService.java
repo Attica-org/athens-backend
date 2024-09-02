@@ -1,7 +1,8 @@
-package com.attica.athens.global.auth;
+package com.attica.athens.global.auth.application;
 
 import com.attica.athens.domain.member.dao.MemberRepository;
 import com.attica.athens.domain.member.domain.Member;
+import com.attica.athens.global.auth.domain.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -17,10 +18,10 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
-        Member user = memberRepository.findByUsername(username)
+        Member member = memberRepository.findByUsername(username)
                 .orElse(null);
-        if (user != null) {
-            return new CustomUserDetails(user.getId(), user.getPassword(), user.getRole().name());
+        if (member != null) {
+            return new CustomUserDetails(member.getId(), member.getPassword(), member.getRole().name());
         }
 
         throw new UsernameNotFoundException("User not found");

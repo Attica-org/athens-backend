@@ -5,7 +5,7 @@ import static com.attica.athens.global.auth.jwt.Constants.COOKIE_EXPIRATION_TIME
 import static com.attica.athens.global.auth.jwt.Constants.COOKIE_NAME;
 import static com.attica.athens.global.auth.jwt.Constants.REFRESH_TOKEN;
 
-import com.attica.athens.global.auth.CustomUserDetails;
+import com.attica.athens.global.auth.domain.CustomUserDetails;
 import com.attica.athens.global.auth.dao.RefreshTokenRepository;
 import com.attica.athens.global.auth.domain.RefreshToken;
 import com.attica.athens.global.auth.dto.request.CreateRefreshTokenRequest;

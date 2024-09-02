@@ -7,7 +7,7 @@ import static com.attica.athens.global.auth.jwt.Constants.REFRESH_TOKEN;
 
 import com.attica.athens.domain.common.ApiResponse;
 import com.attica.athens.domain.common.ApiUtil;
-import com.attica.athens.global.auth.CustomUserDetails;
+import com.attica.athens.global.auth.domain.CustomUserDetails;
 import com.attica.athens.global.auth.application.AuthService;
 import com.attica.athens.global.auth.dto.response.CreateAccessTokenResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;

@@ -1,6 +1,6 @@
 package com.attica.athens.config;
 
-import com.attica.athens.global.auth.CustomUserDetails;
+import com.attica.athens.global.auth.domain.CustomUserDetails;
 import java.util.HashMap;
 import java.util.Map;
 import org.springframework.boot.test.context.TestConfiguration;

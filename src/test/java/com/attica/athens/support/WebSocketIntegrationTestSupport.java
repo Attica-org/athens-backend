@@ -1,7 +1,7 @@
 package com.attica.athens.support;
 
 import com.attica.athens.config.TestSecurityConfig.TestCustomUserDetailsServiceConfig;
-import com.attica.athens.global.auth.CustomUserDetails;
+import com.attica.athens.global.auth.domain.CustomUserDetails;
 import com.attica.athens.global.auth.jwt.JwtUtils;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
