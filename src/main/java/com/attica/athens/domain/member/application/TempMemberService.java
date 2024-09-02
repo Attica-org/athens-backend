@@ -1,6 +1,6 @@
 package com.attica.athens.domain.member.application;
 
-import com.attica.athens.domain.member.dao.TempUserRepository;
+import com.attica.athens.domain.member.dao.TempMemberRepository;
 import com.attica.athens.domain.member.domain.TempMember;
 import com.attica.athens.global.auth.application.AuthService;
 import jakarta.servlet.http.HttpServletResponse;
@@ -10,9 +10,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class TempUserService {
+public class TempMemberService {
 
-    private final TempUserRepository tempUserRepository;
+    private final TempMemberRepository tempMemberRepository;
     private final AuthService authService;
 
     @Transactional
@@ -20,7 +20,7 @@ public class TempUserService {
 
         TempMember tempUser = TempMember.createTempUser();
 
-        tempUserRepository.save(tempUser);
+        tempMemberRepository.save(tempUser);
 
         return authService.createRefreshTokenAndGetAccessToken(tempUser.getId(), tempUser.getRole().name(), response);
     }

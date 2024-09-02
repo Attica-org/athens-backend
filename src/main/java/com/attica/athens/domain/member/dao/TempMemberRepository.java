@@ -6,7 +6,7 @@ import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface TempUserRepository extends JpaRepository<TempMember, Long> {
+public interface TempMemberRepository extends JpaRepository<TempMember, Long> {
 
     Optional<TempMember> findByUuid(UUID uuid);
 }
