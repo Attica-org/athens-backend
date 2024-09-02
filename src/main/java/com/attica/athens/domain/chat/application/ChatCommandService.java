@@ -11,6 +11,7 @@ import com.attica.athens.domain.chat.domain.Chat;
 import com.attica.athens.domain.chat.domain.ChatContent;
 import com.attica.athens.domain.chat.domain.Reaction;
 import com.attica.athens.domain.chat.domain.ReactionType;
+import com.attica.athens.domain.chat.dto.projection.ReactionCount;
 import com.attica.athens.domain.chat.dto.request.SendChatRequest;
 import com.attica.athens.domain.chat.dto.request.SendReactionRequest;
 import com.attica.athens.domain.chat.dto.response.SendChatResponse;
@@ -20,6 +21,7 @@ import com.attica.athens.domain.chat.exception.WriterReactionException;
 import com.attica.athens.global.auth.CustomUserDetails;
 import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -82,14 +84,22 @@ public class ChatCommandService {
         ReactionType reactionType = sendReactionRequest.reactionType();
 
         if (hasReaction(chat.getId(), reactionType, agoraMember.getId())) {
-            reactionRepository.deleteByChatIdAndAgoraMemberIdAndType(chatId, agoraMember.getId(), reactionType);
+            removeReaction(chatId, agoraMember, reactionType);
         } else {
-            Reaction reaction = new Reaction(reactionType, chat, agoraMember);
-            reactionRepository.save(reaction);
+            addReaction(agoraMember, chat, reactionType);
         }
 
         return new SendReactionResponse(chatId,
                 getReactionTypeEnumMap(chatId));
+    }
+
+    private void addReaction(final AgoraMember agoraMember, final Chat chat, final ReactionType reactionType) {
+        Reaction reaction = new Reaction(reactionType, chat, agoraMember);
+        reactionRepository.save(reaction);
+    }
+
+    private void removeReaction(final Long chatId, final AgoraMember agoraMember, final ReactionType reactionType) {
+        reactionRepository.deleteByChatIdAndAgoraMemberIdAndType(chatId, agoraMember.getId(), reactionType);
     }
 
     private Chat findChat(final Long chatId) {
@@ -107,13 +117,11 @@ public class ChatCommandService {
         return reactionRepository.existsByChatIdAndAgoraMemberIdAndType(chatId, agoraMemberId, type);
     }
 
-    public EnumMap<ReactionType, Long> getReactionTypeEnumMap(final Long chatId) {
-        EnumMap<ReactionType, Long> counts = new EnumMap<>(EMPTY_ENUM_MAP);
-        List<Object[]> results = reactionRepository.countReactionsByChatId(chatId);
-        for (Object[] result : results) {
-            ReactionType type = (ReactionType) result[0];
-            Long count = (Long) result[1];
-            counts.put(type, count);
+    private Map<ReactionType, Long> getReactionTypeEnumMap(final Long chatId) {
+        Map<ReactionType, Long> counts = new EnumMap<>(EMPTY_ENUM_MAP);
+        List<ReactionCount> results = reactionRepository.countReactionsByChatId(chatId);
+        for (ReactionCount result : results) {
+            counts.put(result.getType(), result.getCount());
         }
         return counts;
     }
