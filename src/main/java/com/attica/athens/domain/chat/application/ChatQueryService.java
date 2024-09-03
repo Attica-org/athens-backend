@@ -6,13 +6,19 @@ import com.attica.athens.domain.agoraMember.dao.AgoraMemberRepository;
 import com.attica.athens.domain.agoraMember.domain.AgoraMember;
 import com.attica.athens.domain.agoraMember.domain.AgoraMemberType;
 import com.attica.athens.domain.chat.dao.ChatRepository;
+import com.attica.athens.domain.chat.dao.ReactionRepository;
 import com.attica.athens.domain.chat.domain.Chat;
 import com.attica.athens.domain.chat.domain.Chats;
+import com.attica.athens.domain.chat.domain.ReactionType;
 import com.attica.athens.domain.chat.dto.Cursor;
+import com.attica.athens.domain.chat.dto.projection.ReactionCountById;
 import com.attica.athens.domain.chat.dto.response.GetChatParticipants;
 import com.attica.athens.domain.chat.dto.response.GetChatResponse;
 import com.attica.athens.domain.chat.dto.response.GetChatResponse.ChatData;
+import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -27,16 +33,36 @@ public class ChatQueryService {
     private final AgoraRepository agoraRepository;
     private final AgoraMemberRepository agoraMemberRepository;
     private final ChatRepository chatRepository;
+    private final ReactionRepository reactionRepository;
 
     public GetChatResponse getChatHistory(final Long agoraId, final Cursor cursor) {
         validateAgoraExists(agoraId);
 
         List<AgoraMember> agoraMembers = findAgoraMembers(agoraId);
         Chats chats = new Chats(findChats(cursor, agoraMembers));
-        List<ChatData> chatData = chats.createChatDataWithUsers(agoraMembers);
+        Map<Long, Map<ReactionType, Long>> reactionCounts = getReactionCounts(chats.getChats());
+        List<ChatData> chatData = chats.createChatDataWithUsers(agoraMembers, reactionCounts);
         Cursor nextCursor = cursor.calculateNext(chats);
 
         return new GetChatResponse(chatData, nextCursor);
+    }
+
+    private Map<Long, Map<ReactionType, Long>> getReactionCounts(List<Chat> chats) {
+        List<Long> chatIds = chats.stream()
+                .map(Chat::getId)
+                .toList();
+        List<ReactionCountById> reactionCounts = reactionRepository.countReactionsByChatIds(chatIds);
+
+        Map<Long, Map<ReactionType, Long>> result = new HashMap<>();
+        for (ReactionCountById reactionCount : reactionCounts) {
+            result.computeIfAbsent(reactionCount.getChatId(), k -> new EnumMap<>(ReactionType.class))
+                    .put(reactionCount.getType(), reactionCount.getCount());
+        }
+        for (Long chatId : chatIds) {
+            result.putIfAbsent(chatId, new EnumMap<>(ReactionType.class));
+        }
+
+        return result;
     }
 
     public GetChatParticipants getChatParticipants(final Long agoraId) {
