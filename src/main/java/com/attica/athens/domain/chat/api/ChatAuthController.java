@@ -2,7 +2,9 @@ package com.attica.athens.domain.chat.api;
 
 import com.attica.athens.domain.chat.application.ChatCommandService;
 import com.attica.athens.domain.chat.dto.request.SendChatRequest;
+import com.attica.athens.domain.chat.dto.request.SendReactionRequest;
 import com.attica.athens.domain.chat.dto.response.SendChatResponse;
+import com.attica.athens.domain.chat.dto.response.SendReactionResponse;
 import com.attica.athens.global.auth.CustomUserDetails;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -31,5 +33,16 @@ public class ChatAuthController {
             @AuthenticationPrincipal CustomUserDetails userDetails) {
 
         return chatCommandService.sendChat(userDetails, agoraId, sendChatRequest);
+    }
+
+    @MessageMapping("/agoras/{agoraId}/chats/{chatId}/reactions")
+    @SendTo(value = "/topic/agoras/{agoraId}/reactions")
+    public SendReactionResponse sendReaction(
+            @DestinationVariable("agoraId") Long agoraId,
+            @DestinationVariable("chatId") Long chatId,
+            @Payload @Valid SendReactionRequest sendReactionRequest,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        return chatCommandService.sendReaction(userDetails, agoraId, chatId, sendReactionRequest);
     }
 }
