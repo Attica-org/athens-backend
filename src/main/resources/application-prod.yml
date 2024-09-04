@@ -6,6 +6,12 @@ server:
   port: 8080
 
 spring:
+  servlet:
+    multipart:
+      enabled: true
+      location: ./charming/tmp
+      max-request-size: 100MB
+      max-file-size: 100MB
   datasource:
     url: jdbc:mysql://${MYSQL_HOST}:${MYSQL_PORT}/${MYSQL_DB}?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=Asia/Seoul
     username: ${MYSQL_USER}
@@ -81,3 +87,14 @@ frontend:
 
 cors:
   allowed-origins: http://localhost:3000, file://, https://athens-client-mu.vercel.app
+
+aws:
+  s3:
+    access-key: ${S3_ACCESS_KEY}
+    secret-key: ${S3_SECRET_KEY}
+    bucket: ${S3_BUCKET_NAME}
+    region:
+      static: ${S3_REGION}
+      auto: false
+    stack:
+      auto: false
