@@ -8,6 +8,7 @@ public record SimpleAgoraResult(
         String agoraTitle,
         String agoraColor,
         SimpleParticipants participants,
+        String imageUrl,
         LocalDateTime createdAt,
         AgoraStatus status
 ) {

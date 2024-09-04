@@ -61,6 +61,7 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
                                                 .and(agoraMember.type.eq(AgoraMemberType.OBSERVER))
                                                 .and(agoraMember.sessionId.isNotNull()))
                         ),
+                        agora.agoraThumbnail.imageUrl,
                         agora.createdAt,
                         agora.status
                 ))
@@ -93,6 +94,7 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
                                         .where(agoraMember.agora.id.eq(agora.id))),
                         agora.title,
                         agora.color,
+                        agora.agoraThumbnail.imageUrl,
                         agora.createdAt,
                         agora.status
                 ))
@@ -136,6 +138,7 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
                                                 .and(agoraMember.type.eq(AgoraMemberType.OBSERVER))
                                                 .and(agoraMember.sessionId.isNotNull()))
                         ),
+                        agora.agoraThumbnail.imageUrl,
                         agora.createdAt,
                         agora.status
                 ))
@@ -178,6 +181,7 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
                                                 .and(agoraMember.type.eq(AgoraMemberType.OBSERVER))
                                                 .and(agoraMember.sessionId.isNotNull()))
                         ),
+                        agora.agoraThumbnail.imageUrl,
                         agora.createdAt,
                         agora.status
                 ))
@@ -209,6 +213,7 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
                                         .where(agoraMember.agora.id.eq(agora.id))),
                         agora.title,
                         agora.color,
+                        agora.agoraThumbnail.imageUrl,
                         agora.createdAt,
                         agora.status
                 ))
@@ -242,6 +247,7 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
                                         .where(agoraMember.agora.id.eq(agora.id))),
                         agora.title,
                         agora.color,
+                        agora.agoraThumbnail.imageUrl,
                         agora.createdAt,
                         agora.status
                 ))
