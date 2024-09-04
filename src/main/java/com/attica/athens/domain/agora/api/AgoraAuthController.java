@@ -20,7 +20,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/v1/auth/agoras")
@@ -70,9 +72,10 @@ public class AgoraAuthController {
 
     @PostMapping
     public ResponseEntity<ApiResponse<CreateAgoraResponse>> createAgora(
-            @RequestBody @Valid AgoraCreateRequest request
+            @RequestPart @Valid AgoraCreateRequest request,
+            @RequestPart(required = false) MultipartFile file
     ) {
-        CreateAgoraResponse response = agoraService.create(request);
+        CreateAgoraResponse response = agoraService.create(request, file);
 
         return ResponseEntity.ok(ApiUtil.success(response));
     }

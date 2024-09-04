@@ -21,6 +21,7 @@ import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -79,10 +80,12 @@ public class Agora extends AuditingFields {
     private Category category;
     @OneToMany(mappedBy = "agora")
     private final List<AgoraMember> agoraMembers = new ArrayList<>();
+    @OneToOne
+    private AgoraThumbnail agoraThumbnail;
 
     @Builder
     public Agora(String title, Integer capacity, Integer duration, String color, Integer prosCount, Integer consCount,
-                 Category category) {
+                 Category category, AgoraThumbnail agoraThumbnail) {
         this.title = title;
         this.capacity = capacity;
         this.duration = duration;
@@ -93,6 +96,7 @@ public class Agora extends AuditingFields {
         this.consCount = consCount;
         this.endVoteCount = 0;
         this.category = category;
+        this.agoraThumbnail = agoraThumbnail;
     }
 
     public void addMember(AgoraMember member) {

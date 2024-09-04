@@ -5,6 +5,7 @@ import com.attica.athens.domain.agora.dao.CategoryRepository;
 import com.attica.athens.domain.agora.dao.PopularRepository;
 import com.attica.athens.domain.agora.domain.Agora;
 import com.attica.athens.domain.agora.domain.AgoraStatus;
+import com.attica.athens.domain.agora.domain.AgoraThumbnail;
 import com.attica.athens.domain.agora.domain.Category;
 import com.attica.athens.domain.agora.dto.SimpleAgoraResult;
 import com.attica.athens.domain.agora.dto.request.AgoraCreateRequest;
@@ -48,6 +49,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
@@ -64,11 +66,13 @@ public class AgoraService {
     private final SimpMessagingTemplate messagingTemplate;
     private final AgoraMemberService agoraMemberService;
     private final PopularRepository popularRepository;
+    private final S3ThumbnailService s3ThumbnailService;
 
     @Transactional
-    public CreateAgoraResponse create(final AgoraCreateRequest request) {
+    public CreateAgoraResponse create(final AgoraCreateRequest request, final MultipartFile file) {
         Category category = findByCategory(request.categoryId());
-        Agora created = agoraRepository.save(createAgora(request, category));
+        AgoraThumbnail thumbnail = s3ThumbnailService.getAgoraThumbnail(file);
+        Agora created = agoraRepository.save(createAgora(request, category, thumbnail));
 
         return new CreateAgoraResponse(created.getId());
     }
@@ -102,7 +106,8 @@ public class AgoraService {
     @Transactional
     public AgoraParticipateResponse participate(final Long memberId, final Long agoraId,
                                                 final AgoraParticipateRequest request) {
-        Agora agora = findAgoraById(agoraId);
+        Agora agora = agoraRepository.findAgoraById(agoraId)
+                .orElseThrow(() -> new NotFoundAgoraException(agoraId));
 
         if (!Objects.equals(AgoraMemberType.OBSERVER, request.type())) {
             int typeCount = agoraMemberRepository.countCapacityByAgoraMemberType(agora.getId(), request.type());
@@ -131,7 +136,8 @@ public class AgoraService {
 
     @Transactional
     public AgoraExitResponse exit(final Long memberId, final Long agoraId) {
-        findAgoraById(agoraId);
+        Agora agora = agoraRepository.findAgoraById(agoraId)
+                .orElseThrow(() -> new NotFoundAgoraException(agoraId));
 
         AgoraMember agoraMember = agoraMemberService.findAgoraMemberByAgoraIdAndMemberId(agoraId, memberId);
         LocalDateTime socketDisconnectTime = LocalDateTime.now();
@@ -139,7 +145,7 @@ public class AgoraService {
         agoraMember.updateSocketDisconnectTime(socketDisconnectTime);
         agoraMember.updateDisconnectType(true);
 
-        return new AgoraExitResponse(memberId, agoraMember.getType(), socketDisconnectTime);
+        return new AgoraExitResponse(agora.getId(), memberId, agoraMember.getType(), socketDisconnectTime);
     }
 
     public List<SimpleAgoraResult> findTrendAgora() {
@@ -157,13 +163,15 @@ public class AgoraService {
                 .toList();
     }
 
-    private Agora createAgora(final AgoraCreateRequest request, final Category category) {
+    private Agora createAgora(final AgoraCreateRequest request, final Category category, final AgoraThumbnail agoraThumbnail) {
         return new Agora(request.title(),
                 request.capacity(),
                 request.duration(),
                 request.color(),
                 PROS_COUNT, CONS_COUNT,
-                category);
+                category,
+                agoraThumbnail
+        );
     }
 
     private AgoraMember createAgoraMember(final Long memberId, final Long agoraId,
