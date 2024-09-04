@@ -33,13 +33,13 @@ public class S3ThumbnailService {
                 .filter(f -> !f.isEmpty())
                 .map(this::saveFile)
                 .orElseGet(() -> {
-                    return agoraThumbnailRepository.findByOriginName(DEFAULT_THUMBNAIL);
+                    return agoraThumbnailRepository.findAgoraThumbnailByOriginName(DEFAULT_THUMBNAIL);
                 });
     }
 
     private AgoraThumbnail saveFile(MultipartFile file) {
         String imageUrl = uploadToS3Bucket(file);
-        AgoraThumbnail thumbnail = new AgoraThumbnail(imageUrl);
+        AgoraThumbnail thumbnail = new AgoraThumbnail(file.getOriginalFilename(), imageUrl);
 
         return agoraThumbnailRepository.save(thumbnail);
     }

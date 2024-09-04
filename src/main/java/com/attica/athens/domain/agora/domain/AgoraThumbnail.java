@@ -26,9 +26,12 @@ public class AgoraThumbnail extends AuditingFields {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private String originName;
+
     private String imageUrl;
 
-    public AgoraThumbnail(String imageUrl) {
+    public AgoraThumbnail(String originName, String imageUrl) {
+        this.originName = originName;
         this.imageUrl = imageUrl;
     }
 }
