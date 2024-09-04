@@ -77,6 +77,15 @@ public class AgoraService {
         return new CreateAgoraResponse(created.getId());
     }
 
+    @Transactional
+    public void updateAgoraImage(Long agoraId, MultipartFile file) {
+        Agora agora = agoraRepository.findById(agoraId)
+                .orElseThrow(() -> new NotFoundAgoraException(agoraId));
+
+        AgoraThumbnail updateThumbnail = s3ThumbnailService.getAgoraThumbnail(file);
+        agora.updateThumbnail(updateThumbnail);
+    }
+
     public AgoraSlice<?> findAgoraByKeyword(final String agoraName,
                                             final SearchKeywordRequest request) {
         boolean isClosed = AgoraStatus.CLOSED.getType().equals(request.status());

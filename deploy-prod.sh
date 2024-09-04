@@ -19,7 +19,7 @@ CURRENT_COLOR=$(docker ps --filter "name=$WAS_NAME" --format "{{.Names}}" | cut 
 if [ -z "$CURRENT_COLOR" ]; then
   NEW_COLOR="blue"
 else
-  NEW_COLOR=$(echo "$CURRENT_COLOR" | sed 's/blue/green/; s/green/blue/')
+  NEW_COLOR=$( [ "$CURRENT_COLOR" = "blue" ] && echo "green" || echo "blue" )
 fi
 
 $COMPOSE_BIN -f "docker-compose.${NEW_COLOR}.yml" up --build -d

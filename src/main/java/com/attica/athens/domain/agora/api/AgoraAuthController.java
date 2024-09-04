@@ -13,6 +13,7 @@ import com.attica.athens.domain.common.ApiUtil;
 import com.attica.athens.global.auth.domain.CustomUserDetails;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -78,5 +79,15 @@ public class AgoraAuthController {
         CreateAgoraResponse response = agoraService.create(request, file);
 
         return ResponseEntity.ok(ApiUtil.success(response));
+    }
+
+    @PatchMapping("/{agoraId}")
+    public ResponseEntity<ApiResponse<Void>> updateAgoraThumbnail(
+            @PathVariable("agoraId") Long agoraId,
+            MultipartFile file
+    ) {
+        agoraService.updateAgoraImage(agoraId, file);
+
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 }

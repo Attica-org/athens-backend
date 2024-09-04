@@ -176,4 +176,8 @@ public class Agora extends AuditingFields {
         }
         return false;
     }
+
+    public void updateThumbnail(AgoraThumbnail agoraThumbnail) {
+        this.agoraThumbnail = agoraThumbnail;
+    }
 }
