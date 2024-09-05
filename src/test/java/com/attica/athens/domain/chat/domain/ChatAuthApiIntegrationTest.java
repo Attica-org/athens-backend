@@ -55,6 +55,28 @@ public class ChatAuthApiIntegrationTest extends IntegrationTestSupport {
         }
 
         @Test
+        @DisplayName("채팅 내에 비속어가 없는 경우 200OK응답")
+        @Sql("/sql/enter-agora-members.sql")
+        @WithMockCustomUser
+        void 성공_비속어검사_비속어포함되지않은채팅() throws Exception {
+            //given
+            badWordFilter.init();
+            SendChatRequest request = new SendChatRequest(ChatType.CHAT, "토론 잘하시네요");
+
+            objectMapper = new ObjectMapper();
+            String jsonContent = objectMapper.writeValueAsString(request);
+
+            //when
+            final ResultActions result = mockMvc.perform(
+                    get("/{prefix}/agoras/{agoraId}/chats/filter", API_V1_AUTH, 1)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(jsonContent)
+            );
+
+            result.andReturn().getResponse().getContentAsString().equals("비속어가 포함되어있지 않습니다.");
+        }
+
+        @Test
         @DisplayName("유효하지 않은 아고라멤버로 채팅 검사를 한다")
         @WithMockCustomUser("TeacherUnion")
         void 실패_비속어필터_유효하지않은AgoraMember() throws Exception {
