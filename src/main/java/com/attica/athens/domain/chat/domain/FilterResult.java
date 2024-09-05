@@ -1,4 +1,4 @@
-package com.attica.athens.domain.chat.component;
+package com.attica.athens.domain.chat.domain;
 
 import java.util.Collection;
 import org.ahocorasick.trie.Emit;

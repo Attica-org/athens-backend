@@ -102,8 +102,7 @@ public class AgoraService {
     @Transactional
     public AgoraParticipateResponse participate(final Long memberId, final Long agoraId,
                                                 final AgoraParticipateRequest request) {
-        Agora agora = agoraRepository.findAgoraById(agoraId)
-                .orElseThrow(() -> new NotFoundAgoraException(agoraId));
+        Agora agora = findAgoraById(agoraId);
 
         if (!Objects.equals(AgoraMemberType.OBSERVER, request.type())) {
             int typeCount = agoraMemberRepository.countCapacityByAgoraMemberType(agora.getId(), request.type());
@@ -132,8 +131,7 @@ public class AgoraService {
 
     @Transactional
     public AgoraExitResponse exit(final Long memberId, final Long agoraId) {
-        Agora agora = agoraRepository.findAgoraById(agoraId)
-                .orElseThrow(() -> new NotFoundAgoraException(agoraId));
+        findAgoraById(agoraId);
 
         AgoraMember agoraMember = agoraMemberService.findAgoraMemberByAgoraIdAndMemberId(agoraId, memberId);
         LocalDateTime socketDisconnectTime = LocalDateTime.now();
@@ -141,7 +139,7 @@ public class AgoraService {
         agoraMember.updateSocketDisconnectTime(socketDisconnectTime);
         agoraMember.updateDisconnectType(true);
 
-        return new AgoraExitResponse(agora.getId(), memberId, agoraMember.getType(), socketDisconnectTime);
+        return new AgoraExitResponse(memberId, agoraMember.getType(), socketDisconnectTime);
     }
 
     public List<SimpleAgoraResult> findTrendAgora() {

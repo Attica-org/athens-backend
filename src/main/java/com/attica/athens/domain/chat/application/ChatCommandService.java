@@ -6,7 +6,7 @@ import com.attica.athens.domain.agora.exception.NotParticipateException;
 import com.attica.athens.domain.agoraMember.dao.AgoraMemberRepository;
 import com.attica.athens.domain.agoraMember.domain.AgoraMember;
 import com.attica.athens.domain.chat.component.BadWordFilter;
-import com.attica.athens.domain.chat.component.FilterResult;
+import com.attica.athens.domain.chat.domain.FilterResult;
 import com.attica.athens.domain.chat.dao.ChatRepository;
 import com.attica.athens.domain.chat.dao.ReactionRepository;
 import com.attica.athens.domain.chat.domain.Chat;
@@ -134,7 +134,6 @@ public class ChatCommandService {
 
     public ResponseEntity<?> checkBadWord(final CustomUserDetails userDetails, final Long agoraId,
                                           final SendChatRequest sendChatRequest) {
-        validateAgoraExists(agoraId);
         findValidAgoraMember(agoraId, userDetails.getUserId());
 
         FilterResult filter = badWordFilter.filter(sendChatRequest.message());

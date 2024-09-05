@@ -10,7 +10,7 @@ public abstract class Constants {
 
     public static final String AUTHORITY_ROLE = "role";
 
-    public static final String COOKIE_NAME = "Refresh-Token";
+    public static final String COOKIE_NAME = "ATKN";
 
     public static final int COOKIE_EXPIRATION_TIME = 24 * 60 * 60;
 

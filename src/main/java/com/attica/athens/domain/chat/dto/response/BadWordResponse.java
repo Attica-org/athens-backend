@@ -1,6 +1,6 @@
 package com.attica.athens.domain.chat.dto.response;
 
-import com.attica.athens.domain.chat.component.FilterResult;
+import com.attica.athens.domain.chat.domain.FilterResult;
 import java.util.List;
 import java.util.stream.Collectors;
 
