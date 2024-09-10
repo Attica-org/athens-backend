@@ -5,35 +5,39 @@ import static com.attica.athens.global.auth.jwt.Constants.AUTHORITY_KEY;
 import static com.attica.athens.global.auth.jwt.Constants.AUTHORITY_ROLE;
 import static com.attica.athens.global.auth.jwt.Constants.REFRESH_TOKEN;
 
+import com.attica.athens.global.auth.config.properties.AppProperties;
+import com.attica.athens.global.auth.config.properties.AppProperties.Auth.Jwt;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.Jwts.SIG;
+import jakarta.annotation.PostConstruct;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
-import org.springframework.beans.factory.annotation.Value;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class JwtUtils {
 
-    private final SecretKey secretKey;
-    private final long accessTokenExpirationTime;
-    private final long refreshTokenExpirationTime;
+    private final AppProperties appProperties;
 
-    public JwtUtils(
-            @Value("${auth.jwt.secret-key}") String secret,
-            @Value("${auth.jwt.access-expired}") long accessTokenExpirationTime,
-            @Value("${auth.jwt.refresh-expired}") long refreshTokenExpirationTime
-    ) {
-        this.accessTokenExpirationTime = accessTokenExpirationTime;
-        this.refreshTokenExpirationTime = refreshTokenExpirationTime;
-        this.secretKey = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8),
+    private SecretKey secretKey;
+    private long accessTokenExpirationTime;
+    private long refreshTokenExpirationTime;
+
+    @PostConstruct
+    public void init() {
+        Jwt jwtProperties = appProperties.getAuth().getJwt();
+        this.secretKey = new SecretKeySpec(jwtProperties.getSecretKey().getBytes(StandardCharsets.UTF_8),
                 SIG.HS256.key().build().getAlgorithm());
+        this.accessTokenExpirationTime = jwtProperties.getAccessExpired();
+        this.refreshTokenExpirationTime = jwtProperties.getRefreshExpired();
     }
 
     public String createJwtToken(String tokenType, Long id, String role) {
