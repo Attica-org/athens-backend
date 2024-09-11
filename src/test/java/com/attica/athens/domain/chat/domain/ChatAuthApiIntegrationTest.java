@@ -47,6 +47,7 @@ public class ChatAuthApiIntegrationTest extends IntegrationTestSupport {
             );
 
             result.andExpectAll(
+                    jsonPath("$.hasBadWord").value(true),
                     jsonPath("$.badword").isNotEmpty(),
                     jsonPath("$.badword[0].start").value(3),
                     jsonPath("$.badword[0].end").value(4),
@@ -73,7 +74,11 @@ public class ChatAuthApiIntegrationTest extends IntegrationTestSupport {
                             .content(jsonContent)
             );
 
-            result.andReturn().getResponse().getContentAsString().equals("비속어가 포함되어있지 않습니다.");
+            result.andExpect(status().isOk())
+                    .andExpectAll(
+                            jsonPath("$.hasBadWord").value(false),
+                            jsonPath("$.badword").isEmpty()
+                    );
         }
 
         @Test

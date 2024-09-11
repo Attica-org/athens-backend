@@ -3,13 +3,13 @@ package com.attica.athens.domain.chat.api;
 import com.attica.athens.domain.chat.application.ChatCommandService;
 import com.attica.athens.domain.chat.dto.request.SendChatRequest;
 import com.attica.athens.domain.chat.dto.request.SendReactionRequest;
+import com.attica.athens.domain.chat.dto.response.BadWordResponse;
 import com.attica.athens.domain.chat.dto.response.SendChatResponse;
 import com.attica.athens.domain.chat.dto.response.SendReactionResponse;
 import com.attica.athens.global.auth.CustomUserDetails;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -49,8 +49,9 @@ public class ChatAuthController {
     ) {
         return chatCommandService.sendReaction(userDetails, agoraId, chatId, sendReactionRequest);
     }
+
     @GetMapping("/agoras/{agoraId}/chats/filter")
-    public ResponseEntity<?> filterChat(
+    public BadWordResponse filterChat(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable("agoraId") Long agoraId,
             @RequestBody SendChatRequest sendChatRequest) {

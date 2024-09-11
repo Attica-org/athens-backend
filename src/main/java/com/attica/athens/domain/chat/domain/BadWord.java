@@ -15,8 +15,8 @@ import lombok.NoArgsConstructor;
 public class BadWord {
 
     @Id
+    @Column(name = "badword_id",nullable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "badword_id")
     private Long id;
 
     @Column(name = "word")
