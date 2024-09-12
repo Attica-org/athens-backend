@@ -5,8 +5,7 @@ import java.util.List;
 
 public record BadWordResponse(boolean hasBadWord, List<BadWordInfo> badword) {
     public BadWordResponse(FilterResult filterResult) {
-        this(
-                !filterResult.getBadword().isEmpty(),
+        this(!filterResult.getBadword().isEmpty(),
                 filterResult.getBadword()
                         .stream()
                         .map(emit -> new BadWordInfo(emit.getStart(), emit.getEnd(), emit.getKeyword()))
