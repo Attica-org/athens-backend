@@ -190,6 +190,27 @@ class ChatWebSocketApiIntegrationTest extends WebSocketIntegrationTestSupport {
                 assertThat(result).contains("Observer cannot send this request");
             });
         }
+
+        @Test
+        @DisplayName("아고라가 이미 종료되었을 경우 에러를 반환한다")
+        void 실패_채팅전송_종료된아고라() throws Exception {
+            // given
+            Long agoraId = 3L;
+            CompletableFuture<String> resultFuture = new CompletableFuture<>();
+            StompSession session = connectAndSubscribe(ERROR_URL, "EconomistPro", agoraId, resultFuture);
+
+            // when
+            SendChatRequest chatRequest = new SendChatRequest(ChatType.CHAT, "안녕하세요.");
+            session.send(CHAT_APP_URL.replace("{agoraId}", agoraId.toString()), chatRequest);
+
+            // then
+            String result = resultFuture.get(10, TimeUnit.SECONDS);
+            assertAll(() -> {
+                assertThat(result).contains("ERROR");
+                assertThat(result).contains("1002");
+                assertThat(result).contains("Agora is closed");
+            });
+        }
     }
 
     @Nested
