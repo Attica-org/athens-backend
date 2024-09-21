@@ -99,7 +99,11 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
             default:
                 throw new IllegalArgumentException("Unsupported OAuth2 provider: " + registrationId);
         }
-        return oauth2User.getAttribute(userIdAttributeName);
+        Object userIdAttribute = oauth2User.getAttribute(userIdAttributeName);
+        if (userIdAttribute == null) {
+            throw new IllegalArgumentException("User ID attribute not found: " + userIdAttributeName);
+        }
+        return userIdAttribute.toString();
     }
 
     private String extractAuthority(Authentication authentication) {
