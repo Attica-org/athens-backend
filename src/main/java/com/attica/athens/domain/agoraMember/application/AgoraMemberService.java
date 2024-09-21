@@ -9,6 +9,7 @@ import com.attica.athens.domain.agoraMember.domain.AgoraMember;
 import com.attica.athens.domain.agoraMember.dto.response.SendMetaResponse;
 import com.attica.athens.domain.agoraMember.dto.response.SendMetaResponse.MetaData;
 import com.attica.athens.domain.agoraMember.dto.response.SendMetaResponse.ParticipantsInfo;
+import com.attica.athens.domain.agoraMember.exception.NotFoundAgoraMemberException;
 import com.attica.athens.domain.agoraMember.exception.NotFoundSessionException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -27,8 +28,8 @@ public class AgoraMemberService {
     private final SimpMessagingTemplate simpMessagingTemplate;
 
     @Transactional
-    public void updateSessionId(Long agoraId, Long userId, String sessionId) {
-        agoraMemberRepository.findByAgoraIdAndMemberId(agoraId, userId)
+    public void updateSessionId(Long agoraId, Long memberId, String sessionId) {
+        agoraMemberRepository.findByAgoraIdAndMemberId(agoraId, memberId)
                 .ifPresent(agoraMember -> agoraMember.updateSessionId(sessionId));
     }
 
@@ -38,6 +39,12 @@ public class AgoraMemberService {
                 .orElseThrow(NotFoundSessionException::new);
         agoraMember.updateSessionId(null);
         checkAgoraStatus(agoraMember.getAgora());
+    }
+
+    @Transactional
+    public void deleteAgoraMember(Long agoraId, Long memberId) {
+        agoraMemberRepository.deleteByAgoraIdAndMemberId(agoraId, memberId)
+                .orElseThrow(() -> new NotFoundAgoraMemberException(agoraId, memberId));
     }
 
     public void checkAgoraStatus(Agora agora) {
@@ -50,12 +57,13 @@ public class AgoraMemberService {
         }
     }
 
-    public void sendMetaToActiveMembers(Long agoraId) {
+    public void sendMetaToActiveMembers(Long agoraId, Long userId) {
         simpMessagingTemplate.convertAndSend("/topic/agoras/" + agoraId,
                 new SendMetaResponse(
                         new MetaData(
                                 findAgoraMemberByType(agoraId),
-                                findAgoraById(agoraId)
+                                findAgoraById(agoraId),
+                                findAgoraMemberByAgoraIdAndMemberId(agoraId, userId)
                         )
                 ));
     }
@@ -73,5 +81,10 @@ public class AgoraMemberService {
         return agoraMemberRepository.findBySessionId(sessionId)
                 .map(agoraMember -> agoraMember.getAgora().getId())
                 .orElseThrow(NotFoundSessionException::new);
+    }
+
+    public AgoraMember findAgoraMemberByAgoraIdAndMemberId(Long agoraId, Long memberId) {
+        return agoraMemberRepository.findByAgoraIdAndMemberId(agoraId, memberId)
+                .orElseThrow(() -> new NotFoundAgoraMemberException(agoraId, memberId));
     }
 }

@@ -3,6 +3,7 @@ package com.attica.athens.domain.agora.api;
 import com.attica.athens.domain.agora.application.AgoraService;
 import com.attica.athens.domain.agora.dto.request.AgoraCreateRequest;
 import com.attica.athens.domain.agora.dto.request.AgoraParticipateRequest;
+import com.attica.athens.domain.agora.dto.response.AgoraExitResponse;
 import com.attica.athens.domain.agora.dto.response.AgoraParticipateResponse;
 import com.attica.athens.domain.agora.dto.response.CreateAgoraResponse;
 import com.attica.athens.domain.agora.dto.response.EndVoteAgoraResponse;
@@ -52,6 +53,17 @@ public class AgoraAuthController {
     ) {
         Long userId = Long.parseLong(user.getUsername());
         AgoraParticipateResponse response = agoraService.participate(userId, agoraId, request);
+
+        return ResponseEntity.ok(ApiUtil.success(response));
+    }
+
+    @PatchMapping("/{agoraId}/exit")
+    public ResponseEntity<ApiResponse<AgoraExitResponse>> exitAgora(
+            @AuthenticationPrincipal CustomUserDetails user,
+            @PathVariable("agoraId") Long agoraId
+    ) {
+        Long userId = Long.parseLong(user.getUsername());
+        AgoraExitResponse response = agoraService.exit(userId, agoraId);
 
         return ResponseEntity.ok(ApiUtil.success(response));
     }

@@ -4,13 +4,12 @@ import com.attica.athens.domain.common.advice.CustomException;
 import com.attica.athens.domain.common.advice.ErrorCode;
 import org.springframework.http.HttpStatus;
 
-public class InvalidAuthorizationHeaderException extends CustomException {
-
-    public InvalidAuthorizationHeaderException() {
+public class SessionReconnectException extends CustomException {
+    public SessionReconnectException(String sessionId) {
         super(
                 HttpStatus.BAD_REQUEST,
-                ErrorCode.MISSING_PART,
-                "Authorization header is missing or does not start with Bearer"
+                ErrorCode.WRONG_REQUEST_TRANSMISSION,
+                "Reconnection attempt failed for sessionId:" + sessionId
         );
     }
 }

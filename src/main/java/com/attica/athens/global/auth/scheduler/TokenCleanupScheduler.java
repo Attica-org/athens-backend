@@ -3,8 +3,6 @@ package com.attica.athens.global.auth.scheduler;
 import com.attica.athens.global.auth.dao.RefreshTokenRepository;
 import com.attica.athens.global.auth.domain.RefreshToken;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.Date;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -19,7 +17,8 @@ public class TokenCleanupScheduler {
     @Scheduled(cron = "0 0 0 * * ?")
     public void cleanUpExpiredTokens() {
         LocalDateTime expirationDateTime = getExpirationDateTime();
-        List<RefreshToken> refreshTokensByExpiration = refreshTokenRepository.findByExpirationBefore(expirationDateTime);
+        List<RefreshToken> refreshTokensByExpiration = refreshTokenRepository.findByExpirationBefore(
+                expirationDateTime);
         refreshTokenRepository.deleteAll(refreshTokensByExpiration);
     }
 

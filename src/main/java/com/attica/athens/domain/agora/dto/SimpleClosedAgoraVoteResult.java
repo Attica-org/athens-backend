@@ -7,6 +7,7 @@ public record SimpleClosedAgoraVoteResult(
         Long id,
         Integer prosCount,
         Integer consCount,
+        Integer totalMember,
         String agoraTitle,
         String agoraColor,
         LocalDateTime createdAt,

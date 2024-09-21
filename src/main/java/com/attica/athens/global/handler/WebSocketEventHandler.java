@@ -1,7 +1,13 @@
 package com.attica.athens.global.handler;
 
 import com.attica.athens.domain.agoraMember.application.AgoraMemberService;
+import com.attica.athens.domain.agoraMember.dao.AgoraMemberRepository;
+import com.attica.athens.domain.agoraMember.domain.AgoraMember;
+import com.attica.athens.domain.member.exception.NotFoundMemberException;
 import com.attica.athens.global.auth.CustomUserDetails;
+import com.attica.athens.global.auth.exception.SessionReconnectException;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +31,8 @@ import org.springframework.web.socket.messaging.SessionUnsubscribeEvent;
 public class WebSocketEventHandler {
 
     private final AgoraMemberService agoraMemberService;
+    private final AgoraMemberRepository agoraMemberRepository;
+    private final long reconnectThreshold = 10000;
 
     @EventListener
     public void handleWebSocketSessionConnect(SessionConnectEvent event) {
@@ -59,22 +67,60 @@ public class WebSocketEventHandler {
         GenericMessage generic = (GenericMessage) accessor.getHeader("simpConnectMessage");
         Map nativeHeaders = (Map) generic.getHeaders().get("nativeHeaders");
 
-        if (accessor.getUser() != null) {
-            Long userId = getUserId(accessor);
-            if (nativeHeaders.containsKey("AgoraId")) {
-                Long agoraId = getAgoraId(nativeHeaders);
-                String sessionId = (String) generic.getHeaders().get("simpSessionId");
-
-                agoraMemberService.updateSessionId(agoraId, userId, sessionId);
-                agoraMemberService.sendMetaToActiveMembers(agoraId);
-                log.info("SessionId updated: agoraId={}, userId={}, sessionId={}", agoraId, userId, sessionId);
-            } else {
-                log.warn("AgoraId is not exist in headers");
-            }
-        } else {
-            log.warn("User is not exist in headers");
+        Long memberId = getUserId(accessor);
+        if (!validateHeaders(nativeHeaders, memberId)) {
+            return;
         }
-        log.info("WebSocket Connected");
+
+        Long agoraId = getAgoraId(nativeHeaders);
+        String sessionId = (String) generic.getHeaders().get("simpSessionId");
+
+        AgoraMember agoraMember = getAgoraMember(memberId);
+
+        if (agoraMember.getSessionId() == null) {
+            handleNewConnection(agoraId, memberId, sessionId);
+        } else {
+            LocalDateTime disconnectTime = findDisconnectTime(agoraId, sessionId);
+            handleReconnection(disconnectTime, sessionId, agoraId, memberId);
+        }
+
+        log.info("WebSocket Connected: sessionId={}, agoraId={}, userId={}", sessionId, agoraId, memberId);
+    }
+
+    private static boolean validateHeaders(Map nativeHeaders, Long memberId) {
+        if (memberId == null) {
+            log.warn("User is not present in headers");
+            return false;
+        }
+
+        if (!nativeHeaders.containsKey("AgoraId")) {
+            log.warn("AgoraId is not present in headers");
+            return false;
+        }
+        return true;
+    }
+
+    private void handleReconnection(LocalDateTime disconnectTime, String sessionId, Long agoraId, Long userId) {
+        boolean isReconnected = checkDisconnectTime(disconnectTime);
+        if (isReconnected) {
+            log.info("Reconnected within threshold: sessionId={}, agoraId={}, userId={}", sessionId, agoraId, userId);
+        } else {
+            log.info("Session reconnection failed: sessionId={}, agoraId={}, userId={}", sessionId, agoraId, userId);
+            throw new SessionReconnectException(sessionId);
+        }
+    }
+
+    private void handleNewConnection(Long agoraId, Long userId, String sessionId) {
+        agoraMemberService.updateSessionId(agoraId, userId, sessionId);
+        agoraMemberService.sendMetaToActiveMembers(agoraId, userId);
+        log.info("SessionId updated: agoraId={}, userId={}, sessionId={}", agoraId, userId, sessionId);
+    }
+
+    private boolean checkDisconnectTime(LocalDateTime disconnectTime) {
+        if (Duration.between(LocalDateTime.now(), disconnectTime).getSeconds() < reconnectThreshold) {
+            return true;
+        }
+        return false;
     }
 
     private Long getUserId(StompHeaderAccessor accessor) {
@@ -91,12 +137,35 @@ public class WebSocketEventHandler {
     public void handleWebSocketSessionDisconnected(SessionDisconnectEvent event) {
         String sessionId = event.getSessionId();
         Long agoraId = agoraMemberService.findAgoraIdBySessionId(sessionId);
-        Long userId = getUserId(StompHeaderAccessor.wrap(event.getMessage()));
+        Long memberId = getUserId(StompHeaderAccessor.wrap(event.getMessage()));
 
+        AgoraMember agoraMember = getAgoraMember(memberId);
+        if (agoraMember.getDisconnectType()) {
+            processDisconnection(sessionId, agoraId, memberId);
+        } else {
+            agoraMember.updateSocketDisconnectTime(LocalDateTime.now());
+            agoraMemberRepository.save(agoraMember);
+            log.warn("Disconnection type check failed: agoraId={}, memberId={}", agoraId, memberId);
+        }
+    }
+
+    private void processDisconnection(String sessionId, Long agoraId, Long memberId) {
         agoraMemberService.removeSessionId(sessionId);
-        agoraMemberService.sendMetaToActiveMembers(agoraId);
+        agoraMemberService.sendMetaToActiveMembers(agoraId, memberId);
+        log.info("WebSocket Disconnected: agoraId={}, userId={}", agoraId, memberId);
+        agoraMemberService.deleteAgoraMember(agoraId, memberId);
+    }
 
-        log.info("WebSocket Disconnected: sessionId={}, agoraId={}, userId={}", sessionId, agoraId, userId);
+    private AgoraMember getAgoraMember(Long userId) {
+        return agoraMemberRepository.findByMemberId(userId)
+                .orElseThrow(() -> new NotFoundMemberException(userId));
+    }
+
+    private LocalDateTime findDisconnectTime(Long agoraId, String sessionId) {
+        AgoraMember agoraMember = agoraMemberRepository.findBySessionId(sessionId)
+                .orElseThrow(() -> new NotFoundMemberException(agoraId));
+
+        return agoraMember.getSocketDisconnectTime();
     }
 
     @EventListener(SessionSubscribeEvent.class)

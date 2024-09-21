@@ -283,7 +283,7 @@ public class AgoraVoteAuthApiIntegrationTest extends IntegrationTestSupport {
                             jsonPath("$.success").value(false),
                             jsonPath("$.response").value(nullValue()),
                             jsonPath("$.error.code").value(1301),
-                            jsonPath("$.error.message").value("Not found agora. agoraId: 412902")
+                            jsonPath("$.error.message").value("Not found agora. agoraId: 50")
                     );
         }
     }
