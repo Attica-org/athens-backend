@@ -7,24 +7,20 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
-@Getter
-@Setter
+
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class RefreshToken {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "refreshToken_id")
+    @Column(name = "refresh_token_id")
     private Long id;
 
     @Column(name = "user_id", nullable = false)
-    private Long userId;
+    private String userId;
 
     @Column(nullable = false)
     private String refresh;
@@ -32,14 +28,29 @@ public class RefreshToken {
     @Column(nullable = false)
     private LocalDateTime expiration;
 
-    @Builder
-    private RefreshToken(Long userId, String refresh, LocalDateTime expiration) {
+    public RefreshToken(String userId, String refresh, LocalDateTime expiration) {
         this.userId = userId;
         this.refresh = refresh;
         this.expiration = expiration;
     }
 
-    public static RefreshToken createRefreshToken(Long userId, String refresh, LocalDateTime date) {
-        return new RefreshToken(userId, refresh, date);
+    public Long getId() {
+        return id;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public String getRefresh() {
+        return refresh;
+    }
+
+    public LocalDateTime getExpirationDateTime() {
+        return expiration;
+    }
+
+    public boolean isExpired() {
+        return LocalDateTime.now().isAfter(expiration);
     }
 }

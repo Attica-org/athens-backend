@@ -26,6 +26,8 @@ public class TestSecurityConfig {
             customUserDetailsMap.put("PolicyExpert", new CustomUserDetails(3L, "password", "ROLE_USER"));
             // agoraId:2 (Running), Pros
             customUserDetailsMap.put("TeacherUnion", new CustomUserDetails(4L, "password", "ROLE_USER"));
+            // agoraId:3 (Closed), Pros
+            customUserDetailsMap.put("EconomistPro", new CustomUserDetails(7L, "password", "ROLE_USER"));
         }
 
         @Bean

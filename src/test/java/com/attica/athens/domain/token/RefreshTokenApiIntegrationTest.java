@@ -41,7 +41,7 @@ public class RefreshTokenApiIntegrationTest extends IntegrationTestSupport {
     @DisplayName("토큰을 재발급한다.")
     void 성공_토큰재발급_유효한파라미터전달() throws Exception {
         // given
-        String refreshToken = jwtUtils.createJwtToken(REFRESH_TOKEN, 10L, "ROLE_TEMP_USER");
+        String refreshToken = jwtUtils.createJwtToken(REFRESH_TOKEN, "10", "ROLE_TEMP_USER");
 
         // when
         final ResultActions result = mockMvc.perform(
@@ -110,7 +110,7 @@ public class RefreshTokenApiIntegrationTest extends IntegrationTestSupport {
     @DisplayName("토큰의 형식이 잘못되었다면 예외를 발생시킨다.")
     void 실패_토큰형식_문자추가() throws Exception {
         // given
-        String refreshToken = jwtUtils.createJwtToken(REFRESH_TOKEN, 10L, "ROLE_TEMP_USER");
+        String refreshToken = jwtUtils.createJwtToken(REFRESH_TOKEN, "10", "ROLE_TEMP_USER");
 
         // when
         final ResultActions result = mockMvc.perform(

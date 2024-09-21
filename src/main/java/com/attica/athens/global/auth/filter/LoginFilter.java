@@ -4,15 +4,15 @@ import static com.attica.athens.global.auth.jwt.Constants.ACCESS_TOKEN;
 import static com.attica.athens.global.auth.jwt.Constants.COOKIE_EXPIRATION_TIME;
 import static com.attica.athens.global.auth.jwt.Constants.COOKIE_NAME;
 import static com.attica.athens.global.auth.jwt.Constants.REFRESH_TOKEN;
+import static com.attica.athens.global.utils.CookieUtils.addCookie;
 
 import com.attica.athens.domain.common.ApiResponse;
 import com.attica.athens.domain.common.ApiUtil;
-import com.attica.athens.global.auth.domain.CustomUserDetails;
 import com.attica.athens.global.auth.application.AuthService;
+import com.attica.athens.global.auth.domain.CustomUserDetails;
 import com.attica.athens.global.auth.dto.response.CreateAccessTokenResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -28,12 +28,25 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+/**
+ * 사용자 로그인 인증을 처리하는 필터 클래스 이 클래스는 {@link UsernamePasswordAuthenticationFilter}를 확장하여 사용자명과 비밀번호를 이용한 인증 프로세스를 구현한다.
+ *
+ * <p>인증 성공 시 JWT 토큰을 생성하고, 실패 시 적절한 응답을 반환한다.</p>
+ */
 @RequiredArgsConstructor
 public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
     private final AuthenticationManager authenticationManager;
     private final AuthService authService;
 
+    /**
+     * 사용자 인증을 시도한다.
+     *
+     * @param request  HTTP 요청 객체
+     * @param response HTTP 응답 객체
+     * @return 인증 결과를 나타내는 {@link Authentication} 객체
+     * @throws AuthenticationException 인증 실패 시 발생
+     */
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
             throws AuthenticationException {
@@ -47,6 +60,14 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         return authenticationManager.authenticate(authToken);
     }
 
+    /**
+     * 인증 성공 시 호출되는 메소드 JWT 토큰을 생성하고 응답에 포함시킨다.
+     *
+     * @param request        HTTP 요청 객체
+     * @param response       HTTP 응답 객체
+     * @param chain          필터 체인
+     * @param authentication 인증 정보
+     */
     @Override
     protected void successfulAuthentication(
             HttpServletRequest request,
@@ -60,16 +81,23 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
         GrantedAuthority auth = iterator.next();
 
-        long userId = customUserDetails.getUserId();
+        String userId = String.valueOf(customUserDetails.getUserId());
         String role = auth.getAuthority();
 
         createAccessToken(response, userId, role);
         String refreshToken = authService.createJwtToken(REFRESH_TOKEN, userId, role);
-        response.addCookie(createCookie(COOKIE_NAME, refreshToken));
+        addCookie(response, COOKIE_NAME, refreshToken, COOKIE_EXPIRATION_TIME);
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 
+    /**
+     * 인증 실패 시 호출되는 메소드 실패 상태를 응답에 설정한다.
+     *
+     * @param request  HTTP 요청 객체
+     * @param response HTTP 응답 객체
+     * @param failed   인증 실패 예외
+     */
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
                                               AuthenticationException failed) {
@@ -77,7 +105,14 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
     }
 
-    private void createAccessToken(HttpServletResponse response, long userId, String role) {
+    /**
+     * 액세스 토큰을 생성하고 응답에 포함시킨다.
+     *
+     * @param response HTTP 응답 객체
+     * @param userId   사용자 ID
+     * @param role     사용자 역할
+     */
+    private void createAccessToken(HttpServletResponse response, String userId, String role) {
 
         String accessToken = authService.createJwtToken(ACCESS_TOKEN, userId, role);
         ObjectMapper objectMapper = new ObjectMapper();
@@ -87,17 +122,5 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    private Cookie createCookie(String key, String value) {
-
-        Cookie cookie = new Cookie(key, value);
-
-        cookie.setMaxAge(COOKIE_EXPIRATION_TIME);
-        //cookie.setSecure(true);
-        cookie.setPath("/");
-        cookie.setHttpOnly(true);
-
-        return cookie;
     }
 }

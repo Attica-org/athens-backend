@@ -54,7 +54,7 @@ public abstract class WebSocketIntegrationTestSupport extends IntegrationTestSup
             throws Exception {
         CustomUserDetails userDetails = (CustomUserDetails) testCustomUserDetailsServiceConfig.testCustomUserDetailsService()
                 .loadUserByUsername(username);
-        String token = jwtUtils.createJwtToken(username, userDetails.getUserId(),
+        String token = jwtUtils.createJwtToken(username, String.valueOf(userDetails.getUserId()),
                 userDetails.getAuthorities().iterator().next().getAuthority());
 
         StompHeaders connectHeaders = new StompHeaders();
@@ -71,7 +71,7 @@ public abstract class WebSocketIntegrationTestSupport extends IntegrationTestSup
     }
 
     private void subscribeToTopic(final String topic, final StompSession session,
-                                      CompletableFuture<String> resultFuture) {
+                                  CompletableFuture<String> resultFuture) {
         session.subscribe(topic,
                 createStompFrameHandler(resultFuture));
     }

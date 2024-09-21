@@ -40,14 +40,14 @@ public class JwtUtils {
         this.refreshTokenExpirationTime = jwtProperties.getRefreshExpired();
     }
 
-    public String createJwtToken(String tokenType, Long id, String role) {
+    public String createJwtToken(String tokenType, String id, String role) {
         Date now = new Date();
         Date expire;
 
         if (REFRESH_TOKEN.equals(tokenType)) {
             expire = new Date(now.getTime() + refreshTokenExpirationTime);
             return Jwts.builder()
-                    .claim(AUTHORITY_KEY, String.valueOf(id))
+                    .claim(AUTHORITY_KEY, id)
                     .claim(AUTHORITY_ROLE, role)
                     .issuedAt(now)
                     .expiration(expire)
