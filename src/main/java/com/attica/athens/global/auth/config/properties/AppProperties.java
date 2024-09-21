@@ -1,5 +1,6 @@
 package com.attica.athens.global.auth.config.properties;
 
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -7,6 +8,7 @@ import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @Getter
+@Setter
 @ConfigurationProperties(prefix = "app")
 public class AppProperties {
 
@@ -19,6 +21,8 @@ public class AppProperties {
     @AllArgsConstructor
     public static class Auth {
         private Jwt jwt = new Jwt();
+        private TempToken tempToken = new TempToken();
+
 
         @Getter
         @Setter
@@ -27,11 +31,18 @@ public class AppProperties {
             private long accessExpired;
             private long refreshExpired;
         }
+
+        @Getter
+        @Setter
+        public static class TempToken {
+            private int expirationMinutes;
+        }
     }
 
     @Getter
     @Setter
     public static class OAuth2 {
-        private String redirectUri;
+        private List<String> redirectUris;
+        private String defaultRedirectUri;
     }
 }
