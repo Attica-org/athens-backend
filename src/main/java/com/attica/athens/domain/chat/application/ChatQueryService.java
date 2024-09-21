@@ -54,14 +54,17 @@ public class ChatQueryService {
         List<ReactionCountById> reactionCounts = reactionRepository.countReactionsByChatIds(chatIds);
 
         Map<Long, Map<ReactionType, Long>> result = new HashMap<>();
+        for (Long chatId : chatIds) {
+            Map<ReactionType, Long> reactionMap = new EnumMap<>(ReactionType.class);
+            for (ReactionType reactionType : ReactionType.values()) {
+                reactionMap.put(reactionType, 0L);
+            }
+            result.put(chatId, reactionMap);
+        }
         for (ReactionCountById reactionCount : reactionCounts) {
-            result.computeIfAbsent(reactionCount.getChatId(), k -> new EnumMap<>(ReactionType.class))
+            result.get(reactionCount.getChatId())
                     .put(reactionCount.getType(), reactionCount.getCount());
         }
-        for (Long chatId : chatIds) {
-            result.putIfAbsent(chatId, new EnumMap<>(ReactionType.class));
-        }
-
         return result;
     }
 
