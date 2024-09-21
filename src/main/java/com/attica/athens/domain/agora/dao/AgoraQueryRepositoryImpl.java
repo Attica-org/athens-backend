@@ -1,6 +1,5 @@
 package com.attica.athens.domain.agora.dao;
 
-import static com.attica.athens.domain.agora.domain.AgoraStatus.CLOSED;
 import static com.attica.athens.domain.agora.domain.AgoraStatus.RUNNING;
 import static com.attica.athens.domain.agora.domain.QAgora.agora;
 import static com.attica.athens.domain.agoraMember.domain.QAgoraMember.agoraMember;
@@ -25,7 +24,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -286,7 +284,8 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
     }
 
     @Override
-    public List<AgoraMetrics> findAgoraWithMetricsByDateRange(int minMemberCount, int minChatCount, LocalDateTime now, LocalDateTime before) {
+    public List<AgoraMetrics> findAgoraWithMetricsByDateRange(int minMemberCount, int minChatCount, LocalDateTime now,
+                                                              LocalDateTime before) {
         return jpaQueryFactory
                 .select(Projections.constructor(
                         AgoraMetrics.class,
