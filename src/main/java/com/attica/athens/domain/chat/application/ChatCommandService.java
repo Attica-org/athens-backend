@@ -1,6 +1,8 @@
 package com.attica.athens.domain.chat.application;
 
 import com.attica.athens.domain.agora.dao.AgoraRepository;
+import com.attica.athens.domain.agora.domain.Agora;
+import com.attica.athens.domain.agora.exception.ClosedAgoraException;
 import com.attica.athens.domain.agora.exception.NotFoundAgoraException;
 import com.attica.athens.domain.agora.exception.NotParticipateException;
 import com.attica.athens.domain.agoraMember.dao.AgoraMemberRepository;
@@ -13,7 +15,6 @@ import com.attica.athens.domain.chat.domain.ChatContent;
 import com.attica.athens.domain.chat.domain.FilterResult;
 import com.attica.athens.domain.chat.domain.Reaction;
 import com.attica.athens.domain.chat.domain.ReactionType;
-import com.attica.athens.domain.chat.dto.projection.ReactionCount;
 import com.attica.athens.domain.chat.dto.request.SendChatRequest;
 import com.attica.athens.domain.chat.dto.request.SendReactionRequest;
 import com.attica.athens.domain.chat.dto.response.BadWordResponse;
@@ -21,10 +22,7 @@ import com.attica.athens.domain.chat.dto.response.SendChatResponse;
 import com.attica.athens.domain.chat.dto.response.SendReactionResponse;
 import com.attica.athens.domain.chat.exception.NotFoundChatException;
 import com.attica.athens.domain.chat.exception.WriterReactionException;
-import com.attica.athens.global.auth.CustomUserDetails;
-import java.util.EnumMap;
-import java.util.List;
-import java.util.Map;
+import com.attica.athens.global.auth.domain.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,29 +35,27 @@ public class ChatCommandService {
     private final AgoraRepository agoraRepository;
     private final AgoraMemberRepository agoraMemberRepository;
     private final ChatRepository chatRepository;
-    private final BadWordFilter badWordFilter;
     private final ReactionRepository reactionRepository;
-
-    private static final EnumMap<ReactionType, Long> EMPTY_ENUM_MAP = new EnumMap<>(ReactionType.class);
-
-    static {
-        for (ReactionType reactionType : ReactionType.values()) {
-            EMPTY_ENUM_MAP.put(reactionType, 0L);
-        }
-    }
+    private final BadWordFilter badWordFilter;
 
     public SendChatResponse sendChat(final CustomUserDetails userDetails, final Long agoraId,
                                      final SendChatRequest sendChatRequest) {
-        validateAgoraExists(agoraId);
+        validateAgora(agoraId);
 
         AgoraMember agoraMember = findValidAgoraMember(agoraId, userDetails.getUserId());
-
         Chat chat = createAndSaveChat(sendChatRequest, agoraMember);
 
         return new SendChatResponse(agoraMember, chat);
     }
 
-    private void validateAgoraExists(final Long agoraId) {
+    private void validateAgora(final Long agoraId) {
+        Agora agora = agoraRepository.findById(agoraId)
+                .orElseThrow(() -> new NotFoundAgoraException(agoraId));
+
+        if (agora.isClosed()) {
+            throw new ClosedAgoraException();
+        }
+
         if (!agoraRepository.existsById(agoraId)) {
             throw new NotFoundAgoraException(agoraId);
         }
@@ -80,7 +76,7 @@ public class ChatCommandService {
     @Transactional
     public SendReactionResponse sendReaction(final CustomUserDetails userDetails, final Long agoraId, Long chatId,
                                              final SendReactionRequest sendReactionRequest) {
-        validateAgoraExists(agoraId);
+        validateAgora(agoraId);
         AgoraMember agoraMember = findValidAgoraMember(agoraId, userDetails.getUserId());
 
         Chat chat = findChat(chatId);
@@ -95,7 +91,7 @@ public class ChatCommandService {
         }
 
         return new SendReactionResponse(chatId,
-                getReactionTypeEnumMap(chatId));
+                ReactionType.getReactionTypeEnumMap(reactionRepository.countReactionsByChatId(chatId)));
     }
 
     private void addReaction(final AgoraMember agoraMember, final Chat chat, final ReactionType reactionType) {
@@ -120,15 +116,6 @@ public class ChatCommandService {
 
     private boolean hasReaction(final Long chatId, final ReactionType type, final Long agoraMemberId) {
         return reactionRepository.existsByChatIdAndAgoraMemberIdAndType(chatId, agoraMemberId, type);
-    }
-
-    private Map<ReactionType, Long> getReactionTypeEnumMap(final Long chatId) {
-        Map<ReactionType, Long> counts = new EnumMap<>(EMPTY_ENUM_MAP);
-        List<ReactionCount> results = reactionRepository.countReactionsByChatId(chatId);
-        for (ReactionCount result : results) {
-            counts.put(result.getType(), result.getCount());
-        }
-        return counts;
     }
 
     public BadWordResponse checkBadWord(final CustomUserDetails userDetails, final Long agoraId,

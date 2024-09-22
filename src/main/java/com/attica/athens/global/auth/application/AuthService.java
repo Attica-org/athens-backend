@@ -5,8 +5,8 @@ import static com.attica.athens.global.auth.jwt.Constants.COOKIE_EXPIRATION_TIME
 import static com.attica.athens.global.auth.jwt.Constants.COOKIE_NAME;
 import static com.attica.athens.global.auth.jwt.Constants.REFRESH_TOKEN;
 
-import com.attica.athens.global.auth.CustomUserDetails;
 import com.attica.athens.global.auth.dao.RefreshTokenRepository;
+import com.attica.athens.global.auth.domain.CustomUserDetails;
 import com.attica.athens.global.auth.domain.RefreshToken;
 import com.attica.athens.global.auth.dto.request.CreateRefreshTokenRequest;
 import com.attica.athens.global.auth.exception.JwtExpiredException;
@@ -37,7 +37,7 @@ public class AuthService {
     private final JwtUtils jwtUtils;
     private final RefreshTokenRepository refreshTokenRepository;
 
-    public String createJwtToken(String tokenType, long id, String role) {
+    public String createJwtToken(String tokenType, String id, String role) {
         return jwtUtils.createJwtToken(tokenType, id, role);
     }
 
@@ -66,13 +66,11 @@ public class AuthService {
                 customUserDetails.getAuthorities());
     }
 
-    public void createRefreshEntity(CreateRefreshTokenRequest createRefreshTokenRequest) {
-        Long userId = createRefreshTokenRequest.userId();
-        String refresh = createRefreshTokenRequest.refresh();
-
+    private void createRefreshEntity(CreateRefreshTokenRequest createRefreshTokenRequest) {
+        String userId = createRefreshTokenRequest.userId();
+        String refreshToken = createRefreshTokenRequest.refresh();
         LocalDateTime expiration = jwtUtils.getExpirationAsLocalDateTime(createRefreshTokenRequest.refresh());
-
-        RefreshToken refreshEntity = RefreshToken.createRefreshToken(userId, refresh, expiration);
+        RefreshToken refreshEntity = new RefreshToken(userId, refreshToken, expiration);
 
         refreshTokenRepository.save(refreshEntity);
     }
@@ -83,13 +81,13 @@ public class AuthService {
 
         validateToken(refreshToken);
 
-        Long userId = Long.parseLong(jwtUtils.getUserId(refreshToken));
+        String userId = jwtUtils.getUserId(refreshToken);
         String role = jwtUtils.getRole(refreshToken);
 
         return createRefreshTokenAndGetAccessToken(userId, role, response);
     }
 
-    public String createRefreshTokenAndGetAccessToken(Long userId, String role, HttpServletResponse response) {
+    public String createRefreshTokenAndGetAccessToken(String userId, String role, HttpServletResponse response) {
         String newAccess = jwtUtils.createJwtToken(ACCESS_TOKEN, userId, role);
         String newRefresh = jwtUtils.createJwtToken(REFRESH_TOKEN, userId, role);
 

@@ -1,6 +1,6 @@
 package com.attica.athens.domain.token.domain;
 
-import static org.assertj.core.api.BDDAssertions.then;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import com.attica.athens.global.auth.domain.RefreshToken;
 import java.time.LocalDateTime;
@@ -15,23 +15,31 @@ public class RefreshTokenTest {
     @Test
     @DisplayName("리프레시 토큰을 생성한다.")
     void 성공_리프레시토큰생성_유효한파라미터전달() {
-        //given
-        long userId = 1L;
-        LocalDateTime expirationDateTime = calculateExpirationDateTime(1);
+        // given
+        String userId = "1";
+        LocalDateTime expirationDateTime = LocalDateTime.now().plusDays(1);
 
-        RefreshToken refreshTokenAccess = RefreshToken.builder().build();
+        // when
+        RefreshToken refreshToken = new RefreshToken(userId, REFRESH_TOKEN, expirationDateTime);
 
-        //when
-        RefreshToken refreshToken = refreshTokenAccess.createRefreshToken(userId, REFRESH_TOKEN, expirationDateTime);
-
-        //then
-        then(refreshToken.getUserId()).isEqualTo(userId);
-        then(refreshToken.getRefresh()).isEqualTo(REFRESH_TOKEN);
-        then(refreshToken.getExpiration()).isEqualTo(expirationDateTime);
-
+        // then
+        assertThat(refreshToken.getUserId()).isEqualTo(userId);
+        assertThat(refreshToken.getRefresh()).isEqualTo(REFRESH_TOKEN);
+        assertThat(refreshToken.getExpirationDateTime()).isEqualTo(expirationDateTime);
+        assertThat(refreshToken.isExpired()).isFalse();
     }
 
-    private LocalDateTime calculateExpirationDateTime(int days) {
-        return LocalDateTime.now().plusDays(days);
+    @Test
+    @DisplayName("만료된 리프레시 토큰을 확인한다.")
+    void 성공_리프레시토큰만료확인() {
+        // given
+        String userId = "1";
+        LocalDateTime expiredDateTime = LocalDateTime.now().minusDays(1);
+
+        // when
+        RefreshToken refreshToken = new RefreshToken(userId, REFRESH_TOKEN, expiredDateTime);
+
+        // then
+        assertThat(refreshToken.isExpired()).isTrue();
     }
 }
