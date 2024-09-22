@@ -6,7 +6,7 @@ import com.attica.athens.domain.chat.dto.request.SendReactionRequest;
 import com.attica.athens.domain.chat.dto.response.BadWordResponse;
 import com.attica.athens.domain.chat.dto.response.SendChatResponse;
 import com.attica.athens.domain.chat.dto.response.SendReactionResponse;
-import com.attica.athens.global.auth.CustomUserDetails;
+import com.attica.athens.global.auth.domain.CustomUserDetails;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

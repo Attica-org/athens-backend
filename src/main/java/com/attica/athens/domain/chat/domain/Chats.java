@@ -31,12 +31,14 @@ public class Chats {
                 .min(Long::compare);
     }
 
-    public List<ChatData> createChatDataWithUsers(final List<AgoraMember> agoraMembers) {
+    public List<ChatData> createChatDataWithUsers(final List<AgoraMember> agoraMembers,
+                                                  final Map<Long, Map<ReactionType, Long>> reactionCounts) {
         Map<Long, AgoraMember> agoraMemberMap = agoraMembers.stream()
                 .collect(Collectors.toMap(AgoraMember::getId, agoraMember -> agoraMember));
 
         return chats.stream()
-                .map(chat -> new ChatData(chat, agoraMemberMap.get(chat.getAgoraMember().getId())))
+                .map(chat -> new ChatData(chat, agoraMemberMap.get(chat.getAgoraMember().getId()),
+                        reactionCounts.get(chat.getId())))
                 .toList();
     }
 

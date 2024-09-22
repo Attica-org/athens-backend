@@ -4,7 +4,7 @@ import com.attica.athens.domain.agoraMember.application.AgoraMemberService;
 import com.attica.athens.domain.agoraMember.dao.AgoraMemberRepository;
 import com.attica.athens.domain.agoraMember.domain.AgoraMember;
 import com.attica.athens.domain.member.exception.NotFoundMemberException;
-import com.attica.athens.global.auth.CustomUserDetails;
+import com.attica.athens.global.auth.domain.CustomUserDetails;
 import com.attica.athens.global.auth.exception.SessionReconnectException;
 import java.time.Duration;
 import java.time.LocalDateTime;
