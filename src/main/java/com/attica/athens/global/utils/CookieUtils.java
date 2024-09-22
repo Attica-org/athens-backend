@@ -3,6 +3,7 @@ package com.attica.athens.global.utils;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.Arrays;
 import java.util.Optional;
 
 /**
@@ -19,16 +20,13 @@ public class CookieUtils {
      */
     public static Optional<Cookie> getCookie(HttpServletRequest request, String name) {
         Cookie[] cookies = request.getCookies();
-
-        if (cookies != null) {
-            for (Cookie cookie : cookies) {
-                if (cookie.getName().equals(name)) {
-                    return Optional.of(cookie);
-                }
-            }
+        if (cookies == null) {
+            return Optional.empty();
         }
 
-        return Optional.empty();
+        return Arrays.stream(cookies)
+                .filter(cookie -> cookie.getName().equals(name))
+                .findFirst();
     }
 
     /**

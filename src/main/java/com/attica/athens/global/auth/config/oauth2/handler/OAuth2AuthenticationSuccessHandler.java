@@ -3,11 +3,13 @@ package com.attica.athens.global.auth.config.oauth2.handler;
 import com.attica.athens.global.auth.application.AuthService;
 import com.attica.athens.global.auth.config.oauth2.repository.HttpCookieOAuth2AuthorizationRequestRepository;
 import com.attica.athens.global.auth.config.properties.AppProperties;
+import com.attica.athens.global.auth.domain.AuthProvider;
 import io.micrometer.common.util.StringUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URI;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -26,6 +28,13 @@ import org.springframework.web.util.UriComponentsBuilder;
  */
 @Component
 public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
+
+    public static final String SUB = "sub";
+    public static final String ID = "id";
+    private static final Map<String, String> PROVIDER_ID_ATTRIBUTE_MAP = Map.of(
+            AuthProvider.GOOGLE.getProviderName(), SUB,
+            AuthProvider.KAKAO.getProviderName(), ID
+    );
 
     private final AuthService authService;
     private final AppProperties appProperties;
@@ -62,7 +71,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
                                         Authentication authentication) throws IOException {
         if (response.isCommitted()) {
-            logger.debug("응답이 이미 커밋되었으므로 리다이렉트할 수 없습니다.");
+            logger.debug("Response has already been committed. Unable to redirect.");
             return;
         }
 
@@ -87,24 +96,33 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         getRedirectStrategy().sendRedirect(request, response, targetUrl);
     }
 
+    /**
+     * OAuth2 인증 공급자(OAuth2User)로부터 사용자 ID를 추출한다.
+     *
+     * @param oauth2User     OAuth2 사용자
+     * @param registrationId OAuth2 공급자 ID
+     * @return 사용자 ID
+     */
+
     private String extractUserId(OAuth2User oauth2User, String registrationId) {
-        String userIdAttributeName;
-        switch (registrationId) {
-            case "google":
-                userIdAttributeName = "sub";
-                break;
-            case "kakao":
-                userIdAttributeName = "id";
-                break;
-            default:
-                throw new IllegalArgumentException("Unsupported OAuth2 provider: " + registrationId);
+        String userIdAttributeName = PROVIDER_ID_ATTRIBUTE_MAP.get(registrationId);
+        if (userIdAttributeName == null) {
+            throw new IllegalArgumentException("Unsupported OAuth2 provider: " + registrationId);
         }
+
         Object userIdAttribute = oauth2User.getAttribute(userIdAttributeName);
         if (userIdAttribute == null) {
             throw new IllegalArgumentException("User ID attribute not found: " + userIdAttributeName);
         }
         return userIdAttribute.toString();
     }
+
+    /**
+     * 인증 정보로부터 권한을 추출한다.
+     *
+     * @param authentication 인증 정보
+     * @return 권한
+     */
 
     private String extractAuthority(Authentication authentication) {
         return authentication.getAuthorities().iterator().next().getAuthority();
@@ -132,10 +150,8 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
      */
     protected String determineTargetUrl(HttpServletRequest request, String tempToken) {
         String redirectUri = httpCookieOAuth2AuthorizationRequestRepository.getRedirectUriAfterLogin(request);
-        System.out.println("REDIRECT URI: " + redirectUri);
 
         if (StringUtils.isBlank(redirectUri) || !isAuthorizedRedirectUri(redirectUri)) {
-            System.out.println("REDIRECT URI IS NULL OR NOT AUTHORIZED");
             redirectUri = appProperties.getOauth2().getDefaultRedirectUri();
         }
 
@@ -164,8 +180,6 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
                             && authorizedURI.getPort() == clientRedirectUri.getPort()) {
                         return true;
                     }
-                    System.out.println("HOST:" + authorizedURI.getHost() + " " + clientRedirectUri.getHost());
-                    System.out.println(clientRedirectUri.getPort() + " " + authorizedURI.getPort());
                     return false;
                 });
     }

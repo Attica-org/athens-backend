@@ -11,28 +11,22 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.Jwts.SIG;
-import jakarta.annotation.PostConstruct;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
-@RequiredArgsConstructor
 public class JwtUtils {
 
-    private final AppProperties appProperties;
+    private final SecretKey secretKey;
+    private final long accessTokenExpirationTime;
+    private final long refreshTokenExpirationTime;
 
-    private SecretKey secretKey;
-    private long accessTokenExpirationTime;
-    private long refreshTokenExpirationTime;
-
-    @PostConstruct
-    public void init() {
+    public JwtUtils(AppProperties appProperties) {
         Jwt jwtProperties = appProperties.getAuth().getJwt();
         this.secretKey = new SecretKeySpec(jwtProperties.getSecretKey().getBytes(StandardCharsets.UTF_8),
                 SIG.HS256.key().build().getAlgorithm());

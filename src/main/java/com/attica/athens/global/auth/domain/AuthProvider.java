@@ -7,4 +7,8 @@ public enum AuthProvider {
     GOOGLE,
     KAKAO,
     LOCAL;
+
+    public String getProviderName() {
+        return name().toLowerCase();
+    }
 }
