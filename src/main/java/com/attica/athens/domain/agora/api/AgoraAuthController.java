@@ -10,7 +10,7 @@ import com.attica.athens.domain.agora.dto.response.EndVoteAgoraResponse;
 import com.attica.athens.domain.agora.dto.response.StartAgoraResponse;
 import com.attica.athens.domain.common.ApiResponse;
 import com.attica.athens.domain.common.ApiUtil;
-import com.attica.athens.global.auth.CustomUserDetails;
+import com.attica.athens.global.auth.domain.CustomUserDetails;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

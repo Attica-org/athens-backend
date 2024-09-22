@@ -1,6 +1,9 @@
 package com.attica.athens.global.auth.config;
 
 import com.attica.athens.global.auth.application.AuthService;
+import com.attica.athens.global.auth.application.CustomOAuth2UserService;
+import com.attica.athens.global.auth.config.oauth2.handler.OAuth2AuthenticationSuccessHandler;
+import com.attica.athens.global.auth.config.oauth2.repository.HttpCookieOAuth2AuthorizationRequestRepository;
 import com.attica.athens.global.auth.dao.RefreshTokenRepository;
 import com.attica.athens.global.auth.filter.CustomLogoutFilter;
 import com.attica.athens.global.auth.filter.JwtAuthenticationEntryPoint;
@@ -10,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -32,17 +36,21 @@ public class SecurityConfig {
             "/swagger-ui/**",
             "/swagger-resources/**",
             "/ws/**",
-            "/login",
+            "/login/**",
             "/api/v1/user/**",
             "/api/v1/auth/reissue",
             "/api/v1/temp-user/**",
-            "/api/v1/open/**"
+            "/api/v1/open/**",
+            "/oauth2/**"
     };
 
     private final AuthenticationConfiguration authenticationConfiguration;
     private final RefreshTokenRepository refreshTokenRepository;
     private final AuthService authService;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+    private final CustomOAuth2UserService oAuth2UserService;
+    private final OAuth2AuthenticationSuccessHandler successHandler;
+    private final HttpCookieOAuth2AuthorizationRequestRepository httpCookieOAuth2AuthorizationRequestRepository;
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
@@ -55,7 +63,6 @@ public class SecurityConfig {
 
         return new BCryptPasswordEncoder();
     }
-
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -98,10 +105,20 @@ public class SecurityConfig {
                 .addFilterBefore(new CustomLogoutFilter(authService, refreshTokenRepository), LogoutFilter.class);
 
         http
-                // ...
                 .headers(headers -> headers
                         .frameOptions(FrameOptionsConfig::sameOrigin)
                 );
+
+        // OAuth2 로그인
+        http
+                .oauth2Login(oauth2 -> oauth2
+                        .authorizationEndpoint(authorization -> authorization
+                                .baseUri("/oauth2/authorization")
+                                .authorizationRequestRepository(httpCookieOAuth2AuthorizationRequestRepository))
+                        .userInfoEndpoint(userInfo -> userInfo
+                                .userService(oAuth2UserService))
+                        .successHandler(successHandler)
+                ).oauth2Client(Customizer.withDefaults());
 
         return http.build();
     }

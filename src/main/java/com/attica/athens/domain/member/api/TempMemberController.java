@@ -2,7 +2,7 @@ package com.attica.athens.domain.member.api;
 
 import com.attica.athens.domain.common.ApiResponse;
 import com.attica.athens.domain.common.ApiUtil;
-import com.attica.athens.domain.member.application.TempUserService;
+import com.attica.athens.domain.member.application.TempMemberService;
 import com.attica.athens.global.auth.dto.response.CreateAccessTokenResponse;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -14,14 +14,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v1/temp-user")
 @RequiredArgsConstructor
-public class TempUserController {
+public class TempMemberController {
 
-    private final TempUserService tempUserService;
+    private final TempMemberService tempMemberService;
 
     @PostMapping
-    public ResponseEntity<ApiResponse<?>> postTempUser(HttpServletResponse response) {
+    public ResponseEntity<ApiResponse<?>> postTempMember(HttpServletResponse response) {
 
-        String accessToken = tempUserService.createTempUser(response);
+        String accessToken = tempMemberService.createTempUser(response);
 
         return ResponseEntity.ok(ApiUtil.success(new CreateAccessTokenResponse(accessToken)));
     }
