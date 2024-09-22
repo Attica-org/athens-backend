@@ -111,9 +111,23 @@ public class WebSocketEventHandler {
     }
 
     private void handleNewConnection(Long agoraId, Long userId, String sessionId) {
-        agoraMemberService.updateSessionId(agoraId, userId, sessionId);
-        agoraMemberService.sendMetaToActiveMembers(agoraId, userId);
-        log.info("SessionId updated: agoraId={}, userId={}, sessionId={}", agoraId, userId, sessionId);
+        log.info("Starting handleNewConnection: agoraId={}, userId={}, sessionId={}", agoraId, userId, sessionId);
+
+        try {
+            log.debug("Updating session ID for user");
+            agoraMemberService.updateSessionId(agoraId, userId, sessionId);
+            log.info("SessionId updated successfully: agoraId={}, userId={}, sessionId={}", agoraId, userId, sessionId);
+
+            log.debug("Sending meta information to active members");
+            agoraMemberService.sendMetaToActiveMembers(agoraId, userId);
+            log.info("Meta information sent successfully to active members: agoraId={}, userId={}", agoraId, userId);
+
+        } catch (Exception e) {
+            log.error("Error in handleNewConnection: agoraId={}, userId={}, sessionId={}, error={}", agoraId, userId, sessionId, e.getMessage(), e);
+            throw e;
+        }
+
+        log.info("handleNewConnection completed successfully: agoraId={}, userId={}, sessionId={}", agoraId, userId, sessionId);
     }
 
     private boolean checkDisconnectTime(LocalDateTime disconnectTime) {
