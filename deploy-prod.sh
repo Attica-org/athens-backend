@@ -22,7 +22,7 @@ else
   NEW_COLOR=$(echo "$CURRENT_COLOR" | sed 's/blue/green/; s/green/blue/')
 fi
 
-$COMPOSE_BIN -f "docker-compose.${NEW_COLOR}.yml" up -d
+$COMPOSE_BIN -f "docker-compose.${NEW_COLOR}.yml" up --build -d
 
 attempts=0
 while [ $attempts -lt $MAX_RETRIES ]; do
