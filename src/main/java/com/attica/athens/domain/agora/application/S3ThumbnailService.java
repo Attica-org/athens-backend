@@ -25,16 +25,12 @@ public class S3ThumbnailService {
     @Value("${aws.s3.bucket}")
     private String bucket;
 
-    private String DEFAULT_THUMBNAIL = "default/agora.jpg";
-
     @Transactional
     public AgoraThumbnail getAgoraThumbnail(MultipartFile file) {
         return Optional.ofNullable(file)
                 .filter(f -> !f.isEmpty())
                 .map(this::saveFile)
-                .orElseGet(() -> {
-                    return agoraThumbnailRepository.findAgoraThumbnailByOriginName(DEFAULT_THUMBNAIL);
-                });
+                .orElse(null);
     }
 
     private AgoraThumbnail saveFile(MultipartFile file) {
