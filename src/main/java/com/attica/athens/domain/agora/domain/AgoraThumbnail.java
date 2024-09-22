@@ -14,11 +14,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
-@Table(
-        name = "agora_thumbnail",
-        indexes = {
-                @Index(name = "idx_agora_thumbnail", columnList = "image_url"),
-        })
+@Table(name = "agora_thumbnail")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class AgoraThumbnail extends AuditingFields {
 
