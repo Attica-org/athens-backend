@@ -24,7 +24,7 @@ public class MemberApiIntegrationTest extends IntegrationTestSupport {
         void 성공_멤버생성_유효한파라미터전달() throws Exception {
             // when
             final ResultActions result = mockMvc.perform(
-                    post("/{prefix}/user", API_V1)
+                    post("/{prefix}/open/member", API_V1)
                             .param("username", "testuser")
                             .param("password", "password")
                             .contentType(MediaType.APPLICATION_JSON)
