@@ -75,8 +75,8 @@ public class Member extends BaseMember {
                 memberInfo.getEmail().orElse(null));
     }
 
-    public void updateOAuthInfo(String nickname, String email) {
-        this.nickname = nickname;
-        this.email = email;
+    public void updateMemberInfo(OAuth2MemberInfo memberInfo) {
+        this.nickname = memberInfo.getNickname().orElse(null);
+        this.email = memberInfo.getEmail().orElse(null);
     }
 }
