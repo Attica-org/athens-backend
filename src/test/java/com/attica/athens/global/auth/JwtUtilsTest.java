@@ -21,7 +21,7 @@ class JwtUtilsTest {
     void testCreateJWT() {
         String ACCESS_TOKEN = "access-token";
 
-        String accessToken = jwtUtils.createJwtToken(ACCESS_TOKEN, "1", "ROLE_USER");
+        String accessToken = jwtUtils.createJwtToken(ACCESS_TOKEN, 1L, "ROLE_USER");
         assertThat(accessToken).isNotNull();
     }
 }

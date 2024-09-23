@@ -38,7 +38,6 @@ public class SecurityConfig {
             "/swagger-resources/**",
             "/ws/**",
             "/login/**",
-            "/api/v1/user/**",
             "/api/v1/auth/reissue",
             "/api/v1/temp-user/**",
             "/api/v1/open/**",

@@ -1,5 +1,7 @@
 package com.attica.athens.global.auth.config.oauth2.handler;
 
+import com.attica.athens.domain.member.dao.MemberRepository;
+import com.attica.athens.domain.member.exception.NotFoundOAuthMemberException;
 import com.attica.athens.global.auth.application.AuthService;
 import com.attica.athens.global.auth.config.oauth2.repository.HttpCookieOAuth2AuthorizationRequestRepository;
 import com.attica.athens.global.auth.config.properties.AppProperties;
@@ -40,6 +42,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
     private final AppProperties appProperties;
     private final RedisTemplate<String, String> redisTemplate;
     private final HttpCookieOAuth2AuthorizationRequestRepository httpCookieOAuth2AuthorizationRequestRepository;
+    private final MemberRepository memberRepository;
 
     /**
      * OAuth2AuthenticationSuccessHandler 생성자
@@ -50,11 +53,13 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
      */
     public OAuth2AuthenticationSuccessHandler(final AuthService authService, final AppProperties appProperties,
                                               @Qualifier("redisTemplate") final RedisTemplate<String, String> redisTemplate,
-                                              final HttpCookieOAuth2AuthorizationRequestRepository httpCookieOAuth2AuthorizationRequestRepository) {
+                                              final HttpCookieOAuth2AuthorizationRequestRepository httpCookieOAuth2AuthorizationRequestRepository,
+                                              final MemberRepository memberRepository) {
         this.authService = authService;
         this.appProperties = appProperties;
         this.redisTemplate = redisTemplate;
         this.httpCookieOAuth2AuthorizationRequestRepository = httpCookieOAuth2AuthorizationRequestRepository;
+        this.memberRepository = memberRepository;
     }
 
     /**
@@ -79,10 +84,14 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         OAuth2AuthenticationToken authToken = (OAuth2AuthenticationToken) authentication;
         String registrationId = authToken.getAuthorizedClientRegistrationId();
 
-        String userId = extractUserId(oauth2User, registrationId);
+        String oauthId = extractOauthId(oauth2User, registrationId);
+        Long memberId = memberRepository.findByOauthId(extractOauthId(oauth2User, registrationId))
+                .orElseThrow(() -> new NotFoundOAuthMemberException(oauthId))
+                .getId();
+
         String authority = extractAuthority(authentication);
 
-        String accessToken = authService.createRefreshTokenAndGetAccessToken(userId, authority, response);
+        String accessToken = authService.createRefreshTokenAndGetAccessToken(memberId, authority, response);
 
         String tempToken = UUID.randomUUID().toString();
         redisTemplate.opsForValue()
@@ -104,7 +113,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
      * @return 사용자 ID
      */
 
-    private String extractUserId(OAuth2User oauth2User, String registrationId) {
+    private String extractOauthId(OAuth2User oauth2User, String registrationId) {
         String userIdAttributeName = PROVIDER_ID_ATTRIBUTE_MAP.get(registrationId);
         if (userIdAttributeName == null) {
             throw new IllegalArgumentException("Unsupported OAuth2 provider: " + registrationId);
