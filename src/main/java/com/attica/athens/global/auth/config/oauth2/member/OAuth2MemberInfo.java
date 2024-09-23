@@ -1,6 +1,7 @@
 package com.attica.athens.global.auth.config.oauth2.member;
 
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * OAuth2 인증을 통해 얻은 회원 정보를 추상화한 클래스 이 클래스는 다양한 OAuth2 제공자로부터 얻은 회원 정보를 일관된 방식으로 처리하기 위한 기본 구조를 제공한다.
@@ -20,4 +21,8 @@ public abstract class OAuth2MemberInfo {
     }
 
     public abstract String getId();
+
+    public abstract Optional<String> getNickname();
+
+    public abstract Optional<String> getEmail();
 }
