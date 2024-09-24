@@ -2,6 +2,7 @@ package com.attica.athens.domain.member.domain;
 
 import com.attica.athens.global.auth.config.oauth2.member.OAuth2MemberInfo;
 import com.attica.athens.global.auth.domain.AuthProvider;
+import com.attica.athens.global.auth.exception.NullFieldException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -48,12 +49,35 @@ public class Member extends BaseMember {
                    String nickname,
                    String email) {
         super(MemberRole.ROLE_USER);
+
+        validateUsername(username);
+        validatePassword(password);
+        validateAuthProvider(authProvider);
+
         this.username = username;
         this.password = password;
         this.authProvider = authProvider;
         this.oauthId = oauthId;
         this.nickname = nickname;
         this.email = email;
+    }
+
+    private void validateUsername(String username) {
+        if (username == null) {
+            throw new NullFieldException("username");
+        }
+    }
+
+    private void validatePassword(String password) {
+        if (password == null) {
+            throw new NullFieldException("password");
+        }
+    }
+
+    private void validateAuthProvider(AuthProvider authProvider) {
+        if (authProvider == null) {
+            throw new NullFieldException("authProvider");
+        }
     }
 
     /**
