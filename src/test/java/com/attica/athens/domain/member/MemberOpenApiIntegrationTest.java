@@ -1,6 +1,9 @@
 package com.attica.athens.domain.member;
 
 import static org.hamcrest.Matchers.nullValue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -10,11 +13,12 @@ import org.hamcrest.Matchers;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
 
-@DisplayName("멤버 API 통합 테스트")
-public class MemberApiIntegrationTest extends IntegrationTestSupport {
+@DisplayName("멤버 오픈 API 통합 테스트")
+public class MemberOpenApiIntegrationTest extends IntegrationTestSupport {
 
     @Nested
     @DisplayName("로컬 회원가입 테스트")
@@ -41,6 +45,38 @@ public class MemberApiIntegrationTest extends IntegrationTestSupport {
                                     Matchers.matchesRegex("^[\\w-]+\\.[\\w-]+\\.[\\w-]+$")),
                             jsonPath("$.error").value(nullValue())
                     );
+        }
+    }
+
+    @Nested
+    @DisplayName("토큰 조회 테스트")
+    class GetTokenTest {
+
+        @Test
+        @DisplayName("토큰을 조회한다.")
+        void 성공_토큰조회_유효한파라미터전달() throws Exception {
+            // given
+            String tempToken = "temp-token";
+            String accessToken = "access-token";
+            ValueOperations<String, String> valueOperationsMock = mock(ValueOperations.class);
+            when(redisTemplate.opsForValue()).thenReturn(valueOperationsMock);
+            when(valueOperationsMock.get(tempToken)).thenReturn(accessToken);
+
+            // when
+            final ResultActions result = mockMvc.perform(
+                    post("/{prefix}/open/member/token", API_V1)
+                            .param("temp-token", tempToken)
+                            .contentType(MediaType.APPLICATION_JSON)
+            );
+
+            // then
+            result.andExpect(status().isOk())
+                    .andExpectAll(
+                            jsonPath("$.access_token").exists(),
+                            jsonPath("$.access_token").value(accessToken)
+                    );
+            verify(valueOperationsMock).get(tempToken);
+            verify(redisTemplate).delete(tempToken);
         }
     }
 }
