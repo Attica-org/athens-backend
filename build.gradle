@@ -53,6 +53,7 @@ dependencies {
     implementation 'io.micrometer:micrometer-core:1.11.0'
     implementation 'net.logstash.logback:logstash-logback-encoder:7.4'
     implementation 'org.springframework:spring-aop'
+    implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
 
     implementation 'org.ahocorasick:ahocorasick:0.6.3'
     // oauth2

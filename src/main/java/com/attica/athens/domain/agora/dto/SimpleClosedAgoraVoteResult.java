@@ -10,6 +10,7 @@ public record SimpleClosedAgoraVoteResult(
         Integer totalMember,
         String agoraTitle,
         String agoraColor,
+        String imageUrl,
         LocalDateTime createdAt,
         AgoraStatus status
 ) {
