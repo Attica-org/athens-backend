@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URI;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -85,7 +86,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         String registrationId = authToken.getAuthorizedClientRegistrationId();
 
         String oauthId = extractOauthId(oauth2User, registrationId);
-        Long memberId = memberRepository.findByOauthId(extractOauthId(oauth2User, registrationId))
+        Long memberId = memberRepository.findByOauthId(oauthId)
                 .orElseThrow(() -> new NotFoundOAuthMemberException(oauthId))
                 .getId();
 
@@ -185,11 +186,9 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
                 .stream()
                 .anyMatch(authorizedRedirectUri -> {
                     URI authorizedURI = URI.create(authorizedRedirectUri);
-                    if (authorizedURI.getHost().equalsIgnoreCase(clientRedirectUri.getHost())
-                            && authorizedURI.getPort() == clientRedirectUri.getPort()) {
-                        return true;
-                    }
-                    return false;
+
+                    return authorizedURI.getHost().equalsIgnoreCase(clientRedirectUri.getHost())
+                            && authorizedURI.getPort() == clientRedirectUri.getPort();
                 });
     }
 }
