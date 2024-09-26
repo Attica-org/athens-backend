@@ -4,7 +4,9 @@ import com.attica.athens.domain.agoraMember.application.AgoraMemberService;
 import com.attica.athens.domain.agoraMember.dao.AgoraMemberRepository;
 import com.attica.athens.domain.agoraMember.domain.AgoraMember;
 import com.attica.athens.domain.member.exception.NotFoundMemberException;
+import com.attica.athens.global.auth.application.AuthService;
 import com.attica.athens.global.auth.domain.CustomUserDetails;
+import com.attica.athens.global.auth.exception.InvalidAuthorizationHeaderException;
 import com.attica.athens.global.auth.exception.SessionReconnectException;
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -32,6 +34,7 @@ public class WebSocketEventHandler {
 
     private final AgoraMemberService agoraMemberService;
     private final AgoraMemberRepository agoraMemberRepository;
+    private final AuthService authService;
     private final long reconnectThreshold = 10000;
 
     @EventListener
@@ -77,11 +80,14 @@ public class WebSocketEventHandler {
 
         AgoraMember agoraMember = getAgoraMember(memberId);
 
+        String accessToken = extractAccessToken(nativeHeaders);
+        authService.validateToken(accessToken);
+
         if (agoraMember.getSessionId() == null) {
             handleNewConnection(agoraId, memberId, sessionId);
-        } else {
-            LocalDateTime disconnectTime = findDisconnectTime(agoraId, sessionId);
-            handleReconnection(disconnectTime, sessionId, agoraId, memberId);
+        } else if (agoraMember.getSocketDisconnectTime() != null) {
+            findDisconnectTime(agoraMember);
+            handleReconnection(agoraMember);
         }
 
         log.info("WebSocket Connected: sessionId={}, agoraId={}, userId={}", sessionId, agoraId, memberId);
@@ -100,13 +106,15 @@ public class WebSocketEventHandler {
         return true;
     }
 
-    private void handleReconnection(LocalDateTime disconnectTime, String sessionId, Long agoraId, Long userId) {
-        boolean isReconnected = checkDisconnectTime(disconnectTime);
+    private void handleReconnection(AgoraMember agoraMember) {
+        boolean isReconnected = checkDisconnectTime(agoraMember.getSocketDisconnectTime());
         if (isReconnected) {
-            log.info("Reconnected within threshold: sessionId={}, agoraId={}, userId={}", sessionId, agoraId, userId);
+            log.info("Reconnected within threshold: sessionId={}, agoraId={}, userId={}", agoraMember.getSessionId(),
+                    agoraMember.getAgora().getId(), agoraMember.getMember().getId());
         } else {
-            log.info("Session reconnection failed: sessionId={}, agoraId={}, userId={}", sessionId, agoraId, userId);
-            throw new SessionReconnectException(sessionId);
+            log.info("Session reconnection failed: sessionId={}, agoraId={}, userId={}", agoraMember.getSessionId(),
+                    agoraMember.getAgora().getId(), agoraMember.getMember().getId());
+            throw new SessionReconnectException(agoraMember.getSessionId());
         }
     }
 
@@ -114,20 +122,17 @@ public class WebSocketEventHandler {
         log.info("Starting handleNewConnection: agoraId={}, userId={}, sessionId={}", agoraId, userId, sessionId);
 
         try {
-            log.debug("Updating session ID for user");
             agoraMemberService.updateSessionId(agoraId, userId, sessionId);
-            log.info("SessionId updated successfully: agoraId={}, userId={}, sessionId={}", agoraId, userId, sessionId);
-
-            log.debug("Sending meta information to active members");
             agoraMemberService.sendMetaToActiveMembers(agoraId, userId);
-            log.info("Meta information sent successfully to active members: agoraId={}, userId={}", agoraId, userId);
 
         } catch (Exception e) {
-            log.error("Error in handleNewConnection: agoraId={}, userId={}, sessionId={}, error={}", agoraId, userId, sessionId, e.getMessage(), e);
+            log.error("Error in handleNewConnection: agoraId={}, userId={}, sessionId={}, error={}", agoraId, userId,
+                    sessionId, e.getMessage(), e);
             throw e;
         }
 
-        log.info("handleNewConnection completed successfully: agoraId={}, userId={}, sessionId={}", agoraId, userId, sessionId);
+        log.info("handleNewConnection completed successfully: agoraId={}, userId={}, sessionId={}", agoraId, userId,
+                sessionId);
     }
 
     private boolean checkDisconnectTime(LocalDateTime disconnectTime) {
@@ -147,6 +152,15 @@ public class WebSocketEventHandler {
         return Long.parseLong((String) ((List<?>) nativeHeaders.get("AgoraId")).get(0));
     }
 
+    private String extractAccessToken(Map nativeHeaders) {
+        List<String> authHeaders = (List<String>) nativeHeaders.get("Authorization");
+        if (authHeaders != null && !authHeaders.isEmpty()) {
+            String authHeader = authHeaders.get(0);
+            return authHeader.startsWith("Bearer ") ? authHeader.substring(7) : authHeader;
+        }
+        throw new InvalidAuthorizationHeaderException();
+    }
+
     @EventListener
     public void handleWebSocketSessionDisconnected(SessionDisconnectEvent event) {
         String sessionId = event.getSessionId();
@@ -158,7 +172,8 @@ public class WebSocketEventHandler {
             processDisconnection(sessionId, agoraId, memberId);
         } else {
             agoraMember.updateSocketDisconnectTime(LocalDateTime.now());
-            agoraMemberRepository.save(agoraMember);
+            AgoraMember updateAgoraMember = getAgoraMember(memberId);
+            agoraMemberRepository.save(updateAgoraMember);
             log.warn("Disconnection type check failed: agoraId={}, memberId={}", agoraId, memberId);
         }
     }
@@ -175,9 +190,9 @@ public class WebSocketEventHandler {
                 .orElseThrow(() -> new NotFoundMemberException(userId));
     }
 
-    private LocalDateTime findDisconnectTime(Long agoraId, String sessionId) {
-        AgoraMember agoraMember = agoraMemberRepository.findBySessionId(sessionId)
-                .orElseThrow(() -> new NotFoundMemberException(agoraId));
+    private LocalDateTime findDisconnectTime(AgoraMember paramAgoraMember) {
+        AgoraMember agoraMember = agoraMemberRepository.findBySessionId(paramAgoraMember.getSessionId())
+                .orElseThrow(() -> new NotFoundMemberException(paramAgoraMember.getMember().getId()));
 
         return agoraMember.getSocketDisconnectTime();
     }
