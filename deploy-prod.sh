@@ -22,7 +22,7 @@ else
   NEW_COLOR=$( [ "$CURRENT_COLOR" = "blue" ] && echo "green" || echo "blue" )
 fi
 
-$COMPOSE_BIN -f "docker-compose.${NEW_COLOR}.yml" up --build -d
+$COMPOSE_BIN -f "docker-compose.${NEW_COLOR}.yml" pull && $COMPOSE_BIN -f "docker-compose.${NEW_COLOR}.yml" up -d
 
 attempts=0
 while [ $attempts -lt $MAX_RETRIES ]; do
