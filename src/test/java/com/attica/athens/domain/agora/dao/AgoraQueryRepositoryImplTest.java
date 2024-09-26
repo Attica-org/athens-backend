@@ -45,7 +45,7 @@ class AgoraQueryRepositoryImplTest {
     void 성공_아고라조회_존재하는_ID() {
         // given
         Agora agora = repository.save(
-                new Agora("title", 2, 10, "red", 0, 0, category));
+                new Agora("title", 2, 10, "red", 0, 0, category, null));
 
         // when
         Agora result = repository.findById(agora.getId()).orElseThrow();
@@ -62,15 +62,13 @@ class AgoraQueryRepositoryImplTest {
         List<Agora> agoras = new ArrayList<>();
         String title = "title";
         for (int i = 0; i < maxSize + 5; i++) {
-            agoras.add(new Agora(title + i, 2, 10, "red", 0, 0, category));
+            agoras.add(new Agora(title + i, 2, 10, "red", 0, 0, category, null));
         }
 
         repository.saveAll(agoras);
 
         // when
         List<Long> result = repository.getAgoraIdList();
-        System.out.println(agoras.size());
-        System.out.println("size : " + result.size());
 
         // then
         assertThat(result.size()).isEqualTo(maxSize);
@@ -82,7 +80,7 @@ class AgoraQueryRepositoryImplTest {
     void 성공_아고라조회_유효한키워드_종료되지않은상태() {
         // given
         Agora agora = repository.save(
-                new Agora("title", 2, 10, "red", 0, 0, category));
+                new Agora("title", 2, 10, "red", 0, 0, category, null));
 
         String keyword = "title";
         List<AgoraStatus> statuses = List.of(AgoraStatus.QUEUED, AgoraStatus.RUNNING);
@@ -104,7 +102,7 @@ class AgoraQueryRepositoryImplTest {
     void 성공_아고라조회_유효한키워드_종료된상태() {
         // given
         Agora agora = repository.save(
-                new Agora("title", 2, 10, "red", 0, 0, category));
+                new Agora("title", 2, 10, "red", 0, 0, category, null));
 
         agora.endAgora();
         List<AgoraStatus> statuses = List.of(AgoraStatus.CLOSED);
@@ -127,7 +125,7 @@ class AgoraQueryRepositoryImplTest {
     void 성공_아고라조회_특정카테고리_종료되지않은상태() {
         // given
         Agora agora = repository.save(
-                new Agora("title", 2, 10, "red", 0, 0, category));
+                new Agora("title", 2, 10, "red", 0, 0, category, null));
 
         List<AgoraStatus> statuses = List.of(AgoraStatus.QUEUED, AgoraStatus.RUNNING);
         List<Long> categoryIds = List.of(category.getId());
@@ -150,7 +148,7 @@ class AgoraQueryRepositoryImplTest {
     void 성공_아고라조회_전체카테고리_종료되지않은상태() {
         // given
         Agora agora = repository.save(
-                new Agora("title", 2, 10, "red", 0, 0, category));
+                new Agora("title", 2, 10, "red", 0, 0, category, null));
 
         List<AgoraStatus> statuses = List.of(AgoraStatus.QUEUED, AgoraStatus.RUNNING);
 
@@ -171,7 +169,7 @@ class AgoraQueryRepositoryImplTest {
     void 성공_아고라조회_특정카테고리_종료된상태() {
         // given
         Agora agora = repository.save(
-                new Agora("title", 2, 10, "red", 0, 0, category));
+                new Agora("title", 2, 10, "red", 0, 0, category, null));
 
         agora.endAgora();
         List<AgoraStatus> statuses = List.of(AgoraStatus.CLOSED);
@@ -195,7 +193,7 @@ class AgoraQueryRepositoryImplTest {
     void 성공_아고라조회_전체카테고리_종료된상태() {
         // given
         Agora agora = repository.save(
-                new Agora("title", 2, 10, "red", 0, 0, category));
+                new Agora("title", 2, 10, "red", 0, 0, category, null));
 
         agora.endAgora();
         List<AgoraStatus> statuses = List.of(AgoraStatus.CLOSED);
