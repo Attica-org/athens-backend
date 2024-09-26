@@ -343,10 +343,12 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
                                                 .and(agoraMember.sessionId.isNotNull())
                                         )
                         ),
+                        agora.agoraThumbnail.imageUrl,
                         agora.createdAt,
                         agora.status
                 ))
                 .from(agora)
+                .leftJoin(agora.agoraThumbnail)
                 .where(agora.id.in(ids)
                         .and(agora.status.eq(RUNNING)))
                 .fetch();
