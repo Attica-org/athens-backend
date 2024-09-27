@@ -1,11 +1,10 @@
-package com.attica.athens.domain.member;
+package com.attica.athens.domain.member.domain;
 
 import static com.attica.athens.domain.member.domain.Member.createMember;
 import static com.attica.athens.domain.member.domain.Member.createMemberWithOAuthInfo;
 import static org.assertj.core.api.BDDAssertions.then;
 import static org.assertj.core.api.BDDAssertions.thenThrownBy;
 
-import com.attica.athens.domain.member.domain.Member;
 import com.attica.athens.global.auth.config.oauth2.member.GoogleOAuth2MemberInfo;
 import com.attica.athens.global.auth.config.oauth2.member.KakaoOAuth2MemberInfo;
 import com.attica.athens.global.auth.domain.AuthProvider;
@@ -51,9 +50,7 @@ class MemberTest {
             String oauthId = "testOauthId";
 
             // when, then
-            thenThrownBy(() -> createMember(username, password, provider, oauthId))
-                    .isInstanceOf(NullFieldException.class)
-                    .hasMessage("The field username must not be null");
+            assertNullFieldException(username, password, provider, oauthId, "username");
         }
 
         @Test
@@ -66,9 +63,7 @@ class MemberTest {
             String oauthId = "testOauthId";
 
             // when, then
-            thenThrownBy(() -> createMember(username, password, provider, oauthId))
-                    .isInstanceOf(NullFieldException.class)
-                    .hasMessage("The field password must not be null");
+            assertNullFieldException(username, password, provider, oauthId, "password");
         }
 
         @Test
@@ -81,10 +76,16 @@ class MemberTest {
             String oauthId = "testOauthId";
 
             // when, then
-            thenThrownBy(() -> createMember(username, password, provider, oauthId))
-                    .isInstanceOf(NullFieldException.class)
-                    .hasMessage("The field authProvider must not be null");
+            assertNullFieldException(username, password, provider, oauthId, "authProvider");
         }
+    }
+
+    private void assertNullFieldException(final String username, final String password,
+                                          final AuthProvider provider,
+                                          final String oauthId, final String field) {
+        thenThrownBy(() -> createMember(username, password, provider, oauthId))
+                .isInstanceOf(NullFieldException.class)
+                .hasMessage("The field " + field + " must not be null");
     }
 
     @Nested

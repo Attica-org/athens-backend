@@ -4,6 +4,7 @@ import com.attica.athens.domain.common.ApiResponse;
 import com.attica.athens.domain.common.ApiUtil;
 import com.attica.athens.domain.member.application.MemberService;
 import com.attica.athens.domain.member.dto.request.CreateMemberRequest;
+import com.attica.athens.domain.member.exception.InvalidTempTokenException;
 import com.attica.athens.global.auth.domain.AuthProvider;
 import com.attica.athens.global.auth.dto.response.CreateAccessTokenResponse;
 import jakarta.servlet.http.HttpServletResponse;
@@ -58,6 +59,6 @@ public class MemberOpenController {
             redisTemplate.delete(tempToken);
             return ResponseEntity.ok(Map.of("access_token", accessToken));
         }
-        return ResponseEntity.badRequest().build();
+        throw new InvalidTempTokenException();
     }
 }

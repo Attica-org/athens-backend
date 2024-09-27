@@ -54,7 +54,7 @@ public class MemberOpenApiIntegrationTest extends IntegrationTestSupport {
 
         @Test
         @DisplayName("토큰을 조회한다.")
-        void 성공_토큰조회_유효한파라미터전달() throws Exception {
+        void 성공_토큰조회_유효한액세스토큰() throws Exception {
             // given
             String tempToken = "temp-token";
             String accessToken = "access-token";
@@ -78,5 +78,32 @@ public class MemberOpenApiIntegrationTest extends IntegrationTestSupport {
             verify(valueOperationsMock).get(tempToken);
             verify(redisTemplate).delete(tempToken);
         }
+    }
+
+    @Test
+    @DisplayName("유효하지 않은 임시 토큰으로 액세스 토큰 조회 시 실패한다.")
+    void 실패_토큰조회_유효하지않은액세스토큰() throws Exception {
+        // given
+        String invalidTempToken = "invalid-temp-token";
+        ValueOperations<String, String> valueOperationsMock = mock(ValueOperations.class);
+        when(redisTemplate.opsForValue()).thenReturn(valueOperationsMock);
+        when(valueOperationsMock.get(invalidTempToken)).thenReturn(null);
+
+        // when
+        final ResultActions result = mockMvc.perform(
+                post("/{prefix}/open/member/token", API_V1)
+                        .param("temp-token", invalidTempToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+        );
+
+        // then
+        result.andExpect(status().isUnauthorized())
+                .andExpectAll(
+                        jsonPath("$.success").value(false),
+                        jsonPath("$.error").exists(),
+                        jsonPath("$.error.code").value(1201),
+                        jsonPath("$.error.message").value("Invalid temp token"),
+                        jsonPath("$.response").doesNotExist()
+                );
     }
 }
