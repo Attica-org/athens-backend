@@ -2,6 +2,7 @@ package com.attica.athens.global.auth.config;
 
 import com.attica.athens.global.auth.application.AuthService;
 import com.attica.athens.global.auth.application.CustomOAuth2UserService;
+import com.attica.athens.global.auth.config.oauth2.handler.OAuth2AuthenticationFailureHandler;
 import com.attica.athens.global.auth.config.oauth2.handler.OAuth2AuthenticationSuccessHandler;
 import com.attica.athens.global.auth.config.oauth2.repository.HttpCookieOAuth2AuthorizationRequestRepository;
 import com.attica.athens.global.auth.dao.RefreshTokenRepository;
@@ -37,7 +38,6 @@ public class SecurityConfig {
             "/swagger-resources/**",
             "/ws/**",
             "/login/**",
-            "/api/v1/user/**",
             "/api/v1/auth/reissue",
             "/api/v1/temp-user/**",
             "/api/v1/open/**",
@@ -49,7 +49,8 @@ public class SecurityConfig {
     private final AuthService authService;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final CustomOAuth2UserService oAuth2UserService;
-    private final OAuth2AuthenticationSuccessHandler successHandler;
+    private final OAuth2AuthenticationSuccessHandler oauthSuccessHandler;
+    private final OAuth2AuthenticationFailureHandler oauthFailureHandler;
     private final HttpCookieOAuth2AuthorizationRequestRepository httpCookieOAuth2AuthorizationRequestRepository;
 
     @Bean
@@ -117,7 +118,8 @@ public class SecurityConfig {
                                 .authorizationRequestRepository(httpCookieOAuth2AuthorizationRequestRepository))
                         .userInfoEndpoint(userInfo -> userInfo
                                 .userService(oAuth2UserService))
-                        .successHandler(successHandler)
+                        .successHandler(oauthSuccessHandler)
+                        .failureHandler(oauthFailureHandler)
                 ).oauth2Client(Customizer.withDefaults());
 
         return http.build();

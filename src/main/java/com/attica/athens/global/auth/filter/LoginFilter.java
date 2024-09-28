@@ -81,7 +81,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
         GrantedAuthority auth = iterator.next();
 
-        String userId = String.valueOf(customUserDetails.getUserId());
+        Long userId = customUserDetails.getUserId();
         String role = auth.getAuthority();
 
         createAccessToken(response, userId, role);
@@ -112,7 +112,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
      * @param userId   사용자 ID
      * @param role     사용자 역할
      */
-    private void createAccessToken(HttpServletResponse response, String userId, String role) {
+    private void createAccessToken(HttpServletResponse response, Long userId, String role) {
 
         String accessToken = authService.createJwtToken(ACCESS_TOKEN, userId, role);
         ObjectMapper objectMapper = new ObjectMapper();

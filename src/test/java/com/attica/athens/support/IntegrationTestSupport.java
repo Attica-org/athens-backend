@@ -1,7 +1,9 @@
 package com.attica.athens.support;
 
+import static org.mockito.Mockito.reset;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 
+import com.attica.athens.config.TestRedisConfig;
 import com.attica.athens.config.TestSecurityConfig.TestCustomUserDetailsServiceConfig;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.micrometer.core.instrument.util.IOUtils;
@@ -9,10 +11,12 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.io.ResourceLoader;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
@@ -23,7 +27,7 @@ import org.springframework.web.context.WebApplicationContext;
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
-@Import(TestCustomUserDetailsServiceConfig.class)
+@Import({TestCustomUserDetailsServiceConfig.class, TestRedisConfig.class})
 @Transactional
 public abstract class IntegrationTestSupport {
 
@@ -40,12 +44,17 @@ public abstract class IntegrationTestSupport {
     @Autowired
     private ResourceLoader resourceLoader;
 
+    @Autowired
+    @Qualifier("redisTemplate")
+    protected RedisTemplate<String, String> redisTemplate;
+
     @BeforeEach
     void setUp(final WebApplicationContext context) {
         this.mockMvc = MockMvcBuilders.webAppContextSetup(context)
                 .apply(springSecurity())
                 .alwaysDo(MockMvcResultHandlers.print())
                 .build();
+        reset(redisTemplate);
     }
 
     protected String readJson(final String path) throws IOException {

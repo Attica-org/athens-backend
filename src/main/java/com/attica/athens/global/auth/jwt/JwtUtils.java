@@ -34,7 +34,7 @@ public class JwtUtils {
         this.refreshTokenExpirationTime = jwtProperties.getRefreshExpired();
     }
 
-    public String createJwtToken(String tokenType, String id, String role) {
+    public String createJwtToken(String tokenType, Long id, String role) {
         Date now = new Date();
         Date expire;
 
@@ -61,14 +61,14 @@ public class JwtUtils {
                 .compact();
     }
 
-    public String getUserId(String token) { // secretKey로 검증
+    public Long getUserId(String token) { // secretKey로 검증
         try {
-            return Jwts.parser()
+            return Long.parseLong(Jwts.parser()
                     .verifyWith(secretKey)
                     .build()
                     .parseSignedClaims(token)
                     .getPayload()
-                    .get(AUTHORITY_KEY, String.class);
+                    .get(AUTHORITY_KEY, String.class));
         } catch (JwtException e) {
             throw new IllegalArgumentException(e.getMessage());
         }

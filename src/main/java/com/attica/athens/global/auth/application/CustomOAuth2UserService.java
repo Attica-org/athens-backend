@@ -90,7 +90,8 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     /**
      * 회원 정보를 데이터베이스와 동기화한다.
      *
-     * <p>기존 회원이 존재하면 인증 제공자를 확인하고, 새로운 회원이면 저장한다.</p>
+     * <p> 기존 회원이 존재하면 인증 제공자를 확인하고, 정보를 업데이트한다.
+     * <p> 새로운 회원이면 저장한다.</p>
      *
      * @param memberInfo   OAuth2 회원 정보
      * @param authProvider 인증 제공자
@@ -102,7 +103,8 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
         return optionalMember.map(existingMember -> {
             validateAuthProvider(existingMember, authProvider);
-            return existingMember;
+            existingMember.updateMemberInfo(memberInfo);
+            return memberRepository.save(existingMember);
         }).orElseGet(() -> createNewMember(memberInfo, authProvider));
     }
 

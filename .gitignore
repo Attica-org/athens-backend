@@ -3,6 +3,7 @@
 # **/application-prod.yml
 **/application-test.yml
 **/data.sql
+/src/main/generated/
 
 /http
 /.idea/

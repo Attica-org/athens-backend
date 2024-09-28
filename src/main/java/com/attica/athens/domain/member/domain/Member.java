@@ -2,11 +2,13 @@ package com.attica.athens.domain.member.domain;
 
 import com.attica.athens.global.auth.config.oauth2.member.OAuth2MemberInfo;
 import com.attica.athens.global.auth.domain.AuthProvider;
+import com.attica.athens.global.auth.exception.NullFieldException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,7 +18,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Member extends BaseMember {
 
-    @Column(length = 50, nullable = false, unique = true)
+    @Column(length = 50, nullable = false)
     @NotNull
     private String username;
 
@@ -32,22 +34,73 @@ public class Member extends BaseMember {
     @Column(name = "oauth_id")
     private String oauthId;
 
+    @Column(length = 100)
+    @Size(max = 100)
+    private String nickname;
+
+    @Column(length = 254, unique = true)
+    @Size(max = 254)
+    private String email;
+
     private Member(@NotNull String username,
                    @NotNull String password,
                    @NotNull AuthProvider authProvider,
-                   String oauthId) {
+                   String oauthId,
+                   String nickname,
+                   String email) {
         super(MemberRole.ROLE_USER);
+
+        validateUsername(username);
+        validatePassword(password);
+        validateAuthProvider(authProvider);
+
         this.username = username;
         this.password = password;
         this.authProvider = authProvider;
         this.oauthId = oauthId;
+        this.nickname = nickname;
+        this.email = email;
     }
 
+    private void validateUsername(String username) {
+        if (username == null) {
+            throw new NullFieldException("username");
+        }
+    }
+
+    private void validatePassword(String password) {
+        if (password == null) {
+            throw new NullFieldException("password");
+        }
+    }
+
+    private void validateAuthProvider(AuthProvider authProvider) {
+        if (authProvider == null) {
+            throw new NullFieldException("authProvider");
+        }
+    }
+
+    /**
+     * 기본 회원 생성 메서드
+     *
+     * @param username
+     * @param password
+     * @param authProvider
+     * @param oauthId
+     * @return
+     */
     public static Member createMember(String username, String password, AuthProvider authProvider, String oauthId) {
-        return new Member(username, password, authProvider, oauthId);
+        return new Member(username, password, authProvider, oauthId, null, null);
     }
 
     public static Member createMemberWithOAuthInfo(OAuth2MemberInfo memberInfo, AuthProvider authProvider) {
-        return new Member("DEFAULT", "NOPASSWORD", authProvider, memberInfo.getId());
+        return new Member("DEFAULT", "NOPASSWORD", authProvider, memberInfo.getId(),
+                memberInfo.getNickname().orElse(null),
+                memberInfo.getEmail().orElse(null));
+    }
+
+    public void updateMemberInfo(OAuth2MemberInfo memberInfo) {
+        this.nickname = memberInfo.getNickname().orElse(null);
+        this.email = memberInfo.getEmail().orElse(null);
     }
 }
