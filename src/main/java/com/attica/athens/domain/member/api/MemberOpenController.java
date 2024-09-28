@@ -4,6 +4,7 @@ import com.attica.athens.domain.common.ApiResponse;
 import com.attica.athens.domain.common.ApiUtil;
 import com.attica.athens.domain.member.application.MemberService;
 import com.attica.athens.domain.member.dto.request.CreateMemberRequest;
+import com.attica.athens.domain.member.exception.InvalidTempTokenException;
 import com.attica.athens.global.auth.domain.AuthProvider;
 import com.attica.athens.global.auth.dto.response.CreateAccessTokenResponse;
 import jakarta.servlet.http.HttpServletResponse;
@@ -17,14 +18,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1/user")
-public class MemberController {
+@RequestMapping("/api/v1/open/member")
+public class MemberOpenController {
 
     private final MemberService memberService;
     private final RedisTemplate<String, String> redisTemplate;
 
-    public MemberController(final MemberService memberService,
-                            @Qualifier("redisTemplate") final RedisTemplate<String, String> redisTemplate) {
+    public MemberOpenController(final MemberService memberService,
+                                @Qualifier("redisTemplate") final RedisTemplate<String, String> redisTemplate) {
         this.memberService = memberService;
         this.redisTemplate = redisTemplate;
     }
@@ -58,6 +59,6 @@ public class MemberController {
             redisTemplate.delete(tempToken);
             return ResponseEntity.ok(Map.of("access_token", accessToken));
         }
-        return ResponseEntity.badRequest().build();
+        throw new InvalidTempTokenException();
     }
 }

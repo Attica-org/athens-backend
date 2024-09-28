@@ -123,8 +123,6 @@ public class WebSocketEventHandler {
 
         try {
             agoraMemberService.updateSessionId(agoraId, userId, sessionId);
-            agoraMemberService.sendMetaToActiveMembers(agoraId, userId);
-
         } catch (Exception e) {
             log.error("Error in handleNewConnection: agoraId={}, userId={}, sessionId={}, error={}", agoraId, userId,
                     sessionId, e.getMessage(), e);
@@ -198,8 +196,21 @@ public class WebSocketEventHandler {
     }
 
     @EventListener(SessionSubscribeEvent.class)
-    public void handleWebSocketSessionSubscribe() {
-        log.info("WebSocket Subscribe");
+    public void handleWebSocketSessionSubscribe(SessionSubscribeEvent event) {
+        StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
+        String destination = headerAccessor.getDestination();
+
+        if (destination != null && destination.startsWith("/topic/agoras/")) {
+            Long agoraId = extractAgoraIdFromDestination(destination);
+            Long userId = getUserId(headerAccessor);
+
+            agoraMemberService.sendMetaToActiveMembers(agoraId, userId);
+        }
+    }
+
+    private Long extractAgoraIdFromDestination(String destination) {
+        String[] parts = destination.split("/");
+        return Long.parseLong(parts[parts.length - 1]);
     }
 
     @EventListener(SessionUnsubscribeEvent.class)

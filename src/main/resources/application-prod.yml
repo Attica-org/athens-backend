@@ -38,15 +38,17 @@ spring:
         google:
           clientId: ${GOOGLE_CLIENT_ID}
           clientSecret: ${GOOGLE_CLIENT_SECRET}
-          redirectUri: http://localhost:8080/login/oauth2/code/google
+          redirectUri: ${GOOGLE_REDIRECT_URI}
           scope:
+            - email
         kakao:
           clientId: ${KAKAO_CLIENT_ID}
           clientSecret: ${KAKAO_CLIENT_SECRET}
           clientAuthenticationMethod: client_secret_post
           authorizationGrantType: authorization_code
-          redirectUri: http://localhost:8080/login/oauth2/code/kakao
+          redirectUri: ${KAKAO_REDIRECT_URI}
           scope:
+            - profile_nickname
           clientName: Kakao
       # Provider 설정
       provider:
@@ -68,10 +70,8 @@ app:
     temp-token:
       expiration-minutes: 5
   oauth2:
-    redirect-uris:
-      - http://localhost:3000/login/oauth2/redirect
-      - https://athens-client-mu.vercel.app/login/oauth2/redirect
-    default-redirect-uri: https://athens-client-mu.vercel.app/login/oauth2/redirect
+    redirect-uris: ${OAUTH2_REDIRECT_URIS}
+    default-redirect-uri: ${OAUTH2_DEFAULT_REDIRECT_URI}
 
 
 logging:

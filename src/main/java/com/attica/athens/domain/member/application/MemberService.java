@@ -3,7 +3,9 @@ package com.attica.athens.domain.member.application;
 import com.attica.athens.domain.member.dao.MemberRepository;
 import com.attica.athens.domain.member.domain.Member;
 import com.attica.athens.domain.member.dto.request.CreateMemberRequest;
+import com.attica.athens.domain.member.dto.response.GetMemberResponse;
 import com.attica.athens.domain.member.exception.DuplicateMemberException;
+import com.attica.athens.domain.member.exception.NotFoundMemberException;
 import com.attica.athens.global.auth.application.AuthService;
 import com.attica.athens.global.auth.domain.AuthProvider;
 import jakarta.servlet.http.HttpServletResponse;
@@ -42,7 +44,13 @@ public class MemberService {
 
         memberRepository.save(member);
 
-        return authService.createRefreshTokenAndGetAccessToken(String.valueOf(member.getId()), member.getRole().name(),
+        return authService.createRefreshTokenAndGetAccessToken(member.getId(), member.getRole().name(),
                 response);
+    }
+
+    public GetMemberResponse getMember(Long userId) {
+        Member member = memberRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundMemberException(userId));
+        return GetMemberResponse.from(member);
     }
 }

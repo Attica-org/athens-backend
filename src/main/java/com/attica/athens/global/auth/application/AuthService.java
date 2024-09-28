@@ -37,7 +37,7 @@ public class AuthService {
     private final JwtUtils jwtUtils;
     private final RefreshTokenRepository refreshTokenRepository;
 
-    public String createJwtToken(String tokenType, String id, String role) {
+    public String createJwtToken(String tokenType, Long id, String role) {
         return jwtUtils.createJwtToken(tokenType, id, role);
     }
 
@@ -57,7 +57,7 @@ public class AuthService {
     }
 
     public Authentication createAuthenticationByToken(String token) {
-        Long userId = Long.parseLong(jwtUtils.getUserId(token));
+        Long userId = jwtUtils.getUserId(token);
         String role = jwtUtils.getRole(token);
 
         CustomUserDetails customUserDetails = new CustomUserDetails(userId, "fakePassword", role);
@@ -67,7 +67,7 @@ public class AuthService {
     }
 
     private void createRefreshEntity(CreateRefreshTokenRequest createRefreshTokenRequest) {
-        String userId = createRefreshTokenRequest.userId();
+        Long userId = createRefreshTokenRequest.userId();
         String refreshToken = createRefreshTokenRequest.refresh();
         LocalDateTime expiration = jwtUtils.getExpirationAsLocalDateTime(createRefreshTokenRequest.refresh());
         RefreshToken refreshEntity = new RefreshToken(userId, refreshToken, expiration);
@@ -81,13 +81,13 @@ public class AuthService {
 
         validateToken(refreshToken);
 
-        String userId = jwtUtils.getUserId(refreshToken);
+        Long userId = jwtUtils.getUserId(refreshToken);
         String role = jwtUtils.getRole(refreshToken);
 
         return createRefreshTokenAndGetAccessToken(userId, role, response);
     }
 
-    public String createRefreshTokenAndGetAccessToken(String userId, String role, HttpServletResponse response) {
+    public String createRefreshTokenAndGetAccessToken(Long userId, String role, HttpServletResponse response) {
         String newAccess = jwtUtils.createJwtToken(ACCESS_TOKEN, userId, role);
         String newRefresh = jwtUtils.createJwtToken(REFRESH_TOKEN, userId, role);
 
