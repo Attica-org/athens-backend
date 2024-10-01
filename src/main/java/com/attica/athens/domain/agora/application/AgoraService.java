@@ -141,16 +141,19 @@ public class AgoraService {
     }
 
     @Transactional
-    public AgoraExitResponse exit(final Long memberId, final Long agoraId) {
-        findAgoraById(agoraId);
-
-        AgoraMember agoraMember = agoraMemberService.findAgoraMemberByAgoraIdAndMemberId(agoraId, memberId);
+    public AgoraExitResponse exit(final Long memberId) {
+        AgoraMember agoraMember = getAgoraMember(memberId);
         LocalDateTime socketDisconnectTime = LocalDateTime.now();
 
         agoraMember.updateSocketDisconnectTime(socketDisconnectTime);
         agoraMember.updateDisconnectType(true);
 
         return new AgoraExitResponse(memberId, agoraMember.getType(), socketDisconnectTime);
+    }
+
+    private AgoraMember getAgoraMember(Long userId) {
+        return agoraMemberRepository.findByMemberId(userId)
+                .orElseThrow(() -> new NotFoundMemberException(userId));
     }
 
     public List<SimpleAgoraResult> findTrendAgora() {

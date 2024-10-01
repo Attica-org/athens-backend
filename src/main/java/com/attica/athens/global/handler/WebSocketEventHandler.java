@@ -114,13 +114,14 @@ public class WebSocketEventHandler {
         } else {
             log.info("Session reconnection failed: sessionId={}, agoraId={}, userId={}", agoraMember.getSessionId(),
                     agoraMember.getAgora().getId(), agoraMember.getMember().getId());
+            //processDisconnection(agoraMember.getSessionId(), agoraMember.getAgora().getId(), agoraMember.getId());
+            // 이 부분 예외 주면 프론트에서 eixt api 호출하는 것으로 해야할듯
             throw new SessionReconnectException(agoraMember.getSessionId());
         }
     }
 
     private void handleNewConnection(Long agoraId, Long userId, String sessionId) {
         log.info("Starting handleNewConnection: agoraId={}, userId={}, sessionId={}", agoraId, userId, sessionId);
-
         try {
             agoraMemberService.updateSessionId(agoraId, userId, sessionId);
         } catch (Exception e) {
@@ -128,7 +129,6 @@ public class WebSocketEventHandler {
                     sessionId, e.getMessage(), e);
             throw e;
         }
-
         log.info("handleNewConnection completed successfully: agoraId={}, userId={}, sessionId={}", agoraId, userId,
                 sessionId);
     }
@@ -165,7 +165,7 @@ public class WebSocketEventHandler {
         Long agoraId = agoraMemberService.findAgoraIdBySessionId(sessionId);
         Long memberId = getUserId(StompHeaderAccessor.wrap(event.getMessage()));
 
-        AgoraMember agoraMember = getAgoraMember(memberId);
+        AgoraMember agoraMember = getAgoraMember(memberId);  // agoraId, memberId 같이 조회하자
         if (agoraMember.getDisconnectType()) {
             processDisconnection(sessionId, agoraId, memberId);
         } else {
