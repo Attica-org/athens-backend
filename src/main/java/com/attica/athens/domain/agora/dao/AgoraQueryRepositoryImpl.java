@@ -2,6 +2,7 @@ package com.attica.athens.domain.agora.dao;
 
 import static com.attica.athens.domain.agora.domain.AgoraStatus.RUNNING;
 import static com.attica.athens.domain.agora.domain.QAgora.agora;
+import static com.attica.athens.domain.agora.domain.QAgoraThumbnail.agoraThumbnail;
 import static com.attica.athens.domain.agoraMember.domain.QAgoraMember.agoraMember;
 import static com.attica.athens.domain.chat.domain.QChat.chat;
 
@@ -281,6 +282,21 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
             throw new NotFoundAgoraIdException();
         }
         return agoraIdList;
+    }
+
+    @Override
+    public List<String> getAgoraImageUrlList() {
+
+        final int size = 30;
+
+        List<String> agoraImageUrlList = jpaQueryFactory
+                .select(agoraThumbnail.imageUrl)
+                .from(agoraThumbnail)
+                .orderBy(agoraThumbnail.id.asc())
+                .limit(size + 1L)
+                .fetch();
+
+        return agoraImageUrlList;
     }
 
     @Override

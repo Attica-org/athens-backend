@@ -62,11 +62,10 @@ public class AgoraAuthController {
 
     @PatchMapping("/{agoraId}/exit")
     public ResponseEntity<ApiResponse<AgoraExitResponse>> exitAgora(
-            @AuthenticationPrincipal CustomUserDetails user,
-            @PathVariable("agoraId") Long agoraId
+            @AuthenticationPrincipal CustomUserDetails user
     ) {
         Long userId = Long.parseLong(user.getUsername());
-        AgoraExitResponse response = agoraService.exit(userId, agoraId);
+        AgoraExitResponse response = agoraService.exit(userId);
 
         return ResponseEntity.ok(ApiUtil.success(response));
     }
