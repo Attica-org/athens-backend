@@ -220,7 +220,7 @@ public class AgoraService {
                 .orElseThrow(() -> new NotFoundCategoryException(categoryId));
     }
 
-    public AgoraTitleResponse getAgoraTitle(final Long agoraId) {
+    public AgoraTitleResponse getAgoraTitleAndImageUrl(final Long agoraId) {
 
         Agora agora = findAgoraById(agoraId);
 
