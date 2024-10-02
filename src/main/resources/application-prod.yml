@@ -58,8 +58,8 @@ spring:
           userInfoUri: https://kapi.kakao.com/v2/user/me
           userNameAttribute: id
   redis:
-    host: localhost
-    port: 6379
+    host: ${REDIS_HOST}
+    port: ${REDIS_PORT}
 
 app:
   auth:
@@ -78,6 +78,7 @@ logging:
   level:
     '[com.attica.athens]': DEBUG
     '[org.hibernate.type]': TRACE
+    org.springframework.data.redis: DEBUG
 
   config: classpath:logback-prod.xml
 
