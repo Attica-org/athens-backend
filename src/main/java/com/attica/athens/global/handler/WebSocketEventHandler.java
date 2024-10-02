@@ -78,7 +78,7 @@ public class WebSocketEventHandler {
         Long agoraId = getAgoraId(nativeHeaders);
         String sessionId = (String) generic.getHeaders().get("simpSessionId");
 
-        AgoraMember agoraMember = getAgoraMember(memberId);
+        AgoraMember agoraMember = getAgoraMember(memberId);  // 중복데이터 때문에 수정할 필요 있음
 
         String accessToken = extractAccessToken(nativeHeaders);
         authService.validateToken(accessToken);
