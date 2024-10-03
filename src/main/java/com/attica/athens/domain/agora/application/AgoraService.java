@@ -1,5 +1,8 @@
 package com.attica.athens.domain.agora.application;
 
+import static com.attica.athens.domain.agora.domain.AgoraStatus.CLOSED;
+import static com.attica.athens.domain.agoraMember.domain.AgoraMemberType.OBSERVER;
+
 import com.attica.athens.domain.agora.dao.AgoraRepository;
 import com.attica.athens.domain.agora.dao.CategoryRepository;
 import com.attica.athens.domain.agora.dao.PopularRepository;
@@ -24,6 +27,7 @@ import com.attica.athens.domain.agora.dto.response.EndVoteAgoraResponse;
 import com.attica.athens.domain.agora.dto.response.StartAgoraResponse;
 import com.attica.athens.domain.agora.dto.response.StartNotificationResponse;
 import com.attica.athens.domain.agora.exception.AlreadyParticipateException;
+import com.attica.athens.domain.agora.exception.ClosedAgoraException;
 import com.attica.athens.domain.agora.exception.DuplicatedNicknameException;
 import com.attica.athens.domain.agora.exception.FullAgoraCapacityException;
 import com.attica.athens.domain.agora.exception.InvalidAgoraStatusException;
@@ -88,7 +92,7 @@ public class AgoraService {
 
     public AgoraSlice<?> findAgoraByKeyword(final String agoraName,
                                             final SearchKeywordRequest request) {
-        boolean isClosed = AgoraStatus.CLOSED.getType().equals(request.status());
+        boolean isClosed = CLOSED.getType().equals(request.status());
 
         return isClosed ? agoraRepository.findClosedAgoraByKeyword(request.next(), request.getStatus(), agoraName)
                 : agoraRepository.findActiveAgoraByKeyword(request.next(), request.getStatus(), agoraName);
@@ -96,7 +100,7 @@ public class AgoraService {
 
     public AgoraSlice<?> findAgoraByCategory(AgoraRequest request) {
 
-        boolean isClosed = AgoraStatus.CLOSED.getType().equals(request.status());
+        boolean isClosed = CLOSED.getType().equals(request.status());
 
         if (request.category() == 1) {
             return isClosed
@@ -118,23 +122,7 @@ public class AgoraService {
         Agora agora = agoraRepository.findAgoraById(agoraId)
                 .orElseThrow(() -> new NotFoundAgoraException(agoraId));
 
-        if (!Objects.equals(AgoraMemberType.OBSERVER, request.type())) {
-            int typeCount = agoraMemberRepository.countCapacityByAgoraMemberType(agora.getId(), request.type());
-            if (typeCount >= agora.getCapacity()) {
-                throw new FullAgoraCapacityException();
-            }
-
-            boolean existsNickname = agoraMemberRepository.existsNickname(agoraId, request.nickname());
-            if (existsNickname) {
-                throw new DuplicatedNicknameException(request.nickname());
-            }
-        }
-
-        agoraMemberRepository.findByAgoraIdAndMemberId(agora.getId(), memberId)
-                .ifPresent(agoraMember -> {
-                            throw new AlreadyParticipateException(agora.getId(), memberId);
-                        }
-                );
+        validateParticipate(memberId, agoraId, request, agora);
 
         AgoraMember created = createAgoraMember(memberId, agoraId, request);
         AgoraMember agoraMember = agoraMemberRepository.save(created);
@@ -279,9 +267,31 @@ public class AgoraService {
     }
 
     private int getParticipantCount(final Long agoraId) {
-        return agoraMemberRepository.countByAgoraIdAndSessionIdIsNotNullAndTypeIsNot(agoraId,
-                AgoraMemberType.OBSERVER);
+        return agoraMemberRepository.countByAgoraIdAndSessionIdIsNotNullAndTypeIsNot(agoraId, OBSERVER);
     }
+
+    private void validateParticipate(Long memberId, Long agoraId, AgoraParticipateRequest request, Agora agora) {
+        if (agora.getStatus().equals(CLOSED)) throw new ClosedAgoraException();
+
+        if (!Objects.equals(OBSERVER, request.type())) {
+            int typeCount = agoraMemberRepository.countCapacityByAgoraMemberType(agora.getId(), request.type());
+            if (typeCount >= agora.getCapacity()) {
+                throw new FullAgoraCapacityException();
+            }
+
+            boolean existsNickname = agoraMemberRepository.existsNickname(agoraId, request.nickname());
+            if (existsNickname) {
+                throw new DuplicatedNicknameException(request.nickname());
+            }
+        }
+
+        agoraMemberRepository.findByAgoraIdAndMemberId(agora.getId(), memberId)
+                .ifPresent(agoraMember -> {
+                            throw new AlreadyParticipateException(agora.getId(), memberId);
+                        }
+                );
+    }
+
 
     @Transactional
     public EndAgoraResponse timeOutAgora(Long agoraId) {
