@@ -2,11 +2,15 @@ version: "3"
 
 services:
   backend-blue:
-    image: ${DOCKER_IMAGE}
+    extends:
+      file: docker-compose.yml
+      service: backend
     container_name: athens-blue
     ports:
       - 8081:8080
-    env_file: .env
-    volumes:
-      - ./log:/log
-    restart: always
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    external: true
