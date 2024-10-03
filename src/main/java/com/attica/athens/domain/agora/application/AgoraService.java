@@ -30,6 +30,7 @@ import com.attica.athens.domain.agora.exception.AlreadyParticipateException;
 import com.attica.athens.domain.agora.exception.ClosedAgoraException;
 import com.attica.athens.domain.agora.exception.DuplicatedNicknameException;
 import com.attica.athens.domain.agora.exception.FullAgoraCapacityException;
+import com.attica.athens.domain.agora.exception.ImageUpdateAccessDeniedException;
 import com.attica.athens.domain.agora.exception.InvalidAgoraStatusException;
 import com.attica.athens.domain.agora.exception.NotFoundAgoraException;
 import com.attica.athens.domain.agora.exception.NotFoundCategoryException;
@@ -37,7 +38,6 @@ import com.attica.athens.domain.agora.exception.NotParticipateException;
 import com.attica.athens.domain.agoraMember.application.AgoraMemberService;
 import com.attica.athens.domain.agoraMember.dao.AgoraMemberRepository;
 import com.attica.athens.domain.agoraMember.domain.AgoraMember;
-import com.attica.athens.domain.agoraMember.domain.AgoraMemberType;
 import com.attica.athens.domain.agoraMember.exception.AlreadyEndVotedException;
 import com.attica.athens.domain.chat.domain.ChatType;
 import com.attica.athens.domain.member.dao.BaseMemberRepository;
@@ -82,9 +82,12 @@ public class AgoraService {
     }
 
     @Transactional
-    public void updateAgoraImage(Long agoraId, MultipartFile file) {
+    public void updateAgoraImage(Long agoraId, Long userId, MultipartFile file) {
         Agora agora = agoraRepository.findById(agoraId)
                 .orElseThrow(() -> new NotFoundAgoraException(agoraId));
+
+        long createdMemberId = Long.parseLong(agora.getCreatedBy());
+        if (!Objects.equals(createdMemberId, userId)) throw new ImageUpdateAccessDeniedException();
 
         AgoraThumbnail updateThumbnail = s3ThumbnailService.getAgoraThumbnail(file);
         agora.updateThumbnail(updateThumbnail);

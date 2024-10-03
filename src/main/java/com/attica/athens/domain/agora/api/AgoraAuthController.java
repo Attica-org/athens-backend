@@ -84,9 +84,11 @@ public class AgoraAuthController {
     @PatchMapping("/{agoraId}")
     public ResponseEntity<ApiResponse<Void>> updateAgoraThumbnail(
             @PathVariable("agoraId") Long agoraId,
+            @AuthenticationPrincipal CustomUserDetails user,
             MultipartFile file
     ) {
-        agoraService.updateAgoraImage(agoraId, file);
+        Long userId = Long.parseLong(user.getUsername());
+        agoraService.updateAgoraImage(agoraId, userId, file);
 
         return ResponseEntity.status(HttpStatus.OK).build();
     }
