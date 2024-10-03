@@ -8,3 +8,9 @@ services:
     container_name: athens-blue
     ports:
       - 8081:8080
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    external: true
