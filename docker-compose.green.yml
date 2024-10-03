@@ -12,7 +12,7 @@ services:
     extends:
       file: docker-compose.yml
       service: redis
-    ports: [ ]  # 포트 매핑 제거
+    ports: []  # 포트 매핑 제거
 
 networks:
   ubuntu_app-network:
