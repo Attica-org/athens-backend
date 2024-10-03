@@ -13,7 +13,7 @@ services:
     depends_on:
       - redis
     networks:
-      - app-network
+      - ubuntu_app-network
 
   redis:
     image: redis:latest
@@ -24,11 +24,11 @@ services:
       - redis-data:/data
     restart: always
     networks:
-      - app-network
+      - ubuntu_app-network
 
 networks:
-  app-network:
-    driver: bridge
+  ubuntu_app-network:
+    external: true
 
 volumes:
   redis-data:
