@@ -1,9 +1,6 @@
 services:
   backend:
     image: ${DOCKER_IMAGE}
-    container_name: athens-backend
-    ports:
-      - 8080:8080
     env_file: .env
     volumes:
       - ./log:/log
