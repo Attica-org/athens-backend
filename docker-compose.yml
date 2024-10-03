@@ -12,6 +12,8 @@ services:
     restart: always
     depends_on:
       - redis
+    networks:
+      - app-network
 
   redis:
     image: redis:latest
@@ -21,6 +23,12 @@ services:
     volumes:
       - redis-data:/data
     restart: always
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
 
 volumes:
   redis-data:
