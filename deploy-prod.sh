@@ -4,6 +4,9 @@ WAS_NAME="athens"
 COMPOSE_BIN="/usr/local/bin/docker-compose"
 MAX_RETRIES=10
 
+# 네트워크 생성 (없으면 생성, 있으면 무시)
+docker network create ubuntu_app-network || true
+
 check_execute_was() {
   docker ps --filter "name=$WAS_NAME-${NEW_COLOR}" --format "{{.Status}}" | grep -q "^Up"
 }
@@ -21,8 +24,12 @@ if [ -z "$CURRENT_COLOR" ]; then
 else
   NEW_COLOR=$( [ "$CURRENT_COLOR" = "blue" ] && echo "green" || echo "blue" )
 fi
+# 기존 컨테이너 정리
+$COMPOSE_BIN down --remove-orphans
 
-$COMPOSE_BIN -f "docker-compose.${NEW_COLOR}.yml" pull && $COMPOSE_BIN -f "docker-compose.${NEW_COLOR}.yml" up -d
+# 새 버전 배포
+$COMPOSE_BIN -f docker-compose.yml -f "docker-compose.${NEW_COLOR}.yml" pull && \
+$COMPOSE_BIN -f docker-compose.yml -f "docker-compose.${NEW_COLOR}.yml" up -d
 
 attempts=0
 while [ $attempts -lt $MAX_RETRIES ]; do
@@ -38,7 +45,7 @@ while [ $attempts -lt $MAX_RETRIES ]; do
 done
 
 if [ $attempts -ge $MAX_RETRIES ]; then
-  $COMPOSE_BIN -f "docker-compose.${NEW_COLOR}.yml" down
+  $COMPOSE_BIN -f docker-compose.yml -f "docker-compose.${NEW_COLOR}.yml" down
   exit 1
 fi
 
@@ -51,6 +58,10 @@ else
 fi
 
 mntms
+
+# 이전 버전 컨테이너 제거
 if [ -n "$CURRENT_COLOR" ]; then
-  $COMPOSE_BIN -f "docker-compose.${CURRENT_COLOR}.yml" down
+  $COMPOSE_BIN -f docker-compose.yml -f "docker-compose.${CURRENT_COLOR}.yml" down
 fi
+
+echo "Deployment completed successfully."
