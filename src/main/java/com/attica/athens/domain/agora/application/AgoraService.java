@@ -26,6 +26,7 @@ import com.attica.athens.domain.agora.dto.response.EndNotificationResponse;
 import com.attica.athens.domain.agora.dto.response.EndVoteAgoraResponse;
 import com.attica.athens.domain.agora.dto.response.StartAgoraResponse;
 import com.attica.athens.domain.agora.dto.response.StartNotificationResponse;
+import com.attica.athens.domain.agora.dto.response.UpdateThumbnailResponse;
 import com.attica.athens.domain.agora.exception.AlreadyParticipateException;
 import com.attica.athens.domain.agora.exception.ClosedAgoraException;
 import com.attica.athens.domain.agora.exception.DuplicatedNicknameException;
@@ -82,7 +83,7 @@ public class AgoraService {
     }
 
     @Transactional
-    public void updateAgoraImage(Long agoraId, Long userId, MultipartFile file) {
+    public UpdateThumbnailResponse updateAgoraImage(Long agoraId, Long userId, MultipartFile file) {
         Agora agora = agoraRepository.findById(agoraId)
                 .orElseThrow(() -> new NotFoundAgoraException(agoraId));
 
@@ -91,6 +92,8 @@ public class AgoraService {
 
         AgoraThumbnail updateThumbnail = s3ThumbnailService.getAgoraThumbnail(file);
         agora.updateThumbnail(updateThumbnail);
+
+        return new UpdateThumbnailResponse(agora.getAgoraThumbnail().getImageUrl());
     }
 
     public AgoraSlice<?> findAgoraByKeyword(final String agoraName,

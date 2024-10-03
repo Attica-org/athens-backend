@@ -8,6 +8,7 @@ import com.attica.athens.domain.agora.dto.response.AgoraParticipateResponse;
 import com.attica.athens.domain.agora.dto.response.CreateAgoraResponse;
 import com.attica.athens.domain.agora.dto.response.EndVoteAgoraResponse;
 import com.attica.athens.domain.agora.dto.response.StartAgoraResponse;
+import com.attica.athens.domain.agora.dto.response.UpdateThumbnailResponse;
 import com.attica.athens.domain.common.ApiResponse;
 import com.attica.athens.domain.common.ApiUtil;
 import com.attica.athens.global.auth.domain.CustomUserDetails;
@@ -82,14 +83,14 @@ public class AgoraAuthController {
     }
 
     @PatchMapping("/{agoraId}")
-    public ResponseEntity<ApiResponse<Void>> updateAgoraThumbnail(
+    public ResponseEntity<ApiResponse<UpdateThumbnailResponse>> updateAgoraThumbnail(
             @PathVariable("agoraId") Long agoraId,
             @AuthenticationPrincipal CustomUserDetails user,
             MultipartFile file
     ) {
         Long userId = Long.parseLong(user.getUsername());
-        agoraService.updateAgoraImage(agoraId, userId, file);
+        UpdateThumbnailResponse response = agoraService.updateAgoraImage(agoraId, userId, file);
 
-        return ResponseEntity.status(HttpStatus.OK).build();
+        return ResponseEntity.ok(ApiUtil.success(response));
     }
 }
