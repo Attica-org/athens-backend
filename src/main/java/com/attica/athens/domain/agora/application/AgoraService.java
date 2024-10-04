@@ -83,12 +83,12 @@ public class AgoraService {
     }
 
     @Transactional
-    public UpdateThumbnailResponse updateAgoraImage(Long agoraId, Long userId, MultipartFile file) {
+    public UpdateThumbnailResponse updateAgoraImage(Long agoraId, Long memberId, MultipartFile file) {
         Agora agora = agoraRepository.findById(agoraId)
                 .orElseThrow(() -> new NotFoundAgoraException(agoraId));
 
-        long createdMemberId = Long.parseLong(agora.getCreatedBy());
-        if (!Objects.equals(createdMemberId, userId)) throw new ImageUpdateAccessDeniedException();
+        long createMemberId = Long.parseLong(agora.getCreatedBy());
+        if (!isCreateMember(createMemberId, memberId)) throw new ImageUpdateAccessDeniedException();
 
         AgoraThumbnail updateThumbnail = s3ThumbnailService.getAgoraThumbnail(file);
         agora.updateThumbnail(updateThumbnail);
@@ -134,7 +134,10 @@ public class AgoraService {
         AgoraMember agoraMember = agoraMemberRepository.save(created);
         agora.addMember(agoraMember);
 
-        return new AgoraParticipateResponse(created.getAgora().getId(), memberId, created.getType());
+        long createMemberId = Long.parseLong(agora.getCreatedBy());
+        boolean isCreator = isCreateMember(createMemberId, memberId);
+
+        return new AgoraParticipateResponse(created.getAgora().getId(), memberId, created.getType(), isCreator);
     }
 
     @Transactional
@@ -244,6 +247,10 @@ public class AgoraService {
     private Agora findAgoraById(final Long agoraId) {
         return agoraRepository.findById(agoraId)
                 .orElseThrow(() -> new NotFoundAgoraException(agoraId));
+    }
+
+    private boolean isCreateMember(Long createdMemberId, Long memberId) {
+        return Objects.equals(createdMemberId, memberId);
     }
 
     private void sendAgoraStartMessage(final Agora agora) {

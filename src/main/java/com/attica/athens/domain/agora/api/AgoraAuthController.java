@@ -55,8 +55,8 @@ public class AgoraAuthController {
             @PathVariable("agoraId") Long agoraId,
             @RequestBody @Valid AgoraParticipateRequest request
     ) {
-        Long userId = Long.parseLong(user.getUsername());
-        AgoraParticipateResponse response = agoraService.participate(userId, agoraId, request);
+        Long memberId = Long.parseLong(user.getUsername());
+        AgoraParticipateResponse response = agoraService.participate(memberId, agoraId, request);
 
         return ResponseEntity.ok(ApiUtil.success(response));
     }
@@ -66,8 +66,8 @@ public class AgoraAuthController {
             @AuthenticationPrincipal CustomUserDetails user,
             @PathVariable("agoraId") Long agoraId
     ) {
-        Long userId = Long.parseLong(user.getUsername());
-        AgoraExitResponse response = agoraService.exit(userId, agoraId);
+        Long memberId = Long.parseLong(user.getUsername());
+        AgoraExitResponse response = agoraService.exit(memberId, agoraId);
 
         return ResponseEntity.ok(ApiUtil.success(response));
     }
@@ -88,8 +88,8 @@ public class AgoraAuthController {
             @AuthenticationPrincipal CustomUserDetails user,
             MultipartFile file
     ) {
-        Long userId = Long.parseLong(user.getUsername());
-        UpdateThumbnailResponse response = agoraService.updateAgoraImage(agoraId, userId, file);
+        Long memberId = Long.parseLong(user.getUsername());
+        UpdateThumbnailResponse response = agoraService.updateAgoraImage(agoraId, memberId, file);
 
         return ResponseEntity.ok(ApiUtil.success(response));
     }
