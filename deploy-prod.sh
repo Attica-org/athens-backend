@@ -43,6 +43,7 @@ fi
 # 기존 컨테이너 중지 및 제거
 echo "Stopping and removing existing containers..."
 $COMPOSE_BIN -p $PROJECT_NAME down --remove-orphans
+docker rm -f athens-redis || true
 
 # 새 버전 배포하기
 echo "Deploying new version: $NEW_COLOR"
