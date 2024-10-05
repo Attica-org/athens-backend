@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# 스크립트 불러오기
+# 스크립트 불러오기
 # mntdg(): 그린 버전의 Caddy 설정을 적용
 # mntbg(): 블루 버전의 Caddy 설정을 적용
 # mntms(): Caddy 서비스를 재시작
