@@ -40,18 +40,6 @@ else
   NEW_COLOR=$( [ "$CURRENT_COLOR" = "blue" ] && echo "green" || echo "blue" )
 fi
 
-# 기존 컨테이너 중지 및 제거
-echo "Stopping and removing existing containers..."
-if [ -n "$CURRENT_COLOR" ]; then
-  echo "Removing old version: $CURRENT_COLOR"
-  $COMPOSE_BIN -p $PROJECT_NAME -f docker-compose.yml -f "docker-compose.${CURRENT_COLOR}.yml" down --remove-orphans
-else
-  $COMPOSE_BIN -p $PROJECT_NAME down --remove-orphans
-fi
-
-# Redis 컨테이너가 남아있다면 강제로 제거
-docker rm -f athens-redis || true
-
 # 새 버전 배포하기
 echo "Deploying new version: $NEW_COLOR"
 $COMPOSE_BIN -p $PROJECT_NAME -f docker-compose.yml -f "docker-compose.${NEW_COLOR}.yml" pull
@@ -72,7 +60,7 @@ while [ $attempts -lt $MAX_RETRIES ]; do
   sleep 2
 done
 
-# 배포 실패 시 롤백하기
+# 배포 실패 시 종료하기
 if [ $attempts -ge $MAX_RETRIES ]; then
   echo "Failed to deploy new version"
   exit 1
@@ -88,5 +76,11 @@ else
 fi
 
 mntms # Caddy 서비스를 재시작하여 새 설정 적용하기
+
+# 이전 버전 컨테이너 정리하기
+if [ -n "$CURRENT_COLOR" ]; then
+  echo "Removing old version: $CURRENT_COLOR"
+  $COMPOSE_BIN -p $PROJECT_NAME -f docker-compose.yml -f "docker-compose.${CURRENT_COLOR}.yml" down --remove-orphans
+fi
 
 echo "Deployment completed successfully."
