@@ -37,4 +37,5 @@ jobs:
           script: |
             sudo docker pull ${{ secrets.DOCKER_N }}/${{ secrets.DOCKER_R }}
             sudo docker-compose down
+            sudo docker rm -f athens-redis || true
             sudo docker-compose up --build -d
