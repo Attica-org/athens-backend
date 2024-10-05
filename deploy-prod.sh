@@ -31,7 +31,7 @@ check_api_status() {
 }
 
 # 현재 실행 중인 WAS의 색상을 확인하기
-CURRENT_COLOR=$(docker ps --filter "name=$WAS_NAME" --format "{{.Names}}" | cut -d'-' -f2)
+CURRENT_COLOR=$(docker ps --filter "name=$WAS_NAME" --format "{{.Names}}" | grep -E 'blue|green' | cut -d'-' -f2)
 
 # 새로 배포할 색상 결정하기
 if [ -z "$CURRENT_COLOR" ]; then
@@ -42,7 +42,14 @@ fi
 
 # 기존 컨테이너 중지 및 제거
 echo "Stopping and removing existing containers..."
-$COMPOSE_BIN -p $PROJECT_NAME down --remove-orphans
+if [ -n "$CURRENT_COLOR" ]; then
+  echo "Removing old version: $CURRENT_COLOR"
+  $COMPOSE_BIN -p $PROJECT_NAME -f docker-compose.yml -f "docker-compose.${CURRENT_COLOR}.yml" down --remove-orphans
+else
+  $COMPOSE_BIN -p $PROJECT_NAME down --remove-orphans
+fi
+
+# Redis 컨테이너가 남아있다면 강제로 제거
 docker rm -f athens-redis || true
 
 # 새 버전 배포하기
@@ -81,11 +88,5 @@ else
 fi
 
 mntms # Caddy 서비스를 재시작하여 새 설정 적용하기
-
-# 이전 버전 컨테이너 정리하기
-if [ -n "$CURRENT_COLOR" ]; then
-  echo "Removing old version: $CURRENT_COLOR"
-  $COMPOSE_BIN -p $PROJECT_NAME -f docker-compose.yml -f "docker-compose.${CURRENT_COLOR}.yml" down
-fi
 
 echo "Deployment completed successfully."
