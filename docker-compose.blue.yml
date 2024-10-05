@@ -1,18 +1,17 @@
 services:
   backend-blue:
-    extends:
-      file: docker-compose.yml
-      service: backend
+    image: ${DOCKER_IMAGE}
     container_name: athens-blue
+    env_file: .env
+    volumes:
+      - ./log:/log
     ports:
       - 8081:8080
+    restart: always
+    depends_on:
+      - redis
     networks:
       - ubuntu_app-network
-  redis:
-    extends:
-      file: docker-compose.yml
-      service: redis
-    ports: []  # 포트 매핑 제거
 
 networks:
   ubuntu_app-network:
