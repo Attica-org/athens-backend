@@ -84,5 +84,5 @@ if [ -n "$CURRENT_COLOR" ]; then
   docker stop ${WAS_NAME}-${CURRENT_COLOR} || echo "Failed to stop container"
   docker rm -f ${WAS_NAME}-${CURRENT_COLOR} || echo "Failed to remove container"
 fi
-
+기
 echo "Deployment completed successfully."
