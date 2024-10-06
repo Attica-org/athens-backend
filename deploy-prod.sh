@@ -80,8 +80,7 @@ mntms # Caddy 서비스를 재시작하여 새 설정 적용하기
 # 이전 버전 컨테이너 정리하기
 if [ -n "$CURRENT_COLOR" ]; then
   echo "Removing old version: $CURRENT_COLOR"
-  docker stop $WAS_NAME-$CURRENT_COLOR
-  docker rm $WAS_NAME-$CURRENT_COLOR
+  $COMPOSE_BIN -f "docker-compose.${CURRENT_COLOR}.yml" down
 fi
 
 echo "Deployment completed successfully."
