@@ -1,15 +1,4 @@
 services:
-  backend:
-    image: ${DOCKER_IMAGE}
-    env_file: .env
-    volumes:
-      - ./log:/log
-    restart: always
-    depends_on:
-      - redis
-    networks:
-      - ubuntu_app-network
-
   redis:
     image: redis:latest
     container_name: athens-redis
