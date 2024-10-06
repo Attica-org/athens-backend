@@ -80,8 +80,9 @@ mntms # Caddy 서비스를 재시작하여 새 설정 적용하기
 # 이전 버전 컨테이너 정리하기
 if [ -n "$CURRENT_COLOR" ]; then
   echo "Removing old version: $CURRENT_COLOR"
-  $COMPOSE_BIN -f docker-compose.yml -f "docker-compose.${CURRENT_COLOR}.yml" stop backend-${CURRENT_COLOR} || echo "Failed to stop service"
-  $COMPOSE_BIN -f docker-compose.yml -f "docker-compose.${CURRENT_COLOR}.yml" rm -f backend-${CURRENT_COLOR} || echo "Failed to remove service"
+  docker network disconnect ubuntu_app-network ${WAS_NAME}-${CURRENT_COLOR} || true
+  docker stop ${WAS_NAME}-${CURRENT_COLOR} || echo "Failed to stop container"
+  docker rm -f ${WAS_NAME}-${CURRENT_COLOR} || echo "Failed to remove container"
 fi
-
+기
 echo "Deployment completed successfully."
