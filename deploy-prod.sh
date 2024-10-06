@@ -7,14 +7,14 @@
 source /usr/share/bg/mnt.sh
 
 # 환경 변수 설정하기
-WAS_NAME="athens"  # WAS 이름
-COMPOSE_BIN="/usr/local/bin/docker-compose"  # docker-compose 실행 파일 경로
-MAX_RETRIES=10  # 최대 재시도 횟수
+WAS_NAME="athens"                           # WAS 이름
+COMPOSE_BIN="/usr/local/bin/docker-compose" # docker-compose 실행 파일 경로
+MAX_RETRIES=10                              # 최대 재시도 횟수
 PROJECT_NAME="athens"
 
 # 네트워크 생성 (없으면 생성, 있으면 무시)
 if ! docker network inspect ubuntu_app-network >/dev/null 2>&1; then
-     docker network create ubuntu_app-network
+  docker network create ubuntu_app-network
 fi
 
 # 함수 정의하기
@@ -37,7 +37,7 @@ CURRENT_COLOR=$(docker ps --filter "name=$WAS_NAME" --format "{{.Names}}" | grep
 if [ -z "$CURRENT_COLOR" ]; then
   NEW_COLOR="blue"
 else
-  NEW_COLOR=$( [ "$CURRENT_COLOR" = "blue" ] && echo "green" || echo "blue" )
+  NEW_COLOR=$([ "$CURRENT_COLOR" = "blue" ] && echo "green" || echo "blue")
 fi
 
 # 새 버전 배포하기
@@ -69,7 +69,7 @@ fi
 # Caddy 설정 변경 & 서비스 재시작
 if [ "$NEW_COLOR" = "blue" ]; then
   echo "mb"
-  mntbg  # 블루 버전의 Caddy 설정 적용
+  mntbg # 블루 버전의 Caddy 설정 적용
 else
   echo "mg"
   mntdg # 그린 버전의 Caddy 설정 적용
@@ -80,7 +80,8 @@ mntms # Caddy 서비스를 재시작하여 새 설정 적용하기
 # 이전 버전 컨테이너 정리하기
 if [ -n "$CURRENT_COLOR" ]; then
   echo "Removing old version: $CURRENT_COLOR"
-  $COMPOSE_BIN -f "docker-compose.${CURRENT_COLOR}.yml" down
+  $COMPOSE_BIN -f docker-compose.yml -f "docker-compose.${CURRENT_COLOR}.yml" stop backend-${CURRENT_COLOR} || echo "Failed to stop service"
+  $COMPOSE_BIN -f docker-compose.yml -f "docker-compose.${CURRENT_COLOR}.yml" rm -f backend-${CURRENT_COLOR} || echo "Failed to remove service"
 fi
 
 echo "Deployment completed successfully."
