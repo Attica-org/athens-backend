@@ -33,6 +33,7 @@ class ChatWebSocketApiIntegrationTest extends WebSocketIntegrationTestSupport {
     @BeforeAll
     void setup() {
         setupStompClient();
+
     }
 
     @Nested
@@ -216,10 +217,9 @@ class ChatWebSocketApiIntegrationTest extends WebSocketIntegrationTestSupport {
     @Nested
     @DisplayName("채팅 반응 생성시")
     class SendReactionTest {
-        @Test
-        @DisplayName("유효한 파라미터를 전송하면 성공적으로 반응이 전송된다")
+        @DisplayName("참여자일 경우 성공적으로 반응이 전송된다")
         @Sql("/sql/send-valid-reaction.sql")
-        void 성공_반응생성_유효한파라미터사용() throws Exception {
+        void 성공_반응생성_참여자() throws Exception {
             // given
             Long agoraId = 1L;
             String url = REACTION_TOPIC_URL.replace("{agoraId}", agoraId.toString());
