@@ -57,7 +57,7 @@ public class MemberOpenController {
                 .get(tempToken);
         if (accessToken != null) {
             redisTemplate.delete(tempToken);
-            return ResponseEntity.ok(Map.of("access_token", accessToken));
+            return ResponseEntity.ok(Map.of("accessToken", accessToken));
         }
         throw new InvalidTempTokenException();
     }
