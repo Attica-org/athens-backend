@@ -64,8 +64,8 @@ public class AgoraAuthController {
     public ResponseEntity<ApiResponse<AgoraExitResponse>> exitAgora(
             @AuthenticationPrincipal CustomUserDetails user
     ) {
-        Long userId = Long.parseLong(user.getUsername());
-        AgoraExitResponse response = agoraService.exit(userId);
+        Long memberId = Long.parseLong(user.getUsername());
+        AgoraExitResponse response = agoraService.exit(memberId);
 
         return ResponseEntity.ok(ApiUtil.success(response));
     }
