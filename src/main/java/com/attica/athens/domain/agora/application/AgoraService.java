@@ -30,7 +30,6 @@ import com.attica.athens.domain.agora.exception.InvalidAgoraStatusException;
 import com.attica.athens.domain.agora.exception.NotFoundAgoraException;
 import com.attica.athens.domain.agora.exception.NotFoundCategoryException;
 import com.attica.athens.domain.agora.exception.NotParticipateException;
-import com.attica.athens.domain.agoraMember.application.AgoraMemberService;
 import com.attica.athens.domain.agoraMember.dao.AgoraMemberRepository;
 import com.attica.athens.domain.agoraMember.domain.AgoraMember;
 import com.attica.athens.domain.agoraMember.domain.AgoraMemberType;
@@ -64,7 +63,6 @@ public class AgoraService {
     private final BaseMemberRepository baseMemberRepository;
     private final AgoraMemberRepository agoraMemberRepository;
     private final SimpMessagingTemplate messagingTemplate;
-    private final AgoraMemberService agoraMemberService;
     private final PopularRepository popularRepository;
     private final S3ThumbnailService s3ThumbnailService;
 
@@ -148,7 +146,6 @@ public class AgoraService {
         AgoraMember agoraMember = getAgoraMember(memberId);
         LocalDateTime socketDisconnectTime = LocalDateTime.now();
 
-        agoraMember.updateSocketDisconnectTime(socketDisconnectTime);
         agoraMember.updateDisconnectType(true);
 
         return new AgoraExitResponse(memberId, agoraMember.getType(), socketDisconnectTime);

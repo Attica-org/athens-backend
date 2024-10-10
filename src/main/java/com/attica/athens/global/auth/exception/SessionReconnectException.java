@@ -5,11 +5,11 @@ import com.attica.athens.domain.common.advice.ErrorCode;
 import org.springframework.http.HttpStatus;
 
 public class SessionReconnectException extends CustomException {
-    public SessionReconnectException(String sessionId) {
+    public SessionReconnectException() {
         super(
                 HttpStatus.BAD_REQUEST,
-                ErrorCode.WRONG_REQUEST_TRANSMISSION,
-                "Reconnection attempt failed for sessionId:" + sessionId
+                ErrorCode.MISSING_PART,
+                "Need to import a chat history."
         );
     }
 }
