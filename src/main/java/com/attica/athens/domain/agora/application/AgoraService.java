@@ -36,7 +36,6 @@ import com.attica.athens.domain.agora.exception.InvalidAgoraStatusException;
 import com.attica.athens.domain.agora.exception.NotFoundAgoraException;
 import com.attica.athens.domain.agora.exception.NotFoundCategoryException;
 import com.attica.athens.domain.agora.exception.NotParticipateException;
-import com.attica.athens.domain.agoraMember.application.AgoraMemberService;
 import com.attica.athens.domain.agoraMember.dao.AgoraMemberRepository;
 import com.attica.athens.domain.agoraMember.domain.AgoraMember;
 import com.attica.athens.domain.agoraMember.exception.AlreadyEndVotedException;
@@ -69,7 +68,6 @@ public class AgoraService {
     private final BaseMemberRepository baseMemberRepository;
     private final AgoraMemberRepository agoraMemberRepository;
     private final SimpMessagingTemplate messagingTemplate;
-    private final AgoraMemberService agoraMemberService;
     private final PopularRepository popularRepository;
     private final S3ThumbnailService s3ThumbnailService;
 
@@ -141,16 +139,18 @@ public class AgoraService {
     }
 
     @Transactional
-    public AgoraExitResponse exit(final Long memberId, final Long agoraId) {
-        findAgoraById(agoraId);
-
-        AgoraMember agoraMember = agoraMemberService.findAgoraMemberByAgoraIdAndMemberId(agoraId, memberId);
+    public AgoraExitResponse exit(final Long memberId) {
+        AgoraMember agoraMember = getAgoraMember(memberId);
         LocalDateTime socketDisconnectTime = LocalDateTime.now();
 
-        agoraMember.updateSocketDisconnectTime(socketDisconnectTime);
         agoraMember.updateDisconnectType(true);
 
         return new AgoraExitResponse(memberId, agoraMember.getType(), socketDisconnectTime);
+    }
+
+    private AgoraMember getAgoraMember(Long userId) {
+        return agoraMemberRepository.findByMemberId(userId)
+                .orElseThrow(() -> new NotFoundMemberException(userId));
     }
 
     public List<SimpleAgoraResult> findTrendAgora() {
@@ -214,7 +214,7 @@ public class AgoraService {
                 .orElseThrow(() -> new NotFoundCategoryException(categoryId));
     }
 
-    public AgoraTitleResponse getAgoraTitle(final Long agoraId) {
+    public AgoraTitleResponse getAgoraTitleAndImageUrl(final Long agoraId) {
 
         Agora agora = findAgoraById(agoraId);
 

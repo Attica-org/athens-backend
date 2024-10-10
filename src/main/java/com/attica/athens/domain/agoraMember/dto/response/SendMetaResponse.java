@@ -48,11 +48,10 @@ public record SendMetaResponse(ChatType type, MetaData data) {
 
     public record AgoraMemberInfo(
             Long memberId,
-            String username,
-            LocalDateTime socketDisconnectTime
+            String username
     ) {
         public AgoraMemberInfo(AgoraMember agoraMember) {
-            this(agoraMember.getId(), agoraMember.getNickname(), agoraMember.getSocketDisconnectTime());
+            this(agoraMember.getId(), agoraMember.getNickname());
         }
     }
 }

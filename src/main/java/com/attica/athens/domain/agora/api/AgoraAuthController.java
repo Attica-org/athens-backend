@@ -14,7 +14,6 @@ import com.attica.athens.domain.common.ApiUtil;
 import com.attica.athens.global.auth.domain.CustomUserDetails;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -63,11 +62,10 @@ public class AgoraAuthController {
 
     @PatchMapping("/{agoraId}/exit")
     public ResponseEntity<ApiResponse<AgoraExitResponse>> exitAgora(
-            @AuthenticationPrincipal CustomUserDetails user,
-            @PathVariable("agoraId") Long agoraId
+            @AuthenticationPrincipal CustomUserDetails user
     ) {
         Long memberId = Long.parseLong(user.getUsername());
-        AgoraExitResponse response = agoraService.exit(memberId, agoraId);
+        AgoraExitResponse response = agoraService.exit(memberId);
 
         return ResponseEntity.ok(ApiUtil.success(response));
     }

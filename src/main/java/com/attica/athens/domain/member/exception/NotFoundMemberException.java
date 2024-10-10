@@ -13,4 +13,12 @@ public class NotFoundMemberException extends CustomException {
                 "Not found user. userId: " + userId
         );
     }
+
+    public NotFoundMemberException() {
+        super(
+                HttpStatus.NOT_FOUND,
+                ErrorCode.RESOURCE_NOT_FOUND,
+                "Not found user."
+        );
+    }
 }

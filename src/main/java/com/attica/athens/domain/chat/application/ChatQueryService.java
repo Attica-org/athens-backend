@@ -1,7 +1,9 @@
 package com.attica.athens.domain.chat.application;
 
 import com.attica.athens.domain.agora.dao.AgoraRepository;
+import com.attica.athens.domain.agora.domain.Agora;
 import com.attica.athens.domain.agora.exception.NotFoundAgoraException;
+import com.attica.athens.domain.agora.exception.NotParticipateException;
 import com.attica.athens.domain.agoraMember.dao.AgoraMemberRepository;
 import com.attica.athens.domain.agoraMember.domain.AgoraMember;
 import com.attica.athens.domain.agoraMember.domain.AgoraMemberType;
@@ -15,6 +17,7 @@ import com.attica.athens.domain.chat.dto.projection.ReactionCountById;
 import com.attica.athens.domain.chat.dto.response.GetChatParticipants;
 import com.attica.athens.domain.chat.dto.response.GetChatResponse;
 import com.attica.athens.domain.chat.dto.response.GetChatResponse.ChatData;
+import com.attica.athens.global.auth.domain.CustomUserDetails;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
@@ -35,16 +38,31 @@ public class ChatQueryService {
     private final ChatRepository chatRepository;
     private final ReactionRepository reactionRepository;
 
-    public GetChatResponse getChatHistory(final Long agoraId, final Cursor cursor) {
+    public GetChatResponse getClosedChatHistory(final Long agoraId, final Cursor cursor) {
         validateAgoraExists(agoraId);
-
         List<AgoraMember> agoraMembers = findAgoraMembers(agoraId);
-        Chats chats = new Chats(findChats(cursor, agoraMembers));
+        return getChatHistory(agoraMembers, cursor, this::findChats);
+    }
+
+    public GetChatResponse getActiveChatHistory(final CustomUserDetails userDetails, final Long agoraId, final Cursor cursor) {
+        validateAgoraExists(agoraId);
+        AgoraMember agoraMember = findValidAgoraMember(agoraId, userDetails.getUserId());
+        List<AgoraMember> agoraMembers = findAgoraMembers(agoraId);
+        return getChatHistory(agoraMembers, cursor, (c, members) -> findChatsFromJoinTime(c, members, agoraMember));
+    }
+
+    private GetChatResponse getChatHistory(List<AgoraMember> agoraMembers, Cursor cursor, ChatFinder chatFinder) {
+        Chats chats = new Chats(chatFinder.findChats(cursor, agoraMembers));
         Map<Long, Map<ReactionType, Long>> reactionCounts = getReactionCounts(chats.getChats());
         List<ChatData> chatData = chats.createChatDataWithUsers(agoraMembers, reactionCounts);
         Cursor nextCursor = cursor.calculateNext(chats);
-
         return new GetChatResponse(chatData, nextCursor);
+    }
+
+    private AgoraMember findValidAgoraMember(final Long agoraId, final Long memberId) {
+        return agoraMemberRepository.findByAgoraIdAndMemberIdAndSessionIdIsNotNull(agoraId, memberId)
+                .orElseThrow(NotParticipateException::new)
+                .validateSendMessage();
     }
 
     private Map<Long, Map<ReactionType, Long>> getReactionCounts(List<Chat> chats) {
@@ -74,8 +92,8 @@ public class ChatQueryService {
         return new GetChatParticipants(findActiveParticipants(agoraId), agoraId);
     }
 
-    private void validateAgoraExists(final Long agoraId) {
-        agoraRepository.findById(agoraId)
+    private Agora validateAgoraExists(final Long agoraId) {
+        return agoraRepository.findById(agoraId)
                 .orElseThrow(() -> new NotFoundAgoraException(agoraId));
     }
 
@@ -94,8 +112,26 @@ public class ChatQueryService {
                 pageable);
     }
 
+    private List<Chat> findChatsFromJoinTime(final Cursor cursor, final List<AgoraMember> agoraMembers,
+                                             final AgoraMember agoraMember) {
+        List<Long> agoraMemberIds = agoraMembers.stream()
+                .map(AgoraMember::getId)
+                .toList();
+        Pageable pageable = PageRequest.of(0, cursor.getEffectiveSize());
+
+        return chatRepository.findChatsFromJoinTime(agoraMemberIds,
+                agoraMember.getCreatedAt(),
+                cursor.hasKey() ? cursor.key() : null,
+                pageable);
+    }
+
     private List<AgoraMember> findActiveParticipants(final Long agoraId) {
         return agoraMemberRepository.findByAgoraIdAndTypeInAndSessionIdIsNotNull(agoraId,
                 List.of(AgoraMemberType.PROS, AgoraMemberType.CONS));
+    }
+
+    @FunctionalInterface
+    private interface ChatFinder {
+        List<Chat> findChats(Cursor cursor, List<AgoraMember> agoraMembers);
     }
 }

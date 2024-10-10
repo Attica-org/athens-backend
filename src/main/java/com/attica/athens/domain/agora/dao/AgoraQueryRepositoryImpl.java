@@ -100,6 +100,7 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
                         agora.status
                 ))
                 .from(agora)
+                .leftJoin(agora.agoraThumbnail)
                 .where(gtAgoraId(agoraId),
                         (containKeyword(keyword))
                                 .and((agora.status.in(status)))
@@ -221,6 +222,7 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
                         agora.status
                 ))
                 .from(agora)
+                .leftJoin(agora.agoraThumbnail)
                 .where(gtAgoraId(agoraId),
                         agora.status.in(status)
                                 .and(agora.category.id.in(categoryIds))
@@ -255,6 +257,7 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
                         agora.status
                 ))
                 .from(agora)
+                .leftJoin(agora.agoraThumbnail)
                 .where(gtAgoraId(agoraId),
                         agora.status.in(status)
                 )
