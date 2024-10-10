@@ -28,7 +28,7 @@ jobs:
           username: ${{ secrets.DOCKER_ID }}
           password: ${{ secrets.DOCKER_PASSWD }}
 
-      - name: Deploy using docker-compose
+      - name: Pull new image and run deploy script
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.AWS_IP }}
@@ -36,5 +36,6 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             sudo docker pull ${{ secrets.DOCKER_N }}/${{ secrets.DOCKER_R }}
-            sudo docker-compose down
-            sudo docker-compose up --build -d
+            cd ${{ secrets.TARGET_PATH }}
+            chmod +x deploy-prod.sh
+            ./deploy-prod.sh

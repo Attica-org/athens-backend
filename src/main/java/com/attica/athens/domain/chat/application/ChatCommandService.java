@@ -42,7 +42,7 @@ public class ChatCommandService {
                                      final SendChatRequest sendChatRequest) {
         validateAgora(agoraId);
 
-        AgoraMember agoraMember = findValidAgoraMember(agoraId, userDetails.getUserId());
+        AgoraMember agoraMember = findValidAgoraMemberOfProsAndCons(agoraId, userDetails.getUserId());
         Chat chat = createAndSaveChat(sendChatRequest, agoraMember);
 
         return new SendChatResponse(agoraMember, chat);
@@ -61,10 +61,14 @@ public class ChatCommandService {
         }
     }
 
+    private AgoraMember findValidAgoraMemberOfProsAndCons(final Long agoraId, final Long memberId) {
+        return findValidAgoraMember(agoraId, memberId)
+                .validateSendMessage();
+    }
+
     private AgoraMember findValidAgoraMember(final Long agoraId, final Long memberId) {
         return agoraMemberRepository.findByAgoraIdAndMemberIdAndSessionIdIsNotNull(agoraId, memberId)
-                .orElseThrow(NotParticipateException::new)
-                .validateSendMessage();
+                .orElseThrow(NotParticipateException::new);
     }
 
     private Chat createAndSaveChat(final SendChatRequest sendChatRequest, final AgoraMember agoraMember) {
@@ -120,7 +124,7 @@ public class ChatCommandService {
 
     public BadWordResponse checkBadWord(final CustomUserDetails userDetails, final Long agoraId,
                                         final SendChatRequest sendChatRequest) {
-        findValidAgoraMember(agoraId, userDetails.getUserId());
+        findValidAgoraMemberOfProsAndCons(agoraId, userDetails.getUserId());
 
         FilterResult filter = badWordFilter.filter(sendChatRequest.message());
 

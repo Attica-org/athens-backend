@@ -8,12 +8,12 @@ import com.attica.athens.domain.agora.dto.response.AgoraParticipateResponse;
 import com.attica.athens.domain.agora.dto.response.CreateAgoraResponse;
 import com.attica.athens.domain.agora.dto.response.EndVoteAgoraResponse;
 import com.attica.athens.domain.agora.dto.response.StartAgoraResponse;
+import com.attica.athens.domain.agora.dto.response.UpdateThumbnailResponse;
 import com.attica.athens.domain.common.ApiResponse;
 import com.attica.athens.domain.common.ApiUtil;
 import com.attica.athens.global.auth.domain.CustomUserDetails;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -54,8 +54,8 @@ public class AgoraAuthController {
             @PathVariable("agoraId") Long agoraId,
             @RequestBody @Valid AgoraParticipateRequest request
     ) {
-        Long userId = Long.parseLong(user.getUsername());
-        AgoraParticipateResponse response = agoraService.participate(userId, agoraId, request);
+        Long memberId = Long.parseLong(user.getUsername());
+        AgoraParticipateResponse response = agoraService.participate(memberId, agoraId, request);
 
         return ResponseEntity.ok(ApiUtil.success(response));
     }
@@ -81,12 +81,14 @@ public class AgoraAuthController {
     }
 
     @PatchMapping("/{agoraId}")
-    public ResponseEntity<ApiResponse<Void>> updateAgoraThumbnail(
+    public ResponseEntity<ApiResponse<UpdateThumbnailResponse>> updateAgoraThumbnail(
             @PathVariable("agoraId") Long agoraId,
+            @AuthenticationPrincipal CustomUserDetails user,
             MultipartFile file
     ) {
-        agoraService.updateAgoraImage(agoraId, file);
+        Long memberId = Long.parseLong(user.getUsername());
+        UpdateThumbnailResponse response = agoraService.updateAgoraImage(agoraId, memberId, file);
 
-        return ResponseEntity.status(HttpStatus.OK).build();
+        return ResponseEntity.ok(ApiUtil.success(response));
     }
 }

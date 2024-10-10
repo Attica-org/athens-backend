@@ -41,7 +41,7 @@ public class JwtUtils {
         if (REFRESH_TOKEN.equals(tokenType)) {
             expire = new Date(now.getTime() + refreshTokenExpirationTime);
             return Jwts.builder()
-                    .claim(AUTHORITY_KEY, id)
+                    .claim(AUTHORITY_KEY, String.valueOf(id))
                     .claim(AUTHORITY_ROLE, role)
                     .issuedAt(now)
                     .expiration(expire)

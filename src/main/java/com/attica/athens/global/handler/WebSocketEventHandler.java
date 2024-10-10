@@ -7,6 +7,8 @@ import com.attica.athens.global.auth.domain.CustomUserDetails;
 import com.attica.athens.global.auth.exception.InvalidAuthorizationHeaderException;
 import com.attica.athens.global.auth.exception.SessionReconnectException;
 import com.attica.athens.global.decorator.HeartBeatManager;
+import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
@@ -16,10 +18,11 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.socket.messaging.*;
-
-import java.util.List;
-import java.util.Map;
+import org.springframework.web.socket.messaging.SessionConnectEvent;
+import org.springframework.web.socket.messaging.SessionConnectedEvent;
+import org.springframework.web.socket.messaging.SessionDisconnectEvent;
+import org.springframework.web.socket.messaging.SessionSubscribeEvent;
+import org.springframework.web.socket.messaging.SessionUnsubscribeEvent;
 
 @Slf4j
 @Component
@@ -86,6 +89,7 @@ public class WebSocketEventHandler {
     @EventListener(SessionSubscribeEvent.class)
     public void handleWebSocketSessionSubscribe(SessionSubscribeEvent event) {
         StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
+
         String sessionId = headerAccessor.getSessionId();
         String destination = headerAccessor.getDestination();
 
@@ -143,7 +147,8 @@ public class WebSocketEventHandler {
             agoraMemberService.deleteAgoraMember(agoraId, memberId);
             log.info("WebSocket Disconnected: agoraId={}, userId={}", agoraId, memberId);
         } catch (Exception e) {
-            log.error("Error during disconnection: agoraId={}, userId={}, error={}", agoraId, memberId, e.getMessage(), e);
+            log.error("Error during disconnection: agoraId={}, userId={}, error={}", agoraId, memberId, e.getMessage(),
+                    e);
             throw e;
         }
     }
