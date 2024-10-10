@@ -16,7 +16,7 @@ public class RefreshTokenTest {
     @DisplayName("리프레시 토큰을 생성한다.")
     void 성공_리프레시토큰생성_유효한파라미터전달() {
         // given
-        String userId = "1";
+        Long userId = 1L;
         LocalDateTime expirationDateTime = LocalDateTime.now().plusDays(1);
 
         // when
@@ -33,7 +33,7 @@ public class RefreshTokenTest {
     @DisplayName("만료된 리프레시 토큰을 확인한다.")
     void 성공_리프레시토큰만료확인() {
         // given
-        String userId = "1";
+        Long userId = 1L;
         LocalDateTime expiredDateTime = LocalDateTime.now().minusDays(1);
 
         // when

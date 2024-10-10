@@ -61,10 +61,12 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
                                                 .and(agoraMember.type.eq(AgoraMemberType.OBSERVER))
                                                 .and(agoraMember.sessionId.isNotNull()))
                         ),
+                        agora.agoraThumbnail.imageUrl,
                         agora.createdAt,
                         agora.status
                 ))
                 .from(agora)
+                .leftJoin(agora.agoraThumbnail)
                 .where(gtAgoraId(agoraId),
                         (containKeyword(keyword))
                                 .and((agora.status.in(status)))
@@ -93,6 +95,7 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
                                         .where(agoraMember.agora.id.eq(agora.id))),
                         agora.title,
                         agora.color,
+                        agora.agoraThumbnail.imageUrl,
                         agora.createdAt,
                         agora.status
                 ))
@@ -136,10 +139,12 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
                                                 .and(agoraMember.type.eq(AgoraMemberType.OBSERVER))
                                                 .and(agoraMember.sessionId.isNotNull()))
                         ),
+                        agora.agoraThumbnail.imageUrl,
                         agora.createdAt,
                         agora.status
                 ))
                 .from(agora)
+                .leftJoin(agora.agoraThumbnail)
                 .where(gtAgoraId(agoraId),
                         agora.status.in(status)
                                 .and(agora.category.id.in(categoryIds))
@@ -178,10 +183,12 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
                                                 .and(agoraMember.type.eq(AgoraMemberType.OBSERVER))
                                                 .and(agoraMember.sessionId.isNotNull()))
                         ),
+                        agora.agoraThumbnail.imageUrl,
                         agora.createdAt,
                         agora.status
                 ))
                 .from(agora)
+                .leftJoin(agora.agoraThumbnail)
                 .where(gtAgoraId(agoraId), agora.status.in(status))
                 .orderBy(agora.id.desc())
                 .limit(size + 1L)
@@ -209,6 +216,7 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
                                         .where(agoraMember.agora.id.eq(agora.id))),
                         agora.title,
                         agora.color,
+                        agora.agoraThumbnail.imageUrl,
                         agora.createdAt,
                         agora.status
                 ))
@@ -242,6 +250,7 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
                                         .where(agoraMember.agora.id.eq(agora.id))),
                         agora.title,
                         agora.color,
+                        agora.agoraThumbnail.imageUrl,
                         agora.createdAt,
                         agora.status
                 ))
@@ -334,10 +343,12 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
                                                 .and(agoraMember.sessionId.isNotNull())
                                         )
                         ),
+                        agora.agoraThumbnail.imageUrl,
                         agora.createdAt,
                         agora.status
                 ))
                 .from(agora)
+                .leftJoin(agora.agoraThumbnail)
                 .where(agora.id.in(ids)
                         .and(agora.status.eq(RUNNING)))
                 .fetch();

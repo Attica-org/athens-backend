@@ -28,6 +28,10 @@ public class TestSecurityConfig {
             customUserDetailsMap.put("TeacherUnion", new CustomUserDetails(4L, "password", "ROLE_USER"));
             // agoraId:3 (Closed), Pros
             customUserDetailsMap.put("EconomistPro", new CustomUserDetails(7L, "password", "ROLE_USER"));
+            // agoraId:5 (Queued), Pros, EnergyAnalystPros (KAKAO)
+            customUserDetailsMap.put("EnergyAnalystPros", new CustomUserDetails(20L, "password", "ROLE_USER"));
+            // agoraId:5 (Queued), Cons, EnergyAnalystCons (GOOGLE)
+            customUserDetailsMap.put("EnergyAnalystCons", new CustomUserDetails(21L, "password", "ROLE_USER"));
         }
 
         @Bean

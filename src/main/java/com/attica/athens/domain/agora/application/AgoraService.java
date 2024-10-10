@@ -1,10 +1,14 @@
 package com.attica.athens.domain.agora.application;
 
+import static com.attica.athens.domain.agora.domain.AgoraStatus.CLOSED;
+import static com.attica.athens.domain.agoraMember.domain.AgoraMemberType.OBSERVER;
+
 import com.attica.athens.domain.agora.dao.AgoraRepository;
 import com.attica.athens.domain.agora.dao.CategoryRepository;
 import com.attica.athens.domain.agora.dao.PopularRepository;
 import com.attica.athens.domain.agora.domain.Agora;
 import com.attica.athens.domain.agora.domain.AgoraStatus;
+import com.attica.athens.domain.agora.domain.AgoraThumbnail;
 import com.attica.athens.domain.agora.domain.Category;
 import com.attica.athens.domain.agora.dto.SimpleAgoraResult;
 import com.attica.athens.domain.agora.dto.request.AgoraCreateRequest;
@@ -22,9 +26,12 @@ import com.attica.athens.domain.agora.dto.response.EndNotificationResponse;
 import com.attica.athens.domain.agora.dto.response.EndVoteAgoraResponse;
 import com.attica.athens.domain.agora.dto.response.StartAgoraResponse;
 import com.attica.athens.domain.agora.dto.response.StartNotificationResponse;
+import com.attica.athens.domain.agora.dto.response.UpdateThumbnailResponse;
 import com.attica.athens.domain.agora.exception.AlreadyParticipateException;
+import com.attica.athens.domain.agora.exception.ClosedAgoraException;
 import com.attica.athens.domain.agora.exception.DuplicatedNicknameException;
 import com.attica.athens.domain.agora.exception.FullAgoraCapacityException;
+import com.attica.athens.domain.agora.exception.ImageUpdateAccessDeniedException;
 import com.attica.athens.domain.agora.exception.InvalidAgoraStatusException;
 import com.attica.athens.domain.agora.exception.NotFoundAgoraException;
 import com.attica.athens.domain.agora.exception.NotFoundCategoryException;
@@ -32,7 +39,6 @@ import com.attica.athens.domain.agora.exception.NotParticipateException;
 import com.attica.athens.domain.agoraMember.application.AgoraMemberService;
 import com.attica.athens.domain.agoraMember.dao.AgoraMemberRepository;
 import com.attica.athens.domain.agoraMember.domain.AgoraMember;
-import com.attica.athens.domain.agoraMember.domain.AgoraMemberType;
 import com.attica.athens.domain.agoraMember.exception.AlreadyEndVotedException;
 import com.attica.athens.domain.chat.domain.ChatType;
 import com.attica.athens.domain.member.dao.BaseMemberRepository;
@@ -48,6 +54,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
@@ -64,18 +71,34 @@ public class AgoraService {
     private final SimpMessagingTemplate messagingTemplate;
     private final AgoraMemberService agoraMemberService;
     private final PopularRepository popularRepository;
+    private final S3ThumbnailService s3ThumbnailService;
 
     @Transactional
-    public CreateAgoraResponse create(final AgoraCreateRequest request) {
+    public CreateAgoraResponse create(final AgoraCreateRequest request, final MultipartFile file) {
         Category category = findByCategory(request.categoryId());
-        Agora created = agoraRepository.save(createAgora(request, category));
+        AgoraThumbnail thumbnail = s3ThumbnailService.getAgoraThumbnail(file);
+        Agora created = agoraRepository.save(createAgora(request, category, thumbnail));
 
         return new CreateAgoraResponse(created.getId());
     }
 
+    @Transactional
+    public UpdateThumbnailResponse updateAgoraImage(Long agoraId, Long memberId, MultipartFile file) {
+        Agora agora = agoraRepository.findById(agoraId)
+                .orElseThrow(() -> new NotFoundAgoraException(agoraId));
+
+        long createMemberId = Long.parseLong(agora.getCreatedBy());
+        if (!isCreateMember(createMemberId, memberId)) throw new ImageUpdateAccessDeniedException();
+
+        AgoraThumbnail updateThumbnail = s3ThumbnailService.getAgoraThumbnail(file);
+        agora.updateThumbnail(updateThumbnail);
+
+        return new UpdateThumbnailResponse(agora.getAgoraThumbnail().getImageUrl());
+    }
+
     public AgoraSlice<?> findAgoraByKeyword(final String agoraName,
                                             final SearchKeywordRequest request) {
-        boolean isClosed = AgoraStatus.CLOSED.getType().equals(request.status());
+        boolean isClosed = CLOSED.getType().equals(request.status());
 
         return isClosed ? agoraRepository.findClosedAgoraByKeyword(request.next(), request.getStatus(), agoraName)
                 : agoraRepository.findActiveAgoraByKeyword(request.next(), request.getStatus(), agoraName);
@@ -83,7 +106,7 @@ public class AgoraService {
 
     public AgoraSlice<?> findAgoraByCategory(AgoraRequest request) {
 
-        boolean isClosed = AgoraStatus.CLOSED.getType().equals(request.status());
+        boolean isClosed = CLOSED.getType().equals(request.status());
 
         if (request.category() == 1) {
             return isClosed
@@ -102,31 +125,19 @@ public class AgoraService {
     @Transactional
     public AgoraParticipateResponse participate(final Long memberId, final Long agoraId,
                                                 final AgoraParticipateRequest request) {
-        Agora agora = findAgoraById(agoraId);
+        Agora agora = agoraRepository.findAgoraById(agoraId)
+                .orElseThrow(() -> new NotFoundAgoraException(agoraId));
 
-        if (!Objects.equals(AgoraMemberType.OBSERVER, request.type())) {
-            int typeCount = agoraMemberRepository.countCapacityByAgoraMemberType(agora.getId(), request.type());
-            if (typeCount >= agora.getCapacity()) {
-                throw new FullAgoraCapacityException();
-            }
-
-            boolean existsNickname = agoraMemberRepository.existsNickname(agoraId, request.nickname());
-            if (existsNickname) {
-                throw new DuplicatedNicknameException(request.nickname());
-            }
-        }
-
-        agoraMemberRepository.findByAgoraIdAndMemberId(agora.getId(), memberId)
-                .ifPresent(agoraMember -> {
-                            throw new AlreadyParticipateException(agora.getId(), memberId);
-                        }
-                );
+        validateParticipate(memberId, agoraId, request, agora);
 
         AgoraMember created = createAgoraMember(memberId, agoraId, request);
         AgoraMember agoraMember = agoraMemberRepository.save(created);
         agora.addMember(agoraMember);
 
-        return new AgoraParticipateResponse(created.getAgora().getId(), memberId, created.getType());
+        long createMemberId = Long.parseLong(agora.getCreatedBy());
+        boolean isCreator = isCreateMember(createMemberId, memberId);
+
+        return new AgoraParticipateResponse(created.getAgora().getId(), memberId, created.getType(), isCreator);
     }
 
     @Transactional
@@ -157,13 +168,15 @@ public class AgoraService {
                 .toList();
     }
 
-    private Agora createAgora(final AgoraCreateRequest request, final Category category) {
+    private Agora createAgora(final AgoraCreateRequest request, final Category category, final AgoraThumbnail agoraThumbnail) {
         return new Agora(request.title(),
                 request.capacity(),
                 request.duration(),
                 request.color(),
                 PROS_COUNT, CONS_COUNT,
-                category);
+                category,
+                agoraThumbnail
+        );
     }
 
     private AgoraMember createAgoraMember(final Long memberId, final Long agoraId,
@@ -236,6 +249,10 @@ public class AgoraService {
                 .orElseThrow(() -> new NotFoundAgoraException(agoraId));
     }
 
+    private boolean isCreateMember(Long createdMemberId, Long memberId) {
+        return Objects.equals(createdMemberId, memberId);
+    }
+
     private void sendAgoraStartMessage(final Agora agora) {
         StartNotificationResponse notification = new StartNotificationResponse(ChatType.DISCUSSION_START,
                 new StartNotificationResponse.StartAgoraData(agora));
@@ -263,9 +280,31 @@ public class AgoraService {
     }
 
     private int getParticipantCount(final Long agoraId) {
-        return agoraMemberRepository.countByAgoraIdAndSessionIdIsNotNullAndTypeIsNot(agoraId,
-                AgoraMemberType.OBSERVER);
+        return agoraMemberRepository.countByAgoraIdAndSessionIdIsNotNullAndTypeIsNot(agoraId, OBSERVER);
     }
+
+    private void validateParticipate(Long memberId, Long agoraId, AgoraParticipateRequest request, Agora agora) {
+        if (agora.getStatus().equals(CLOSED)) throw new ClosedAgoraException();
+
+        if (!Objects.equals(OBSERVER, request.type())) {
+            int typeCount = agoraMemberRepository.countCapacityByAgoraMemberType(agora.getId(), request.type());
+            if (typeCount >= agora.getCapacity()) {
+                throw new FullAgoraCapacityException();
+            }
+
+            boolean existsNickname = agoraMemberRepository.existsNickname(agoraId, request.nickname());
+            if (existsNickname) {
+                throw new DuplicatedNicknameException(request.nickname());
+            }
+        }
+
+        agoraMemberRepository.findByAgoraIdAndMemberId(agora.getId(), memberId)
+                .ifPresent(agoraMember -> {
+                            throw new AlreadyParticipateException(agora.getId(), memberId);
+                        }
+                );
+    }
+
 
     @Transactional
     public EndAgoraResponse timeOutAgora(Long agoraId) {

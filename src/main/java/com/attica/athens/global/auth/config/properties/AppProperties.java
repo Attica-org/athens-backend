@@ -1,5 +1,7 @@
 package com.attica.athens.global.auth.config.properties;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -42,7 +44,11 @@ public class AppProperties {
     @Getter
     @Setter
     public static class OAuth2 {
-        private List<String> redirectUris;
+        private List<String> redirectUris = new ArrayList<>();
         private String defaultRedirectUri;
+
+        public void setRedirectUris(String redirectUrisString) {
+            this.redirectUris = Arrays.asList(redirectUrisString.split(","));
+        }
     }
 }

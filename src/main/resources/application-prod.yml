@@ -6,6 +6,12 @@ server:
   port: 8080
 
 spring:
+  servlet:
+    multipart:
+      enabled: true
+      location: ./charming/tmp
+      max-request-size: 100MB
+      max-file-size: 100MB
   datasource:
     url: jdbc:mysql://${MYSQL_HOST}:${MYSQL_PORT}/${MYSQL_DB}?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=Asia/Seoul
     username: ${MYSQL_USER}
@@ -32,15 +38,17 @@ spring:
         google:
           clientId: ${GOOGLE_CLIENT_ID}
           clientSecret: ${GOOGLE_CLIENT_SECRET}
-          redirectUri: http://localhost:8080/login/oauth2/code/google
+          redirectUri: ${GOOGLE_REDIRECT_URI}
           scope:
+            - email
         kakao:
           clientId: ${KAKAO_CLIENT_ID}
           clientSecret: ${KAKAO_CLIENT_SECRET}
           clientAuthenticationMethod: client_secret_post
           authorizationGrantType: authorization_code
-          redirectUri: http://localhost:8080/login/oauth2/code/kakao
+          redirectUri: ${KAKAO_REDIRECT_URI}
           scope:
+            - profile_nickname
           clientName: Kakao
       # Provider 설정
       provider:
@@ -50,8 +58,8 @@ spring:
           userInfoUri: https://kapi.kakao.com/v2/user/me
           userNameAttribute: id
   redis:
-    host: localhost
-    port: 6379
+    host: ${REDIS_HOST}
+    port: ${REDIS_PORT}
 
 app:
   auth:
@@ -62,16 +70,15 @@ app:
     temp-token:
       expiration-minutes: 5
   oauth2:
-    redirect-uris:
-      - http://localhost:3000/login/oauth2/redirect
-      - https://athens-client-mu.vercel.app/login/oauth2/redirect
-    default-redirect-uri: https://athens-client-mu.vercel.app/login/oauth2/redirect
+    redirect-uris: ${OAUTH2_REDIRECT_URIS}
+    default-redirect-uri: ${OAUTH2_DEFAULT_REDIRECT_URI}
 
 
 logging:
   level:
     '[com.attica.athens]': DEBUG
     '[org.hibernate.type]': TRACE
+    org.springframework.data.redis: DEBUG
 
   config: classpath:logback-prod.xml
 
@@ -81,3 +88,14 @@ frontend:
 
 cors:
   allowed-origins: http://localhost:3000, file://, https://athens-client-mu.vercel.app
+
+aws:
+  s3:
+    access-key: ${S3_ACCESS_KEY}
+    secret-key: ${S3_SECRET_KEY}
+    bucket: ${S3_BUCKET_NAME}
+    region:
+      static: ${S3_REGION}
+      auto: false
+    stack:
+      auto: false

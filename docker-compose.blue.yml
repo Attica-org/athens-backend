@@ -1,12 +1,18 @@
-version: "3"
-
 services:
   backend-blue:
     image: ${DOCKER_IMAGE}
     container_name: athens-blue
-    ports:
-      - 8081:8080
     env_file: .env
     volumes:
       - ./log:/log
+    ports:
+      - 8081:8080
     restart: always
+    depends_on:
+      - redis
+    networks:
+      - ubuntu_app-network
+
+networks:
+  ubuntu_app-network:
+    external: true

@@ -1,12 +1,18 @@
-version: "3"
-
 services:
-  backend:
-    image: ${DOCKER_IMAGE}
-    container_name: athens-backend
+  redis:
+    image: redis:latest
+    container_name: athens-redis
     ports:
-      - 8080:8080
-    env_file: .env
+      - 6379:6379
     volumes:
-      - ./log:/log
+      - redis-data:/data
     restart: always
+    networks:
+      - ubuntu_app-network
+
+networks:
+  ubuntu_app-network:
+    external: true
+
+volumes:
+  redis-data:
