@@ -5,6 +5,7 @@ import static com.attica.athens.global.auth.jwt.Constants.BEARER_;
 
 import com.attica.athens.global.auth.application.AuthService;
 import com.attica.athens.global.decorator.HeartBeatManager;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.Message;
@@ -15,8 +16,6 @@ import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.messaging.support.MessageHeaderAccessor;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
-
-import java.util.Optional;
 
 @Slf4j
 @Component

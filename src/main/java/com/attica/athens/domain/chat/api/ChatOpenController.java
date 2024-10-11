@@ -28,7 +28,7 @@ public class ChatOpenController {
                                          @RequestParam(value = "key", required = false) Long key,
                                          @RequestParam(value = "size", required = false) Optional<Integer> size) {
 
-        GetChatResponse response = chatQueryService.getClosedChatHistory(agoraId, new Cursor(key, size));
+        GetChatResponse response = chatQueryService.getChatHistory(agoraId, new Cursor(key, size));
 
         return ResponseEntity.ok(ApiUtil.success(response));
     }

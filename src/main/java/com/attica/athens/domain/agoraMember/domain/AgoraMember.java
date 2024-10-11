@@ -16,6 +16,7 @@ import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -61,6 +62,9 @@ public class AgoraMember extends AuditingFields {
     @Column(name = "disconnect_type", nullable = false)
     private Boolean disconnectType;
 
+    @Column(name = "socket_disconnect_time")
+    private LocalDateTime socketDisconnectTime;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "agora_id")
     private Agora agora;
@@ -94,6 +98,10 @@ public class AgoraMember extends AuditingFields {
 
     public void updateSessionId(String sessionId) {
         this.sessionId = sessionId;
+    }
+
+    public void updateSocketDisconnectTime(LocalDateTime socketDisconnectTime) {
+        this.socketDisconnectTime = socketDisconnectTime;
     }
 
     public void updateDisconnectType(Boolean disconnectType) {

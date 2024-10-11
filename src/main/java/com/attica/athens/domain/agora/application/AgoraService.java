@@ -140,16 +140,18 @@ public class AgoraService {
 
     @Transactional
     public AgoraExitResponse exit(final Long memberId) {
+
         AgoraMember agoraMember = getAgoraMember(memberId);
         LocalDateTime socketDisconnectTime = LocalDateTime.now();
 
         agoraMember.updateDisconnectType(true);
+        agoraMember.updateSocketDisconnectTime(socketDisconnectTime);
 
         return new AgoraExitResponse(memberId, agoraMember.getType(), socketDisconnectTime);
     }
 
     private AgoraMember getAgoraMember(Long userId) {
-        return agoraMemberRepository.findByMemberId(userId)
+        return agoraMemberRepository.findByMemberIdAndSocketDisconnectTimeIsNull(userId)
                 .orElseThrow(() -> new NotFoundMemberException(userId));
     }
 
