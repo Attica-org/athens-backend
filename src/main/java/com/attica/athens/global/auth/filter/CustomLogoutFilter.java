@@ -1,6 +1,6 @@
 package com.attica.athens.global.auth.filter;
 
-import static com.attica.athens.global.auth.jwt.Constants.COOKIE_NAME;
+import static com.attica.athens.global.auth.jwt.Constants.REFRESH_TOKEN;
 import static com.attica.athens.global.auth.jwt.Constants.REQUEST_ATTRIBUTE_NAME;
 
 import com.attica.athens.domain.common.advice.CustomException;
@@ -64,7 +64,7 @@ public class CustomLogoutFilter extends GenericFilterBean {
 
         // refreshTokenRepository.deleteByRefresh(refreshToken);
 
-        clearCookie(response, COOKIE_NAME);
+        clearCookie(response, REFRESH_TOKEN);
 
         response.setStatus(HttpServletResponse.SC_OK);
     }
@@ -73,7 +73,7 @@ public class CustomLogoutFilter extends GenericFilterBean {
 
         return Optional.ofNullable(request.getCookies())
                 .flatMap(cookies -> Arrays.stream(cookies)
-                        .filter(cookie -> COOKIE_NAME.equals(cookie.getName()))
+                        .filter(cookie -> REFRESH_TOKEN.equals(cookie.getName()))
                         .findFirst()
                         .map(Cookie::getValue))
                 .orElseThrow(NotFoundRefreshTokenException::new);

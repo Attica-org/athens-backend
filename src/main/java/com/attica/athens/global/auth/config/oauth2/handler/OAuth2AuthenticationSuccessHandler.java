@@ -94,8 +94,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
         String tempToken = UUID.randomUUID()
                 .toString();
-        authService.saveTempToken(tempToken, accessToken,
-                appProperties.getAuth().getTempToken().getExpirationMinutes());
+        authService.saveTempToken(tempToken, accessToken);
 
         clearAuthenticationAttributes(request);
 

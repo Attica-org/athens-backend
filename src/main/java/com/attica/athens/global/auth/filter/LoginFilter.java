@@ -1,8 +1,6 @@
 package com.attica.athens.global.auth.filter;
 
-import static com.attica.athens.global.auth.jwt.Constants.ACCESS_TOKEN;
 import static com.attica.athens.global.auth.jwt.Constants.COOKIE_EXPIRATION_TIME;
-import static com.attica.athens.global.auth.jwt.Constants.COOKIE_NAME;
 import static com.attica.athens.global.auth.jwt.Constants.REFRESH_TOKEN;
 import static com.attica.athens.global.utils.CookieUtils.addCookie;
 
@@ -85,8 +83,8 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         String role = auth.getAuthority();
 
         createAccessToken(response, userId, role);
-        String refreshToken = authService.createJwtToken(REFRESH_TOKEN, userId, role);
-        addCookie(response, COOKIE_NAME, refreshToken, COOKIE_EXPIRATION_TIME);
+        String refreshToken = authService.createRefreshToken(userId, role);
+        addCookie(response, REFRESH_TOKEN, refreshToken, COOKIE_EXPIRATION_TIME);
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
     }
@@ -114,7 +112,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
      */
     private void createAccessToken(HttpServletResponse response, Long userId, String role) {
 
-        String accessToken = authService.createJwtToken(ACCESS_TOKEN, userId, role);
+        String accessToken = authService.createAccessToken(userId, role);
         ObjectMapper objectMapper = new ObjectMapper();
         try {
             ApiResponse result = ApiUtil.success(new CreateAccessTokenResponse(accessToken));
