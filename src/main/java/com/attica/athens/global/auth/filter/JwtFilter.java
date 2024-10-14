@@ -6,6 +6,7 @@ import static com.attica.athens.global.auth.jwt.Constants.REQUEST_ATTRIBUTE_NAME
 import com.attica.athens.domain.common.advice.CustomException;
 import com.attica.athens.global.auth.application.AuthService;
 import com.attica.athens.global.auth.config.SecurityConfig;
+import com.attica.athens.global.auth.exception.BlacklistedTokenException;
 import com.attica.athens.global.auth.exception.InvalidAuthorizationHeaderException;
 import com.attica.athens.global.auth.exception.InvalidRequestException;
 import com.attica.athens.global.auth.jwt.Constants;
@@ -44,6 +45,10 @@ public class JwtFilter extends OncePerRequestFilter {
             try {
                 if (header.startsWith(BEARER_)) {
                     String token = header.split(" ")[1];
+                    if (authService.isBlacklistToken(token, true)) {
+                        throw new BlacklistedTokenException();
+                    }
+
                     authService.validateToken(token);
                     Authentication authentication = authService.createAuthenticationByToken(token);
                     SecurityContextHolder.getContext().setAuthentication(authentication);

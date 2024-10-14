@@ -1,11 +1,10 @@
 package com.attica.athens.global.auth.application;
 
-import static com.attica.athens.global.auth.jwt.Constants.ACCESS_TOKEN;
 import static com.attica.athens.global.auth.jwt.Constants.COOKIE_EXPIRATION_TIME;
-import static com.attica.athens.global.auth.jwt.Constants.COOKIE_NAME;
 import static com.attica.athens.global.auth.jwt.Constants.REFRESH_TOKEN;
 
 import com.attica.athens.domain.member.exception.InvalidTempTokenException;
+import com.attica.athens.global.auth.config.properties.AppProperties;
 import com.attica.athens.global.auth.dao.RefreshTokenRepository;
 import com.attica.athens.global.auth.domain.CustomUserDetails;
 import com.attica.athens.global.auth.domain.RefreshToken;
@@ -23,7 +22,10 @@ import io.jsonwebtoken.security.SecurityException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -36,19 +38,24 @@ import org.springframework.stereotype.Service;
 @Service
 public class AuthService {
 
-    private static final String ACCESS_BLACKLIST = "blacklist:access";
-    private static final String REFRESH_BLACKLIST = "blacklist:refresh";
+    private static final String BLACKLIST_ACCESS_PREFIX = "blacklist:access:";
+    private static final String BLACKLIST_REFRESH_PREFIX = "blacklist:refresh:";
     private static final String TEMP_TOKEN_PREFIX = "temp:";
+    private static final String REFRESH_TOKEN_PREFIX = "refresh:";
+    public static final String BLACKLIST = "blacklist";
 
     private final JwtUtils jwtUtils;
     private final RefreshTokenRepository refreshTokenRepository;
     private final RedisTemplate<String, String> redisTemplate;
+    private final AppProperties appProperties;
 
     public AuthService(final JwtUtils jwtUtils, final RefreshTokenRepository refreshTokenRepository,
-                       @Qualifier("redisTemplate") final RedisTemplate<String, String> redisTemplate) {
+                       @Qualifier("redisTemplate") final RedisTemplate<String, String> redisTemplate,
+                       final AppProperties appProperties) {
         this.jwtUtils = jwtUtils;
         this.refreshTokenRepository = refreshTokenRepository;
         this.redisTemplate = redisTemplate;
+        this.appProperties = appProperties;
     }
 
     public String getAccessToken(String tempToken) {
@@ -63,13 +70,37 @@ public class AuthService {
         return accessToken;
     }
 
-    public void saveTempToken(String tempToken, String accessToken, int expirationMinutes) {
+    public void saveTempToken(String tempToken, String accessToken) {
+        String redisKey = TEMP_TOKEN_PREFIX + tempToken;
         redisTemplate.opsForValue()
-                .set(TEMP_TOKEN_PREFIX + tempToken, accessToken, expirationMinutes, TimeUnit.MINUTES);
+                .set(redisKey, accessToken,
+                        appProperties.getAuth().getTempToken().getExpirationMinutes(), TimeUnit.MILLISECONDS);
     }
 
-    public String createJwtToken(String tokenType, Long id, String role) {
-        return jwtUtils.createJwtToken(tokenType, id, role);
+    public void saveBlacklistAccessToken(String accessToken, Long expirationTime) {
+        String redisKey = BLACKLIST_ACCESS_PREFIX + accessToken;
+        redisTemplate.opsForValue()
+                .setIfAbsent(redisKey, BLACKLIST, Duration.ofMillis(expirationTime - System.currentTimeMillis()));
+    }
+
+    public void saveBlacklistRefreshToken(String refreshToken, Long expirationTime) {
+        String redisKey = BLACKLIST_REFRESH_PREFIX + refreshToken;
+        redisTemplate.opsForValue()
+                .setIfAbsent(redisKey, BLACKLIST, Duration.ofMillis(expirationTime - System.currentTimeMillis()));
+    }
+
+    public boolean isBlacklistToken(String token, boolean isAccessToken) {
+        String prefix = isAccessToken ? BLACKLIST_ACCESS_PREFIX : BLACKLIST_REFRESH_PREFIX;
+        String redisKey = prefix + token;
+        return Boolean.TRUE.equals(redisTemplate.hasKey(redisKey));
+    }
+
+    public String createAccessToken(Long id, String role) {
+        return jwtUtils.createAccessToken(id, role);
+    }
+
+    public String createRefreshToken(Long id, String role) {
+        return jwtUtils.createRefreshToken(id, role);
     }
 
     public boolean validateToken(String token) {
@@ -100,7 +131,9 @@ public class AuthService {
     private void createRefreshEntity(CreateRefreshTokenRequest createRefreshTokenRequest) {
         Long userId = createRefreshTokenRequest.userId();
         String refreshToken = createRefreshTokenRequest.refresh();
-        LocalDateTime expiration = jwtUtils.getExpirationAsLocalDateTime(createRefreshTokenRequest.refresh());
+        LocalDateTime expiration = LocalDateTime.ofInstant(
+                Instant.ofEpochMilli(jwtUtils.getExpirationTimeInMillis(refreshToken)),
+                ZoneId.systemDefault());
         RefreshToken refreshEntity = new RefreshToken(userId, refreshToken, expiration);
 
         refreshTokenRepository.save(refreshEntity);
@@ -119,12 +152,10 @@ public class AuthService {
     }
 
     public String createRefreshTokenAndGetAccessToken(Long userId, String role, HttpServletResponse response) {
-        String newAccess = jwtUtils.createJwtToken(ACCESS_TOKEN, userId, role);
-        String newRefresh = jwtUtils.createJwtToken(REFRESH_TOKEN, userId, role);
+        String newAccess = jwtUtils.createAccessToken(userId, role);
+        String newRefresh = jwtUtils.createRefreshToken(userId, role);
 
-        createRefreshEntity(new CreateRefreshTokenRequest(userId, newRefresh));
-
-        Cookie cookie = createCookie(COOKIE_NAME, newRefresh);
+        Cookie cookie = createCookie(REFRESH_TOKEN, newRefresh);
         addSameSiteCookieAttribute(response, cookie);
 
         return newAccess;
@@ -134,7 +165,7 @@ public class AuthService {
 
         return Optional.ofNullable(request.getCookies())
                 .flatMap(cookies -> Arrays.stream(cookies)
-                        .filter(cookie -> COOKIE_NAME.equals(cookie.getName()))
+                        .filter(cookie -> REFRESH_TOKEN.equals(cookie.getName()))
                         .findFirst()
                         .map(Cookie::getValue))
                 .orElseThrow(NotFoundRefreshTokenException::new);
@@ -160,5 +191,9 @@ public class AuthService {
                 cookie.getPath());
 
         response.addHeader("Set-Cookie", cookieString);
+    }
+
+    public long getExpirationTime(final String accessToken) {
+        return jwtUtils.getExpirationTimeInMillis(accessToken);
     }
 }
