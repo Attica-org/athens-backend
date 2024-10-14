@@ -11,10 +11,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URI;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.Authentication;
@@ -94,12 +92,12 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
         String accessToken = authService.createRefreshTokenAndGetAccessToken(memberId, authority, response);
 
-        String tempToken = UUID.randomUUID().toString();
-        redisTemplate.opsForValue()
-                .set(tempToken, accessToken, appProperties.getAuth().getTempToken().getExpirationMinutes(),
-                        TimeUnit.MINUTES);
+        String tempToken = UUID.randomUUID()
+                .toString();
+        authService.saveTempToken(tempToken, accessToken,
+                appProperties.getAuth().getTempToken().getExpirationMinutes());
 
-        clearAuthenticationAttributes(request, response);
+        clearAuthenticationAttributes(request);
 
         String targetUrl = determineTargetUrl(request, tempToken);
 
@@ -136,16 +134,6 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
     private String extractAuthority(Authentication authentication) {
         return authentication.getAuthorities().iterator().next().getAuthority();
-    }
-
-    /**
-     * 인증 관련 속성들을 정리한다.
-     *
-     * @param request  HTTP 요청
-     * @param response HTTP 응답
-     */
-    private void clearAuthenticationAttributes(HttpServletRequest request, HttpServletResponse response) {
-        super.clearAuthenticationAttributes(request);
     }
 
     /**

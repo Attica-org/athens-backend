@@ -5,6 +5,7 @@ import static com.attica.athens.global.auth.jwt.Constants.COOKIE_EXPIRATION_TIME
 import static com.attica.athens.global.auth.jwt.Constants.COOKIE_NAME;
 import static com.attica.athens.global.auth.jwt.Constants.REFRESH_TOKEN;
 
+import com.attica.athens.domain.member.exception.InvalidTempTokenException;
 import com.attica.athens.global.auth.dao.RefreshTokenRepository;
 import com.attica.athens.global.auth.domain.CustomUserDetails;
 import com.attica.athens.global.auth.domain.RefreshToken;
@@ -25,17 +26,47 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Optional;
-import lombok.RequiredArgsConstructor;
+import java.util.concurrent.TimeUnit;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 @Service
-@RequiredArgsConstructor
 public class AuthService {
+
+    private static final String ACCESS_BLACKLIST = "blacklist:access";
+    private static final String REFRESH_BLACKLIST = "blacklist:refresh";
+    private static final String TEMP_TOKEN_PREFIX = "temp:";
 
     private final JwtUtils jwtUtils;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final RedisTemplate<String, String> redisTemplate;
+
+    public AuthService(final JwtUtils jwtUtils, final RefreshTokenRepository refreshTokenRepository,
+                       @Qualifier("redisTemplate") final RedisTemplate<String, String> redisTemplate) {
+        this.jwtUtils = jwtUtils;
+        this.refreshTokenRepository = refreshTokenRepository;
+        this.redisTemplate = redisTemplate;
+    }
+
+    public String getAccessToken(String tempToken) {
+        String redisKey = TEMP_TOKEN_PREFIX + tempToken;
+        String accessToken = redisTemplate.opsForValue().get(redisKey);
+
+        if (accessToken == null) {
+            throw new InvalidTempTokenException();
+        }
+        redisTemplate.delete(tempToken);
+
+        return accessToken;
+    }
+
+    public void saveTempToken(String tempToken, String accessToken, int expirationMinutes) {
+        redisTemplate.opsForValue()
+                .set(TEMP_TOKEN_PREFIX + tempToken, accessToken, expirationMinutes, TimeUnit.MINUTES);
+    }
 
     public String createJwtToken(String tokenType, Long id, String role) {
         return jwtUtils.createJwtToken(tokenType, id, role);
