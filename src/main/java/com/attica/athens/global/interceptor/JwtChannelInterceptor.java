@@ -34,10 +34,19 @@ public class JwtChannelInterceptor implements ChannelInterceptor {
             return message;
         }
 
+        log.debug("Processing message: command={}, sessionId={}", accessor.getCommand(), accessor.getSessionId());
+
         if (StompCommand.CONNECT.equals(accessor.getCommand())) {
+            log.debug("CONNECT command received");
             handleConnectCommand(accessor);
         } else if (isHeartbeat(accessor, message)) {
+            log.debug("Heartbeat detected");
             handleHeartbeat(accessor);
+        } else {
+            log.debug("Other message type: command={}, payloadType={}, payloadLength={}",
+                    accessor.getCommand(),
+                    message.getPayload().getClass().getSimpleName(),
+                    message.getPayload() instanceof byte[] ? ((byte[]) message.getPayload()).length : "N/A");
         }
 
         return message;
@@ -45,7 +54,7 @@ public class JwtChannelInterceptor implements ChannelInterceptor {
 
     private void handleConnectCommand(StompHeaderAccessor accessor) {
         String sessionId = accessor.getSessionId();
-        log.debug("CONNECT command received. SessionId: {}", sessionId);
+        log.debug("Processing CONNECT command. SessionId: {}", sessionId);
 
         String jwtToken = extractJwtToken(accessor);
         if (jwtToken == null) {
@@ -59,14 +68,23 @@ public class JwtChannelInterceptor implements ChannelInterceptor {
     }
 
     private boolean isHeartbeat(StompHeaderAccessor accessor, Message<?> message) {
-        return accessor.getCommand() == null &&
+        boolean isHeartbeat = accessor.getCommand() == null &&
                 message.getPayload() instanceof byte[] &&
-                ((byte[]) message.getPayload()).length == 0;
+                ((byte[]) message.getPayload()).length == 1 &&
+                ((byte[]) message.getPayload())[0] == '\n';
+
+        log.debug("Heartbeat check: command={}, payloadType={}, payloadLength={}, isHeartbeat={}",
+                accessor.getCommand(),
+                message.getPayload().getClass().getSimpleName(),
+                message.getPayload() instanceof byte[] ? ((byte[]) message.getPayload()).length : "N/A",
+                isHeartbeat);
+
+        return isHeartbeat;
     }
 
     private void handleHeartbeat(StompHeaderAccessor accessor) {
         String sessionId = accessor.getSessionId();
-        log.debug("Heartbeat received. SessionId: {}", sessionId);
+        log.debug("Handling heartbeat for session: {}", sessionId);
         heartBeatManager.handleHeartbeat(sessionId);
     }
 

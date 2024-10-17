@@ -56,7 +56,8 @@ public class HeartBeatInterceptorTest {
             SimpMessageHeaderAccessor accessor = StompHeaderAccessor.createForHeartbeat();
             accessor.setSessionId("test-session-id");
 
-            Message<?> message = MessageBuilder.createMessage(new byte[0], accessor.getMessageHeaders());
+            byte[] payload = new byte[]{'\n'};
+            Message<?> message = MessageBuilder.createMessage(payload, accessor.getMessageHeaders());
 
             // when
             interceptor.preSend(message, null);
