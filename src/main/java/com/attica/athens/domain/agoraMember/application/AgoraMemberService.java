@@ -87,4 +87,9 @@ public class AgoraMemberService {
         return agoraMemberRepository.findByAgoraIdAndMemberId(agoraId, memberId)
                 .orElseThrow(() -> new NotFoundAgoraMemberException(agoraId, memberId));
     }
+
+    public AgoraMember findAgoraMember(String sessionId) {
+        return agoraMemberRepository.findBySessionId(sessionId)
+                .orElseThrow(() -> new NotFoundAgoraMemberException(sessionId));
+    }
 }

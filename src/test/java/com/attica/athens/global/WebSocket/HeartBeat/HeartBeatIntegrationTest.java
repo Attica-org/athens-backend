@@ -11,6 +11,8 @@ import com.attica.athens.global.decorator.HeartBeatManager;
 import com.attica.athens.global.interceptor.JwtChannelInterceptor;
 import com.attica.athens.support.WebSocketIntegrationTestSupport;
 import java.time.LocalDateTime;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.BeforeEach;
@@ -55,16 +57,22 @@ public class HeartBeatIntegrationTest extends WebSocketIntegrationTestSupport {
         String metaTopicUrl = META_TOPIC_URL.replace("{agoraId}", agoraId.toString());
         CompletableFuture<String> resultFuture = new CompletableFuture<>();
 
-        // WebSocket 연결 및 구독
         connectAndSubscribe(metaTopicUrl, "EnvironmentalActivist", agoraId, resultFuture);
         resultFuture.get(5, TimeUnit.SECONDS);
 
-        String sessionId = heartBeatManager.getLastHeartBeatTimes().keySet().iterator().next();
-        LocalDateTime firstHeartBeatTime = heartBeatManager.getLastHeartBeatTimes().get(sessionId);
+        String sessionId = heartBeatManager.getHeartbeatTimes().values().stream()
+                .flatMap(Set::stream)
+                .findFirst()
+                .orElseThrow(() -> new AssertionError("No session found"));
+
+        LocalDateTime firstHeartBeatTime = heartBeatManager.getHeartbeatTimes().entrySet().stream()
+                .filter(entry -> entry.getValue().contains(sessionId))
+                .map(Map.Entry::getKey)
+                .findFirst()
+                .orElseThrow(() -> new AssertionError("No heartbeat time found for session"));
 
         assertNotNull(firstHeartBeatTime, "Initial heartbeat time should not be null");
 
-        // 하트비트 메시지 준비
         SimpMessageHeaderAccessor accessor = StompHeaderAccessor.createForHeartbeat();
         accessor.setSessionId(sessionId);
         byte[] payload = new byte[]{'\n'};
@@ -74,18 +82,25 @@ public class HeartBeatIntegrationTest extends WebSocketIntegrationTestSupport {
         await().atMost(MAX_WAIT_TIME, TimeUnit.SECONDS)
                 .pollInterval(1, TimeUnit.SECONDS)
                 .untilAsserted(() -> {
-                    // 명시적 하트비트 메시지 전송
                     interceptor.preSend(heartbeatMessage, null);
 
-                    LocalDateTime currentHeartBeatTime = heartBeatManager.getLastHeartBeatTimes().get(sessionId);
+                    LocalDateTime currentHeartBeatTime = heartBeatManager.getHeartbeatTimes().entrySet().stream()
+                            .filter(entry -> entry.getValue().contains(sessionId))
+                            .map(Map.Entry::getKey)
+                            .findFirst()
+                            .orElseThrow(() -> new AssertionError("No current heartbeat time found for session"));
+
                     assertNotNull(currentHeartBeatTime, "Current heartbeat time should not be null");
                     assertNotEquals(firstHeartBeatTime, currentHeartBeatTime, "Heartbeat time should be updated");
                     assertTrue(currentHeartBeatTime.isAfter(firstHeartBeatTime),
                             "New heartbeat time should be after the initial time");
                 });
 
-        // 최종 확인
-        LocalDateTime finalHeartBeatTime = heartBeatManager.getLastHeartBeatTimes().get(sessionId);
+        LocalDateTime finalHeartBeatTime = heartBeatManager.getHeartbeatTimes().entrySet().stream()
+                .filter(entry -> entry.getValue().contains(sessionId))
+                .map(Map.Entry::getKey)
+                .findFirst()
+                .orElseThrow(() -> new AssertionError("No final heartbeat time found for session"));
 
         assertTrue(finalHeartBeatTime.isAfter(firstHeartBeatTime),
                 "Final heartbeat time should be after the initial time");

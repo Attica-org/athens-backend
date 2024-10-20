@@ -1,23 +1,21 @@
 package com.attica.athens.global.decorator;
 
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
-
-import java.time.LocalDateTime;
 import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.HashSet;
-import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.concurrent.ConcurrentHashMap;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
 public class HeartBeatManager {
     private static final long RECONNECT_THRESHOLD_MILLIS = 10000;
 
-    private final Map<String, LocalDateTime> lastHeartBeatTimes = new ConcurrentHashMap<>();
-    private final TreeMap<LocalDateTime, Set<String>> expirationTimes = new TreeMap<>();
+    private final TreeMap<LocalDateTime, Set<String>> heartbeatTimes = new TreeMap<>();
 
     public void handleHeartbeat(String sessionId) {
         LocalDateTime now = LocalDateTime.now();
@@ -26,46 +24,28 @@ public class HeartBeatManager {
     }
 
     private void updateHeartbeatTimes(String sessionId, LocalDateTime now) {
-        LocalDateTime oldTime = lastHeartBeatTimes.put(sessionId, now);
-        removeOldExpirationTime(sessionId, oldTime);
-        addNewExpirationTime(sessionId, now);
-    }
-
-    private void removeOldExpirationTime(String sessionId, LocalDateTime oldTime) {
-        if (oldTime != null) {
-            expirationTimes.computeIfPresent(oldTime, (k, v) -> {
-                v.remove(sessionId);
-                return v.isEmpty() ? null : v;
-            });
-        }
-    }
-
-    private void addNewExpirationTime(String sessionId, LocalDateTime now) {
-        expirationTimes.computeIfAbsent(now, k -> new HashSet<>()).add(sessionId);
+        heartbeatTimes.values().forEach(sessions -> sessions.remove(sessionId));
+        heartbeatTimes.computeIfAbsent(now, k -> new HashSet<>()).add(sessionId);
     }
 
     public boolean isReconnectValid(String sessionId) {
-        LocalDateTime lastHeartbeat = lastHeartBeatTimes.get(sessionId);
-        log.debug("Last heartbeat for session {}: {}", sessionId, lastHeartbeat);
-        log.debug("Current time: {}", LocalDateTime.now());
-        if (lastHeartbeat != null) {
-            Duration disconnectDuration = Duration.between(lastHeartbeat, LocalDateTime.now());
+        Optional<Entry<LocalDateTime, Set<String>>> entry = heartbeatTimes.entrySet().stream()
+                .filter(e -> e.getValue().contains(sessionId))
+                .findFirst();
+
+        if (entry.isPresent()) {
+            Duration disconnectDuration = Duration.between(entry.get().getKey(), LocalDateTime.now());
             return disconnectDuration.toMillis() <= RECONNECT_THRESHOLD_MILLIS;
         }
         return false;
     }
 
     public void removeSession(String sessionId) {
-        LocalDateTime oldTime = lastHeartBeatTimes.remove(sessionId);
-        removeOldExpirationTime(sessionId, oldTime);
+        heartbeatTimes.values().forEach(sessions -> sessions.remove(sessionId));
         log.info("Session removed: {}", sessionId);
     }
 
-    public Map<String, LocalDateTime> getLastHeartBeatTimes() {
-        return lastHeartBeatTimes;
-    }
-
-    public TreeMap<LocalDateTime, Set<String>> getExpirationTimes() {
-        return expirationTimes;
+    public TreeMap<LocalDateTime, Set<String>> getHeartbeatTimes() {
+        return new TreeMap<>(heartbeatTimes);
     }
 }

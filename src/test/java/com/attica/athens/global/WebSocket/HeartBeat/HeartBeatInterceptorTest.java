@@ -51,7 +51,7 @@ public class HeartBeatInterceptorTest {
 
         @Test
         @DisplayName("알맞은 accessor command 하트비트 핸들링 테스트")
-        void 성공_하트비트인터셉트_presend() {
+        void 성공_하트비트인터셉트_메세지전송직전() {
             // given
             SimpMessageHeaderAccessor accessor = StompHeaderAccessor.createForHeartbeat();
             accessor.setSessionId("test-session-id");
@@ -68,7 +68,7 @@ public class HeartBeatInterceptorTest {
 
         @Test
         @DisplayName("알맞지 않은 accessor command 하트비트 핸들링 테스트")
-        void 실패_하트비트인터셉트_presend() {
+        void 실패_하트비트인터셉트_메세지전송직전() {
             // given
             StompHeaderAccessor accessor = StompHeaderAccessor.create(StompCommand.SEND);
             accessor.setSessionId("test-session-id");
@@ -84,7 +84,7 @@ public class HeartBeatInterceptorTest {
 
         @Test
         @DisplayName("널 accessor 테스트")
-        void 실패_하트비트인터셉트_null() {
+        void 실패_하트비트인터셉트_accessor_null아닌값() {
             // given
             when(MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class)).thenReturn(null);
 

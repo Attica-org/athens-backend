@@ -1,14 +1,14 @@
 package com.attica.athens.global.WebSocket.HeartBeat;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.attica.athens.global.decorator.HeartBeatManager;
 import java.lang.reflect.Field;
 import java.time.LocalDateTime;
-import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -27,8 +27,9 @@ public class HeartBeatManagerTest {
         manager.handleHeartbeat(sessionId);
 
         // then
-        assertNotNull(manager.getLastHeartBeatTimes().get(sessionId));
-        assertTrue(manager.getExpirationTimes().firstEntry().getValue().contains(sessionId));
+        TreeMap<LocalDateTime, Set<String>> heartbeatTimes = manager.getHeartbeatTimes();
+        assertTrue(heartbeatTimes.values().stream().anyMatch(set -> set.contains(sessionId)));
+        assertEquals(1, heartbeatTimes.size());
     }
 
     @Nested
@@ -37,7 +38,7 @@ public class HeartBeatManagerTest {
 
         @Test
         @DisplayName("재연결 유효성 검사 성공")
-        void 성공_유효성검사_유효한파라미터() throws Exception {
+        void 성공_유효성검사_유효한파라미터() {
             // given
             HeartBeatManager manager = new HeartBeatManager();
             String sessionId = "test-session";
@@ -57,12 +58,13 @@ public class HeartBeatManagerTest {
             String sessionId = "test-session";
 
             // when
-            Field lastHeartBeatTimesField = HeartBeatManager.class.getDeclaredField("lastHeartBeatTimes");
-            lastHeartBeatTimesField.setAccessible(true);
-            Map<String, LocalDateTime> lastHeartBeatTimes = (Map<String, LocalDateTime>) lastHeartBeatTimesField.get(
+            Field heartbeatTimesField = HeartBeatManager.class.getDeclaredField("heartbeatTimes");
+            heartbeatTimesField.setAccessible(true);
+            TreeMap<LocalDateTime, Set<String>> heartbeatTimes = (TreeMap<LocalDateTime, Set<String>>) heartbeatTimesField.get(
                     manager);
 
-            lastHeartBeatTimes.put(sessionId, LocalDateTime.now().minusSeconds(11));
+            LocalDateTime oldTime = LocalDateTime.now().minusSeconds(11);
+            heartbeatTimes.put(oldTime, Set.of(sessionId));
 
             // then
             assertFalse(manager.isReconnectValid(sessionId));
@@ -78,7 +80,7 @@ public class HeartBeatManagerTest {
         manager.handleHeartbeat(sessionId);
         manager.removeSession(sessionId);
 
-        assertNull(manager.getLastHeartBeatTimes().get(sessionId));
-        assertTrue(manager.getExpirationTimes().isEmpty());
+        TreeMap<LocalDateTime, Set<String>> heartbeatTimes = manager.getHeartbeatTimes();
+        assertTrue(heartbeatTimes.values().stream().noneMatch(set -> set.contains(sessionId)));
     }
 }
