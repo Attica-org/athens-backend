@@ -11,9 +11,9 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -44,8 +44,7 @@ public abstract class IntegrationTestSupport {
     @Autowired
     private ResourceLoader resourceLoader;
 
-    @Autowired
-    @Qualifier("redisTemplate")
+    @SpyBean
     protected RedisTemplate<String, String> redisTemplate;
 
     @BeforeEach
