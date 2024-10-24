@@ -49,17 +49,20 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
                                         .from(agoraMember)
                                         .where(agoraMember.agora.id.eq(agora.id)
                                                 .and(agoraMember.type.eq(AgoraMemberType.PROS))
-                                                .and(agoraMember.sessionId.isNotNull())),
+                                                .and(agoraMember.sessionId.isNotNull())
+                                                .and(agoraMember.disconnectType.eq(false))),
                                 JPAExpressions.select(agoraMember.count())
                                         .from(agoraMember)
                                         .where(agoraMember.agora.id.eq(agora.id)
                                                 .and(agoraMember.type.eq(AgoraMemberType.CONS))
-                                                .and(agoraMember.sessionId.isNotNull())),
+                                                .and(agoraMember.sessionId.isNotNull())
+                                                .and(agoraMember.disconnectType.eq(false))),
                                 JPAExpressions.select(agoraMember.count())
                                         .from(agoraMember)
                                         .where(agoraMember.agora.id.eq(agora.id)
                                                 .and(agoraMember.type.eq(AgoraMemberType.OBSERVER))
-                                                .and(agoraMember.sessionId.isNotNull()))
+                                                .and(agoraMember.sessionId.isNotNull())
+                                                .and(agoraMember.disconnectType.eq(false)))
                         ),
                         agora.agoraThumbnail.imageUrl,
                         agora.createdAt,
@@ -128,17 +131,20 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
                                         .from(agoraMember)
                                         .where(agoraMember.agora.id.eq(agora.id)
                                                 .and(agoraMember.type.eq(AgoraMemberType.PROS))
-                                                .and(agoraMember.sessionId.isNotNull())),
+                                                .and(agoraMember.sessionId.isNotNull())
+                                                .and(agoraMember.disconnectType.eq(false))),
                                 JPAExpressions.select(agoraMember.count())
                                         .from(agoraMember)
                                         .where(agoraMember.agora.id.eq(agora.id)
                                                 .and(agoraMember.type.eq(AgoraMemberType.CONS))
-                                                .and(agoraMember.sessionId.isNotNull())),
+                                                .and(agoraMember.sessionId.isNotNull())
+                                                .and(agoraMember.disconnectType.eq(false))),
                                 JPAExpressions.select(agoraMember.count())
                                         .from(agoraMember)
                                         .where(agoraMember.agora.id.eq(agora.id)
                                                 .and(agoraMember.type.eq(AgoraMemberType.OBSERVER))
-                                                .and(agoraMember.sessionId.isNotNull()))
+                                                .and(agoraMember.sessionId.isNotNull())
+                                                .and(agoraMember.disconnectType.eq(false)))
                         ),
                         agora.agoraThumbnail.imageUrl,
                         agora.createdAt,
@@ -172,17 +178,20 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
                                         .from(agoraMember)
                                         .where(agoraMember.agora.id.eq(agora.id)
                                                 .and(agoraMember.type.eq(AgoraMemberType.PROS))
-                                                .and(agoraMember.sessionId.isNotNull())),
+                                                .and(agoraMember.sessionId.isNotNull())
+                                                .and(agoraMember.disconnectType.eq(false))),
                                 JPAExpressions.select(agoraMember.count())
                                         .from(agoraMember)
                                         .where(agoraMember.agora.id.eq(agora.id)
                                                 .and(agoraMember.type.eq(AgoraMemberType.CONS))
-                                                .and(agoraMember.sessionId.isNotNull())),
+                                                .and(agoraMember.sessionId.isNotNull())
+                                                .and(agoraMember.disconnectType.eq(false))),
                                 JPAExpressions.select(agoraMember.count())
                                         .from(agoraMember)
                                         .where(agoraMember.agora.id.eq(agora.id)
                                                 .and(agoraMember.type.eq(AgoraMemberType.OBSERVER))
-                                                .and(agoraMember.sessionId.isNotNull()))
+                                                .and(agoraMember.sessionId.isNotNull())
+                                                .and(agoraMember.disconnectType.eq(false)))
                         ),
                         agora.agoraThumbnail.imageUrl,
                         agora.createdAt,
@@ -332,18 +341,19 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
                                         .where(agoraMember.agora.id.eq(agora.id)
                                                 .and(agoraMember.type.eq(AgoraMemberType.PROS))
                                                 .and(agoraMember.sessionId.isNotNull())
-                                        ),
+                                                .and(agoraMember.disconnectType.eq(false))),
                                 JPAExpressions.select(agoraMember.count())
                                         .from(agoraMember)
                                         .where(agoraMember.agora.id.eq(agora.id)
                                                 .and(agoraMember.type.eq(AgoraMemberType.CONS))
                                                 .and(agoraMember.sessionId.isNotNull())
-                                        ),
+                                                .and(agoraMember.disconnectType.eq(false))),
                                 JPAExpressions.select(agoraMember.count())
                                         .from(agoraMember)
                                         .where(agoraMember.agora.id.eq(agora.id)
                                                 .and(agoraMember.type.eq(AgoraMemberType.OBSERVER))
                                                 .and(agoraMember.sessionId.isNotNull())
+                                                .and(agoraMember.disconnectType.eq(false))
                                         )
                         ),
                         agora.agoraThumbnail.imageUrl,

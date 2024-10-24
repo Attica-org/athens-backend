@@ -41,12 +41,6 @@ public class AgoraMemberService {
         checkAgoraStatus(agoraMember.getAgora());
     }
 
-    @Transactional
-    public void deleteAgoraMember(Long agoraId, Long memberId) {
-        agoraMemberRepository.deleteByAgoraIdAndMemberId(agoraId, memberId)
-                .orElseThrow(() -> new NotFoundAgoraMemberException(agoraId, memberId));
-    }
-
     public void checkAgoraStatus(Agora agora) {
         if (agora.getStatus() == AgoraStatus.CLOSED) {
             return;

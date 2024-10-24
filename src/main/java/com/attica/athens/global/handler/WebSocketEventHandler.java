@@ -2,16 +2,12 @@ package com.attica.athens.global.handler;
 
 import com.attica.athens.domain.agoraMember.application.AgoraMemberService;
 import com.attica.athens.domain.agoraMember.domain.AgoraMember;
-import com.attica.athens.domain.chat.application.ChatQueryService;
-import com.attica.athens.domain.chat.dto.Cursor;
-import com.attica.athens.domain.chat.dto.response.GetChatResponse;
 import com.attica.athens.global.auth.application.AuthService;
 import com.attica.athens.global.auth.domain.CustomUserDetails;
 import com.attica.athens.global.auth.exception.InvalidAuthorizationHeaderException;
 import com.attica.athens.global.decorator.HeartBeatManager;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
@@ -36,11 +32,11 @@ public class WebSocketEventHandler {
     private static final String AUTHORIZATION_HEADER = "Authorization";
     private static final String BEARER_PREFIX = "Bearer ";
     private static final String TOPIC_PREFIX = "/topic/agoras/";
+    private static final Integer AGORA_ID_INDEX = 2;
 
     private final HeartBeatManager heartBeatManager;
     private final AgoraMemberService agoraMemberService;
     private final AuthService authService;
-    private final ChatQueryService chatQueryService;
 
     @EventListener
     public void handleWebSocketSessionConnect(SessionConnectEvent event) {
@@ -130,24 +126,22 @@ public class WebSocketEventHandler {
         log.info("New connection completed: agoraId={}, userId={}, sessionId={}", agoraId, userId, sessionId);
     }
 
-    private Optional<GetChatResponse> handleExistingConnection(AgoraMember agoraMember, Long agoraId, Long memberId,
-                                                               String sessionId) {
+    private void handleExistingConnection(AgoraMember agoraMember, Long agoraId, Long memberId,
+                                          String sessionId) {
         if (heartBeatManager.isReconnectValid(agoraMember.getSessionId())) {
             heartBeatManager.removeSession(agoraMember.getSessionId());
-            handleNewConnection(agoraId, memberId, sessionId);
-            heartBeatManager.handleHeartbeat(sessionId);
-            GetChatResponse response = getGetChatResponse(agoraId);
-            return Optional.of(response);
+            reconnectAgoraMember(agoraMember, agoraId, memberId, sessionId);
         } else {
             processDisconnection(agoraMember.getSessionId(), agoraId, memberId);
             heartBeatManager.removeSession(agoraMember.getSessionId());
-            return Optional.empty();
         }
     }
 
-    private GetChatResponse getGetChatResponse(Long agoraId) {
-        GetChatResponse response = chatQueryService.getChatHistory(agoraId, new Cursor(null, Optional.of(10)));
-        return response;
+    @Transactional
+    public void reconnectAgoraMember(AgoraMember agoraMember, Long agoraId, Long memberId, String sessionId) {
+        agoraMember.updateDisconnectType(false);
+        handleNewConnection(agoraId, memberId, sessionId);
+        heartBeatManager.handleHeartbeat(sessionId);
     }
 
     @Transactional
@@ -155,7 +149,6 @@ public class WebSocketEventHandler {
         try {
             agoraMemberService.removeSessionId(sessionId);
             agoraMemberService.sendMetaToActiveMembers(agoraId, memberId);
-            agoraMemberService.deleteAgoraMember(agoraId, memberId);
             log.info("WebSocket Disconnected: agoraId={}, userId={}", agoraId, memberId);
         } catch (Exception e) {
             log.error("Error during disconnection: agoraId={}, userId={}, error={}", agoraId, memberId, e.getMessage(),
@@ -216,6 +209,6 @@ public class WebSocketEventHandler {
 
     private Long extractAgoraIdFromDestination(String destination) {
         String[] parts = destination.split("/");
-        return Long.parseLong(parts[parts.length - 1]);
+        return Long.parseLong(parts[AGORA_ID_INDEX]);
     }
 }
