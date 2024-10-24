@@ -1,6 +1,7 @@
 package com.attica.athens.domain.chat.api;
 
 import com.attica.athens.domain.chat.application.ChatCommandService;
+import com.attica.athens.domain.chat.application.ChatQueryService;
 import com.attica.athens.domain.chat.dto.request.SendChatRequest;
 import com.attica.athens.domain.chat.dto.request.SendReactionRequest;
 import com.attica.athens.domain.chat.dto.response.BadWordResponse;
@@ -28,6 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class ChatAuthController {
 
     private final ChatCommandService chatCommandService;
+    private final ChatQueryService chatQueryService;
 
     @MessageMapping("/agoras/{agoraId}/chats")
     @SendTo(value = "/topic/agoras/{agoraId}/chats")
