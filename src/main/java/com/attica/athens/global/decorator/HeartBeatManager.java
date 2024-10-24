@@ -46,6 +46,6 @@ public class HeartBeatManager {
     }
 
     public TreeMap<LocalDateTime, Set<String>> getHeartbeatTimes() {
-        return new TreeMap<>(heartbeatTimes);
+        return heartbeatTimes;
     }
 }
