@@ -6,6 +6,7 @@ import com.attica.athens.domain.agora.domain.AgoraStatus;
 public record AgoraTitleResponse(String title, AgoraStatus status, String imageUrl, String color) {
 
     public AgoraTitleResponse(Agora agora) {
-        this(agora.getTitle(), agora.getStatus(),agora.getAgoraThumbnail().getImageUrl(), agora.getColor());
+        this(agora.getTitle(), agora.getStatus(),
+                agora.getAgoraThumbnail() == null ? "" : agora.getAgoraThumbnail().getImageUrl(), agora.getColor());
     }
 }
