@@ -3,7 +3,6 @@ package com.attica.athens.global.handler;
 import com.attica.athens.domain.agora.application.AgoraService;
 import com.attica.athens.domain.agoraMember.application.AgoraMemberService;
 import com.attica.athens.domain.agoraMember.domain.AgoraMember;
-import com.attica.athens.domain.member.dao.MemberRepository;
 import com.attica.athens.global.decorator.HeartBeatManager;
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -23,7 +22,6 @@ public class HeartBeatHandler {
 
     private final HeartBeatManager heartBeatManager;
     private final AgoraService agoraService;
-    private final MemberRepository memberRepository;
     private final AgoraMemberService agoraMemberService;
 
     @Scheduled(fixedRate = 60000)
@@ -45,7 +43,6 @@ public class HeartBeatHandler {
             log.debug("Processing entry with time: {}", entry.getKey());
             for (String sessionId : entry.getValue()) {
                 handleInactiveSession(sessionId);
-                heartBeatManager.removeSession(sessionId);
             }
         }
     }
@@ -69,7 +66,6 @@ public class HeartBeatHandler {
         agoraMemberService.removeSessionId(sessionId);
         agoraMemberService.sendMetaToActiveMembers(agoraId, memberId);
         log.info("WebSocket Disconnected: agoraId={}, userId={}", agoraId, memberId);
-        agoraMemberService.deleteAgoraMember(agoraId, memberId);
     }
 
     private void logRemainingActiveSessions(TreeMap<LocalDateTime, Set<String>> heartbeatTimes) {
