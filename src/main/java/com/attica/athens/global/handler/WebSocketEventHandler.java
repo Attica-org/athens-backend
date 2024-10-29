@@ -32,7 +32,7 @@ public class WebSocketEventHandler {
     private static final String AUTHORIZATION_HEADER = "Authorization";
     private static final String BEARER_PREFIX = "Bearer ";
     private static final String TOPIC_PREFIX = "/topic/agoras/";
-    private static final Integer AGORA_ID_INDEX = 2;
+    private static final Integer AGORA_ID_INDEX = 3;
 
     private final HeartBeatManager heartBeatManager;
     private final AgoraMemberService agoraMemberService;
