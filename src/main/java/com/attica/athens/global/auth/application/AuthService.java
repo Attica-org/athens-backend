@@ -33,8 +33,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class AuthService {
 
-    private static final String BLACKLIST_ACCESS_PREFIX = "blacklist:access:";
-    private static final String BLACKLIST_REFRESH_PREFIX = "blacklist:refresh:";
+    private static final String BLACKLIST_PREFIX = "blacklist:";
     private static final String TEMP_TOKEN_PREFIX = "temp:";
     private static final String REFRESH_TOKEN_PREFIX = "refresh:";
     public static final String LOGOUT = "logout";
@@ -58,7 +57,7 @@ public class AuthService {
         if (accessToken == null) {
             throw new InvalidTempTokenException();
         }
-        redisTemplate.delete(tempToken);
+        redisTemplate.delete(redisKey);
 
         return accessToken;
     }
@@ -66,24 +65,18 @@ public class AuthService {
     public void saveTempToken(String tempToken, String accessToken) {
         String redisKey = TEMP_TOKEN_PREFIX + tempToken;
         redisTemplate.opsForValue()
-                .set(redisKey, accessToken,
-                        appProperties.getAuth().getTempToken().getExpirationMinutes(), TimeUnit.MILLISECONDS);
+                .setIfAbsent(redisKey, accessToken, appProperties.getAuth().getTempToken().getExpirationMinutes(),
+                        TimeUnit.MINUTES);
     }
 
     public void saveBlacklistAccessToken(String accessToken, Long expirationTime) {
-        String redisKey = BLACKLIST_ACCESS_PREFIX + accessToken;
-        redisTemplate.opsForValue()
-                .setIfAbsent(redisKey, LOGOUT, Duration.ofMillis(expirationTime - System.currentTimeMillis()));
-    }
-
-    public void saveBlacklistRefreshToken(String refreshToken, Long expirationTime) {
-        String redisKey = BLACKLIST_REFRESH_PREFIX + refreshToken;
+        String redisKey = BLACKLIST_PREFIX + accessToken;
         redisTemplate.opsForValue()
                 .setIfAbsent(redisKey, LOGOUT, Duration.ofMillis(expirationTime - System.currentTimeMillis()));
     }
 
     public boolean isBlacklistAccessToken(String token) {
-        String redisKey = BLACKLIST_ACCESS_PREFIX + token;
+        String redisKey = BLACKLIST_PREFIX + token;
         return TRUE.equals(redisTemplate.hasKey(redisKey));
     }
 
@@ -112,7 +105,7 @@ public class AuthService {
         return jwtUtils.createRefreshToken(id, role);
     }
 
-    public boolean validateToken(String token) {
+    public boolean verifyToken(String token) {
         try {
             jwtUtils.getClaims(token);
         } catch (SecurityException | MalformedJwtException e) {
@@ -138,25 +131,28 @@ public class AuthService {
     }
 
     public String reissueRefreshToken(HttpServletRequest request, HttpServletResponse response) {
-
         String refreshToken = getRefreshToken(request);
-
-        validateToken(refreshToken);
+        verifyToken(refreshToken);
+        validateRefreshToken(refreshToken);
 
         Long userId = jwtUtils.getUserId(refreshToken);
         String role = jwtUtils.getRole(refreshToken);
 
-        return createRefreshTokenAndGetAccessToken(userId, role, response);
+        saveRefreshToken(userId, createRefreshToken(userId, role, response));
+        return createAccessToken(userId, role);
     }
 
-    public String createRefreshTokenAndGetAccessToken(Long userId, String role, HttpServletResponse response) {
-        String newAccess = jwtUtils.createAccessToken(userId, role);
+    private void validateRefreshToken(final String refreshToken) {
+        String refreshTokenValue = getRefreshToken(refreshToken);
+        if (refreshTokenValue == null) {
+            throw new NotFoundRefreshTokenException();
+        }
+    }
+
+    public String createRefreshToken(Long userId, String role, HttpServletResponse response) {
         String newRefresh = jwtUtils.createRefreshToken(userId, role);
-
-        Cookie cookie = createCookie(REFRESH_TOKEN, newRefresh);
-        addSameSiteCookieAttribute(response, cookie);
-
-        return newAccess;
+        addSameSiteCookieAttribute(response, createCookie(REFRESH_TOKEN, newRefresh));
+        return newRefresh;
     }
 
     private String getRefreshToken(HttpServletRequest request) {

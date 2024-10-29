@@ -48,8 +48,7 @@ public class JwtFilter extends OncePerRequestFilter {
                     if (authService.isBlacklistAccessToken(token)) {
                         throw new BlacklistedTokenException();
                     }
-
-                    authService.validateToken(token);
+                    authService.verifyToken(token);
                     Authentication authentication = authService.createAuthenticationByToken(token);
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                 } else {

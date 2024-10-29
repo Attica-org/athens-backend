@@ -49,11 +49,12 @@ public class MemberService {
         }
 
         Member member = Member.createMember(username, bCryptPasswordEncoder.encode(password), authProvider, null);
-
         memberRepository.save(member);
 
-        return authService.createRefreshTokenAndGetAccessToken(member.getId(), member.getRole().name(),
-                response);
+        Long memberId = member.getId();
+        String memberRole = member.getRole().name();
+        authService.createRefreshToken(memberId, memberRole, response);
+        return authService.createAccessToken(memberId, memberRole);
     }
 
     public GetMemberResponse getMember(Long userId) {
