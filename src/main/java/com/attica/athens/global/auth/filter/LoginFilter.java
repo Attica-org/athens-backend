@@ -60,6 +60,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
     /**
      * 인증 성공 시 호출되는 메소드 JWT 토큰을 생성하고 응답에 포함시킨다.
+     * refresh 토큰은 캐시에 저장한다.
      *
      * @param request        HTTP 요청 객체
      * @param response       HTTP 응답 객체
@@ -84,6 +85,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
         createAccessToken(response, userId, role);
         String refreshToken = authService.createRefreshToken(userId, role);
+        authService.saveRefreshToken(userId, refreshToken);
         addCookie(response, REFRESH_TOKEN, refreshToken, COOKIE_EXPIRATION_TIME);
 
         SecurityContextHolder.getContext().setAuthentication(authentication);

@@ -2,13 +2,11 @@ package com.attica.athens.global.auth.application;
 
 import static com.attica.athens.global.auth.jwt.Constants.COOKIE_EXPIRATION_TIME;
 import static com.attica.athens.global.auth.jwt.Constants.REFRESH_TOKEN;
+import static java.lang.Boolean.TRUE;
 
 import com.attica.athens.domain.member.exception.InvalidTempTokenException;
 import com.attica.athens.global.auth.config.properties.AppProperties;
-import com.attica.athens.global.auth.dao.RefreshTokenRepository;
 import com.attica.athens.global.auth.domain.CustomUserDetails;
-import com.attica.athens.global.auth.domain.RefreshToken;
-import com.attica.athens.global.auth.dto.request.CreateRefreshTokenRequest;
 import com.attica.athens.global.auth.exception.JwtExpiredException;
 import com.attica.athens.global.auth.exception.JwtIllegalArgumentException;
 import com.attica.athens.global.auth.exception.JwtSignatureException;
@@ -23,9 +21,6 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.time.Duration;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -42,18 +37,16 @@ public class AuthService {
     private static final String BLACKLIST_REFRESH_PREFIX = "blacklist:refresh:";
     private static final String TEMP_TOKEN_PREFIX = "temp:";
     private static final String REFRESH_TOKEN_PREFIX = "refresh:";
-    public static final String BLACKLIST = "blacklist";
+    public static final String LOGOUT = "logout";
 
     private final JwtUtils jwtUtils;
-    private final RefreshTokenRepository refreshTokenRepository;
     private final RedisTemplate<String, String> redisTemplate;
     private final AppProperties appProperties;
 
-    public AuthService(final JwtUtils jwtUtils, final RefreshTokenRepository refreshTokenRepository,
+    public AuthService(final JwtUtils jwtUtils,
                        @Qualifier("redisTemplate") final RedisTemplate<String, String> redisTemplate,
                        final AppProperties appProperties) {
         this.jwtUtils = jwtUtils;
-        this.refreshTokenRepository = refreshTokenRepository;
         this.redisTemplate = redisTemplate;
         this.appProperties = appProperties;
     }
@@ -80,19 +73,35 @@ public class AuthService {
     public void saveBlacklistAccessToken(String accessToken, Long expirationTime) {
         String redisKey = BLACKLIST_ACCESS_PREFIX + accessToken;
         redisTemplate.opsForValue()
-                .setIfAbsent(redisKey, BLACKLIST, Duration.ofMillis(expirationTime - System.currentTimeMillis()));
+                .setIfAbsent(redisKey, LOGOUT, Duration.ofMillis(expirationTime - System.currentTimeMillis()));
     }
 
     public void saveBlacklistRefreshToken(String refreshToken, Long expirationTime) {
         String redisKey = BLACKLIST_REFRESH_PREFIX + refreshToken;
         redisTemplate.opsForValue()
-                .setIfAbsent(redisKey, BLACKLIST, Duration.ofMillis(expirationTime - System.currentTimeMillis()));
+                .setIfAbsent(redisKey, LOGOUT, Duration.ofMillis(expirationTime - System.currentTimeMillis()));
     }
 
-    public boolean isBlacklistToken(String token, boolean isAccessToken) {
-        String prefix = isAccessToken ? BLACKLIST_ACCESS_PREFIX : BLACKLIST_REFRESH_PREFIX;
-        String redisKey = prefix + token;
-        return Boolean.TRUE.equals(redisTemplate.hasKey(redisKey));
+    public boolean isBlacklistAccessToken(String token) {
+        String redisKey = BLACKLIST_ACCESS_PREFIX + token;
+        return TRUE.equals(redisTemplate.hasKey(redisKey));
+    }
+
+    public void saveRefreshToken(Long userId, String refreshToken) {
+        String redisKey = REFRESH_TOKEN_PREFIX + refreshToken;
+        redisTemplate.opsForValue()
+                .set(redisKey, userId.toString(), appProperties.getAuth().getJwt().getRefreshExpired(),
+                        TimeUnit.MILLISECONDS);
+    }
+
+    public void deleteRefreshToken(String refreshToken) {
+        redisTemplate.delete(REFRESH_TOKEN_PREFIX + refreshToken);
+    }
+
+    public String getRefreshToken(String refreshToken) {
+        String redisKey = REFRESH_TOKEN_PREFIX + refreshToken;
+        return redisTemplate.opsForValue()
+                .get(redisKey);
     }
 
     public String createAccessToken(Long id, String role) {
@@ -126,17 +135,6 @@ public class AuthService {
 
         return new UsernamePasswordAuthenticationToken(customUserDetails, null,
                 customUserDetails.getAuthorities());
-    }
-
-    private void createRefreshEntity(CreateRefreshTokenRequest createRefreshTokenRequest) {
-        Long userId = createRefreshTokenRequest.userId();
-        String refreshToken = createRefreshTokenRequest.refresh();
-        LocalDateTime expiration = LocalDateTime.ofInstant(
-                Instant.ofEpochMilli(jwtUtils.getExpirationTimeInMillis(refreshToken)),
-                ZoneId.systemDefault());
-        RefreshToken refreshEntity = new RefreshToken(userId, refreshToken, expiration);
-
-        refreshTokenRepository.save(refreshEntity);
     }
 
     public String reissueRefreshToken(HttpServletRequest request, HttpServletResponse response) {

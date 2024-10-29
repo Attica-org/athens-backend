@@ -58,7 +58,7 @@ public class JwtUtils {
                 .compact();
     }
 
-    public Long getUserId(String token) { // secretKey로 검증
+    public Long getUserId(String token) {
         try {
             return Long.parseLong(Jwts.parser()
                     .verifyWith(secretKey)

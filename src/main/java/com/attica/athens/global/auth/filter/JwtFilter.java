@@ -45,7 +45,7 @@ public class JwtFilter extends OncePerRequestFilter {
             try {
                 if (header.startsWith(BEARER_)) {
                     String token = header.split(" ")[1];
-                    if (authService.isBlacklistToken(token, true)) {
+                    if (authService.isBlacklistAccessToken(token)) {
                         throw new BlacklistedTokenException();
                     }
 
