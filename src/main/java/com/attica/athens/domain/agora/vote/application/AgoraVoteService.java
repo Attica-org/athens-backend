@@ -81,6 +81,10 @@ public class AgoraVoteService {
         return KickVoteResult.VOTE_SUCCESS;
     }
 
+    public void removeVotes(Long agoraId) {
+        activeVotes.remove(agoraId);
+    }
+
     private void validateAndAddVote(KickVote kickVote, Long memberId, Long targetMemberId) {
         if (!kickVote.addVoteMember(memberId)) {
             throw new AlreadyKickVotedException(targetMemberId);

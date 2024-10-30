@@ -36,6 +36,7 @@ import com.attica.athens.domain.agora.exception.InvalidAgoraStatusException;
 import com.attica.athens.domain.agora.exception.NotFoundAgoraException;
 import com.attica.athens.domain.agora.exception.NotFoundCategoryException;
 import com.attica.athens.domain.agora.exception.NotParticipateException;
+import com.attica.athens.domain.agora.vote.application.AgoraVoteService;
 import com.attica.athens.domain.agoraMember.dao.AgoraMemberRepository;
 import com.attica.athens.domain.agoraMember.domain.AgoraMember;
 import com.attica.athens.domain.agoraMember.exception.AlreadyEndVotedException;
@@ -70,6 +71,7 @@ public class AgoraService {
     private final SimpMessagingTemplate messagingTemplate;
     private final PopularRepository popularRepository;
     private final S3ThumbnailService s3ThumbnailService;
+    private final AgoraVoteService agoraVoteService;
 
     @Transactional
     public CreateAgoraResponse create(final AgoraCreateRequest request, final MultipartFile file) {
@@ -317,6 +319,7 @@ public class AgoraService {
             throw new InvalidAgoraStatusException(AgoraStatus.RUNNING);
         } else {
             agora.endAgora();
+            agoraVoteService.removeVotes(agoraId);
             sendAgoraEndMessage(agora);
 
             return new EndAgoraResponse(agora);
