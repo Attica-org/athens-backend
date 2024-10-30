@@ -1,13 +1,18 @@
 package com.attica.athens.domain.vote;
 
+import static org.hamcrest.Matchers.matchesPattern;
 import static org.hamcrest.Matchers.nullValue;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.attica.athens.domain.agora.vote.dto.request.AgoraVoteRequest;
+import com.attica.athens.domain.agora.vote.dto.request.KickVoteRequest;
 import com.attica.athens.domain.agoraMember.domain.AgoraVoteType;
+import com.attica.athens.global.auth.domain.CustomUserDetails;
 import com.attica.athens.support.IntegrationTestSupport;
 import com.attica.athens.support.annotation.WithMockCustomUser;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -284,6 +289,101 @@ public class AgoraVoteAuthApiIntegrationTest extends IntegrationTestSupport {
                             jsonPath("$.response").value(nullValue()),
                             jsonPath("$.error.code").value(1301),
                             jsonPath("$.error.message").value("Not found agora. agoraId: 50")
+                    );
+        }
+    }
+
+    @Nested
+    @DisplayName("사용자 퇴장 투표 테스트")
+    @Sql(scripts = {
+            "/sql/get-category.sql",
+            "/sql/get-agora.sql",
+            "/sql/get-base-member.sql"
+    })
+    class KickVoteTest {
+
+        @Test
+        @DisplayName("퇴장 투표 한다.")
+        @WithMockCustomUser
+        void 성공_퇴장_투표() throws Exception {
+            // given
+            KickVoteRequest request = new KickVoteRequest(2L, 3);
+
+            // when
+            final ResultActions result = mockMvc.perform(
+                    post("/{prefix}/agoras/{agoraId}/kick-vote", API_V1_AUTH, 1)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(request))
+            );
+
+            // then
+            result.andExpect(status().isOk())
+                    .andExpectAll(
+                            jsonPath("$.success").value(true),
+                            jsonPath("$.response").exists(),
+                            jsonPath("$.response").value("투표가 성공적으로 처리되었습니다."),
+                            jsonPath("$.error").doesNotExist()
+                    );
+        }
+
+        @Test
+        @DisplayName("동일한 대상 중복 퇴장 투표 시 예외가 발생한다.")
+        @WithMockCustomUser
+        void 성공_중복_퇴장_투표_예외발생() throws Exception {
+            // given
+            KickVoteRequest request = new KickVoteRequest(2L, 3);
+
+            // when
+            mockMvc.perform(
+                    post("/{prefix}/agoras/{agoraId}/kick-vote", API_V1_AUTH, 1)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(request))
+            );
+
+            final ResultActions result = mockMvc.perform(
+                    post("/{prefix}/agoras/{agoraId}/kick-vote", API_V1_AUTH, 1)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(request))
+            );
+
+            // then
+            result.andExpect(status().isConflict())
+                    .andExpectAll(
+                            jsonPath("$.success").value(false),
+                            jsonPath("$.response").doesNotExist(),
+                            jsonPath("$.error").exists(),
+                            jsonPath("$.error.message")
+                                    .value("이미 투표한 투표한 대상입니다. targetMemberId: 2")
+                    );
+        }
+
+        @Test
+        @DisplayName("과반수 투표로 사용자를 퇴장시킨다.")
+        @WithMockCustomUser
+        void 성공_과반수_투표로_사용자_퇴장() throws Exception {
+            // given
+            KickVoteRequest request = new KickVoteRequest(2L, 3);
+
+            // when
+            mockMvc.perform(
+                    post("/{prefix}/agoras/{agoraId}/kick-vote", API_V1_AUTH, 1)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(request))
+            );
+
+            final ResultActions result = mockMvc.perform(
+                    post("/{prefix}/agoras/{agoraId}/kick-vote", API_V1_AUTH, 1)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(request))
+                            .with(user(new CustomUserDetails(3L, "password", "ROLE_USER")))
+            );
+
+            // then
+            result.andExpect(status().isOk())
+                    .andExpectAll(
+                            jsonPath("$.success").value(true),
+                            jsonPath("$.response").value("과반수 투표로 사용자를 퇴장시킵니다."),
+                            jsonPath("$.error").doesNotExist()
                     );
         }
     }
