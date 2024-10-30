@@ -382,7 +382,7 @@ public class AgoraVoteAuthApiIntegrationTest extends IntegrationTestSupport {
             result.andExpect(status().isOk())
                     .andExpectAll(
                             jsonPath("$.success").value(true),
-                            jsonPath("$.response").value("과반수 투표로 사용자를 퇴장시킵니다."),
+                            jsonPath("$.response").value("과반수 투표로 사용자를 추방합니다."),
                             jsonPath("$.error").doesNotExist()
                     );
         }

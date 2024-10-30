@@ -5,5 +5,6 @@ public enum ChatType {
     CHAT,
     DISCUSSION_START,
     DISCUSSION_END,
-    REACTION
+    REACTION,
+    KICK
 }

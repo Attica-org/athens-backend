@@ -290,7 +290,7 @@ public class AgoraService {
 
         if (!Objects.equals(OBSERVER, request.type())) {
             int typeCount = agoraMemberRepository.countCapacityByAgoraMemberType(agora.getId(), request.type());
-            if (agora.isTypeCapactiyExceeded(typeCount)) {
+            if (agora.isTypeCapacityExceeded(typeCount)) {
                 throw new FullAgoraCapacityException();
             }
 

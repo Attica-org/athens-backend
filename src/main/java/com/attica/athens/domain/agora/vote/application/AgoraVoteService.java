@@ -5,12 +5,13 @@ import com.attica.athens.domain.agora.domain.Agora;
 import com.attica.athens.domain.agora.exception.NotFoundAgoraException;
 import com.attica.athens.domain.agora.vote.dao.AgoraQueryVoteRepository;
 import com.attica.athens.domain.agora.vote.domain.KickVote;
-import com.attica.athens.domain.agora.vote.dto.KickVoteInfo;
 import com.attica.athens.domain.agora.vote.dto.request.AgoraVoteRequest;
 import com.attica.athens.domain.agora.vote.dto.request.KickVoteRequest;
 import com.attica.athens.domain.agora.vote.dto.response.AgoraVoteResponse;
 import com.attica.athens.domain.agora.vote.dto.response.AgoraVoteResultResponse;
 import com.attica.athens.domain.agora.vote.dto.response.KickVoteResult;
+import com.attica.athens.domain.agora.vote.dto.response.SendKickResponse;
+import com.attica.athens.domain.agora.vote.dto.response.SendKickResponse.KickVoteInfo;
 import com.attica.athens.domain.agora.vote.exception.AlreadyKickVotedException;
 import com.attica.athens.domain.agora.vote.exception.AlreadyOpinionVotedException;
 import com.attica.athens.domain.agoraMember.dao.AgoraMemberRepository;
@@ -63,7 +64,7 @@ public class AgoraVoteService {
 
     @Transactional
     public KickVoteResult kickVote(Long agoraId, Long memberId, KickVoteRequest request) {
-        AgoraMember agoraMember = findAgoraMemberByAgoraIdAndUserId(agoraId, memberId);
+        findAgoraMemberByAgoraIdAndUserId(agoraId, memberId);
         Long targetMemberId = request.targetMemberId();
 
         Map<Long, KickVote> kickVoteMap = activeVotes.computeIfAbsent(agoraId, k -> new ConcurrentHashMap<>());
@@ -73,7 +74,7 @@ public class AgoraVoteService {
 
         if (kickVote.kickPossible(request.currentMemberCount())) {
             handleKickVoteSuccess(kickVoteMap, targetMemberId);
-            sendKickVoteInfo(agoraId, agoraMember);
+            sendKickVoteInfo(agoraId, targetMemberId);
             return KickVoteResult.KICK_REQUIRED;
         }
 
@@ -91,10 +92,11 @@ public class AgoraVoteService {
         kickVoteMap.values().forEach(vote -> vote.removeVoteMember(targetMemberId));
     }
 
-    private void sendKickVoteInfo(Long agoraId, AgoraMember agoraMember) {
+    private void sendKickVoteInfo(Long agoraId, Long targetMemberId) {
         String destination = "/topic/agoras/" + agoraId;
-        KickVoteInfo kickVoteInfo = new KickVoteInfo(agoraMember.getNickname());
-        simpMessagingTemplate.convertAndSend(destination, kickVoteInfo);
+        KickVoteInfo kickVoteInfo = new KickVoteInfo(targetMemberId);
+        SendKickResponse response = new SendKickResponse(kickVoteInfo);
+        simpMessagingTemplate.convertAndSend(destination, response);
     }
 
     private AgoraMember checkAgoraMemberVoted(Long agoraId, Long userId) {
