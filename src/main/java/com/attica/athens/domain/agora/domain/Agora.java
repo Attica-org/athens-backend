@@ -180,4 +180,8 @@ public class Agora extends AuditingFields {
     public void updateThumbnail(AgoraThumbnail agoraThumbnail) {
         this.agoraThumbnail = agoraThumbnail;
     }
+
+    public boolean isTypeCapactiyExceeded(int typeCount) {
+        return typeCount > this.capacity / 2;
+    }
 }
