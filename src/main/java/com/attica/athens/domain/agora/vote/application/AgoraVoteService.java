@@ -4,14 +4,22 @@ import com.attica.athens.domain.agora.dao.AgoraRepository;
 import com.attica.athens.domain.agora.domain.Agora;
 import com.attica.athens.domain.agora.exception.NotFoundAgoraException;
 import com.attica.athens.domain.agora.vote.dao.AgoraQueryVoteRepository;
+import com.attica.athens.domain.agora.vote.domain.KickVote;
+import com.attica.athens.domain.agora.vote.dto.KickVoteInfo;
 import com.attica.athens.domain.agora.vote.dto.request.AgoraVoteRequest;
+import com.attica.athens.domain.agora.vote.dto.request.KickVoteRequest;
 import com.attica.athens.domain.agora.vote.dto.response.AgoraVoteResponse;
 import com.attica.athens.domain.agora.vote.dto.response.AgoraVoteResultResponse;
+import com.attica.athens.domain.agora.vote.dto.response.KickVoteResult;
+import com.attica.athens.domain.agora.vote.exception.AlreadyKickVotedException;
 import com.attica.athens.domain.agora.vote.exception.AlreadyOpinionVotedException;
 import com.attica.athens.domain.agoraMember.dao.AgoraMemberRepository;
 import com.attica.athens.domain.agoraMember.domain.AgoraMember;
 import com.attica.athens.domain.agoraMember.exception.NotFoundAgoraMemberException;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import lombok.RequiredArgsConstructor;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,9 +27,13 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class AgoraVoteService {
 
+    private Map<Long, Map<Long, KickVote>> activeVotes = new ConcurrentHashMap<>();
+
     private final AgoraQueryVoteRepository agoraVoteRepository;
     private final AgoraRepository agoraRepository;
     private final AgoraMemberRepository agoraMemberRepository;
+    private final SimpMessagingTemplate simpMessagingTemplate;
+
     @Transactional
     public AgoraVoteResponse vote(Long userId, AgoraVoteRequest agoraVoteRequest, Long agoraId) {
 
@@ -47,6 +59,42 @@ public class AgoraVoteService {
         agora.updateProsCountAndConsCount(prosVoteResult, consVoteResult);
         return new AgoraVoteResultResponse(agoraId, prosVoteResult, consVoteResult);
 
+    }
+
+    @Transactional
+    public KickVoteResult kickVote(Long agoraId, Long memberId, KickVoteRequest request) {
+        AgoraMember agoraMember = findAgoraMemberByAgoraIdAndUserId(agoraId, memberId);
+        Long targetMemberId = request.targetMemberId();
+
+        Map<Long, KickVote> kickVoteMap = activeVotes.computeIfAbsent(agoraId, k -> new ConcurrentHashMap<>());
+        KickVote kickVote = kickVoteMap.computeIfAbsent(targetMemberId, k -> new KickVote());
+
+        validateAndAddVote(kickVote, memberId, targetMemberId);
+
+        if (kickVote.kickPossible(request.currentMemberCount())) {
+            handleKickVoteSuccess(kickVoteMap, targetMemberId);
+            sendKickVoteInfo(agoraId, agoraMember);
+            return KickVoteResult.KICK_REQUIRED;
+        }
+
+        return KickVoteResult.VOTE_SUCCESS;
+    }
+
+    private void validateAndAddVote(KickVote kickVote, Long memberId, Long targetMemberId) {
+        if (!kickVote.addVoteMember(memberId)) {
+            throw new AlreadyKickVotedException(targetMemberId);
+        }
+    }
+
+    private void handleKickVoteSuccess(Map<Long, KickVote> kickVoteMap, Long targetMemberId) {
+        kickVoteMap.remove(targetMemberId);
+        kickVoteMap.values().forEach(vote -> vote.removeVoteMember(targetMemberId));
+    }
+
+    private void sendKickVoteInfo(Long agoraId, AgoraMember agoraMember) {
+        String destination = "/topic/agoras/" + agoraId;
+        KickVoteInfo kickVoteInfo = new KickVoteInfo(agoraMember.getNickname());
+        simpMessagingTemplate.convertAndSend(destination, kickVoteInfo);
     }
 
     private AgoraMember checkAgoraMemberVoted(Long agoraId, Long userId) {
