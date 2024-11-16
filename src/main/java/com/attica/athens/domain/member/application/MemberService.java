@@ -53,4 +53,12 @@ public class MemberService {
                 .orElseThrow(() -> new NotFoundMemberException(userId));
         return GetMemberResponse.from(member);
     }
+
+    @Transactional
+    public void deleteMember(Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new NotFoundMemberException(memberId));
+
+        member.delete();
+    }
 }
