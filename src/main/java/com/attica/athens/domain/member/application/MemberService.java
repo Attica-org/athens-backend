@@ -85,4 +85,12 @@ public class MemberService {
     private String extractAccessTokenValue(final String accessToken) {
         return accessToken.substring(BEARER_BEGIN_INDEX);
     }
+
+    @Transactional
+    public void deleteMember(Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new NotFoundMemberException(memberId));
+
+        member.delete();
+    }
 }
