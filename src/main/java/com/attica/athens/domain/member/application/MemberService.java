@@ -61,4 +61,12 @@ public class MemberService {
 
         member.delete();
     }
+
+    @Transactional
+    public void restoreMember(Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new NotFoundMemberException(memberId));
+
+        member.restore();
+    }
 }

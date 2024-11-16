@@ -65,4 +65,10 @@ public abstract class AuditingFields {
                 })
                 .orElse("SYSTEM");
     }
+
+    public void restore() {
+        this.isDeleted = false;
+        this.deletedAt = null;
+        this.deletedBy = null;
+    }
 }
