@@ -7,6 +7,7 @@ import com.attica.athens.global.auth.domain.CustomUserDetails;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -53,6 +54,18 @@ public class MemberAuthController {
         memberService.deleteMember(memberId);
         return ResponseEntity.ok(
                 ApiUtil.success(memberService.getMember(userDetails.getUserId()))
+        );
+    }
+
+    @PostMapping("/{memberId}/restore")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse<?>> restoreMember(
+            @PathVariable Long memberId
+    ) {
+        memberService.restoreMember(memberId);
+
+        return ResponseEntity.ok(
+                ApiUtil.success(memberService.getMember(memberId))
         );
     }
 }
