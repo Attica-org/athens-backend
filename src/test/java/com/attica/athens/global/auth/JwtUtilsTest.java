@@ -20,7 +20,7 @@ class JwtUtilsTest extends IntegrationTestSupport {
     void testCreateJWT() {
         String ACCESS_TOKEN = "access-token";
 
-        String accessToken = jwtUtils.createJwtToken(ACCESS_TOKEN, 1L, "ROLE_USER");
+        String accessToken = jwtUtils.createAccessToken(1L, "ROLE_USER");
         assertThat(accessToken).isNotNull();
     }
 }

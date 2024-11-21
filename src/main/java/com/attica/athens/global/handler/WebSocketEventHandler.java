@@ -66,7 +66,7 @@ public class WebSocketEventHandler {
         String sessionId = getSessionId(accessor);
         String accessToken = extractAccessToken(nativeHeaders);
 
-        authService.validateToken(accessToken);
+        authService.verifyToken(accessToken);
 
         AgoraMember agoraMember = agoraMemberService.findAgoraMemberByAgoraIdAndMemberId(agoraId, memberId);
         handleConnectionLogic(agoraMember, agoraId, memberId, sessionId);

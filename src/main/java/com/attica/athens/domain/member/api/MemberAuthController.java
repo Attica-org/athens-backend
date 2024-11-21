@@ -4,10 +4,13 @@ import com.attica.athens.domain.common.ApiResponse;
 import com.attica.athens.domain.common.ApiUtil;
 import com.attica.athens.domain.member.application.MemberService;
 import com.attica.athens.global.auth.domain.CustomUserDetails;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -30,5 +33,13 @@ public class MemberAuthController {
         return ResponseEntity.ok(
                 ApiUtil.success(memberService.getMember(userDetails.getUserId()))
         );
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<ApiResponse<?>> logout(@RequestHeader("Authorization") String accessToken,
+                                                 HttpServletRequest request) {
+        memberService.logout(accessToken, request);
+
+        return ResponseEntity.ok(ApiUtil.success(null));
     }
 }

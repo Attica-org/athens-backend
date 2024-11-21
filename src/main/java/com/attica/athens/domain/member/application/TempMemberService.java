@@ -22,7 +22,9 @@ public class TempMemberService {
 
         tempMemberRepository.save(tempUser);
 
-        return authService.createRefreshTokenAndGetAccessToken(tempUser.getId(),
-                tempUser.getRole().name(), response);
+        Long userId = tempUser.getId();
+        String userRole = tempUser.getRole().name();
+        authService.createRefreshToken(userId, userRole, response);
+        return authService.createAccessToken(userId, userRole);
     }
 }
