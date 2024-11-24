@@ -92,7 +92,7 @@ public class JwtChannelInterceptor implements ChannelInterceptor {
         return Optional.ofNullable(accessor.getFirstNativeHeader(AUTHORIZATION))
                 .filter(token -> token.startsWith(BEARER_))
                 .map(token -> token.substring(BEARER_.length()))
-                .filter(authService::validateToken)
+                .filter(authService::verifyToken)
                 .orElse(null);
     }
 }

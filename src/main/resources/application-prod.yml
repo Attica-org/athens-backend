@@ -65,10 +65,11 @@ app:
   auth:
     jwt:
       secret-key: ${JWT_SECRET_KEY}
-      access-expired: ${ACCESS_EXPIRED}
-      refresh-expired: ${REFRESH_EXPIRED}
+      access-expired: ${ACCESS_EXPIRED:1200000} # 기본 20분
+      refresh-expired: ${REFRESH_EXPIRED:86400000} # 기본 24시간
     temp-token:
-      expiration-minutes: 5
+      expiration-minutes: ${TEMP_TOKEN_EXPIRATION_MINUTES:5} # 기본 5분
+
   oauth2:
     redirect-uris: ${OAUTH2_REDIRECT_URIS}
     default-redirect-uri: ${OAUTH2_DEFAULT_REDIRECT_URI}

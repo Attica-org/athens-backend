@@ -1,16 +1,18 @@
 package com.attica.athens.domain.chat.api;
 
 import com.attica.athens.domain.chat.application.ChatCommandService;
-import com.attica.athens.domain.chat.application.ChatQueryService;
 import com.attica.athens.domain.chat.dto.request.SendChatRequest;
 import com.attica.athens.domain.chat.dto.request.SendReactionRequest;
 import com.attica.athens.domain.chat.dto.response.BadWordResponse;
 import com.attica.athens.domain.chat.dto.response.SendChatResponse;
 import com.attica.athens.domain.chat.dto.response.SendReactionResponse;
+import com.attica.athens.domain.common.ApiResponse;
+import com.attica.athens.domain.common.ApiUtil;
 import com.attica.athens.global.auth.domain.CustomUserDetails;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -29,7 +31,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class ChatAuthController {
 
     private final ChatCommandService chatCommandService;
-    private final ChatQueryService chatQueryService;
 
     @MessageMapping("/agoras/{agoraId}/chats")
     @SendTo(value = "/topic/agoras/{agoraId}/chats")
@@ -53,11 +54,13 @@ public class ChatAuthController {
     }
 
     @PostMapping("/agoras/{agoraId}/chats/filter")
-    public BadWordResponse filterChat(
+    public ResponseEntity<ApiResponse<BadWordResponse>> filterChat(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable("agoraId") Long agoraId,
             @RequestBody SendChatRequest sendChatRequest) {
 
-        return chatCommandService.checkBadWord(userDetails, agoraId, sendChatRequest);
+        BadWordResponse response = chatCommandService.checkBadWord(userDetails, agoraId, sendChatRequest);
+
+        return ResponseEntity.ok(ApiUtil.success(response));
     }
 }

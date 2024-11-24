@@ -2,6 +2,7 @@ package com.attica.athens.global.handler;
 
 import com.attica.athens.domain.agoraMember.application.AgoraMemberService;
 import com.attica.athens.domain.agoraMember.domain.AgoraMember;
+import com.attica.athens.domain.agoraMember.exception.NotFoundSessionException;
 import com.attica.athens.global.auth.application.AuthService;
 import com.attica.athens.global.auth.domain.CustomUserDetails;
 import com.attica.athens.global.auth.exception.InvalidAuthorizationHeaderException;
@@ -66,7 +67,7 @@ public class WebSocketEventHandler {
         String sessionId = getSessionId(accessor);
         String accessToken = extractAccessToken(nativeHeaders);
 
-        authService.validateToken(accessToken);
+        authService.verifyToken(accessToken);
 
         AgoraMember agoraMember = agoraMemberService.findAgoraMemberByAgoraIdAndMemberId(agoraId, memberId);
         handleConnectionLogic(agoraMember, agoraId, memberId, sessionId);
@@ -75,14 +76,21 @@ public class WebSocketEventHandler {
     @EventListener
     public void handleWebSocketSessionDisconnected(SessionDisconnectEvent event) {
         String sessionId = event.getSessionId();
-        Long agoraId = agoraMemberService.findAgoraIdBySessionId(sessionId);
-        Long memberId = getUserId(StompHeaderAccessor.wrap(event.getMessage()));
+        try {
+            Long agoraId = agoraMemberService.findAgoraIdBySessionId(sessionId);
+            Long memberId = getUserId(StompHeaderAccessor.wrap(event.getMessage()));
 
-        AgoraMember agoraMember = agoraMemberService.findAgoraMemberByAgoraIdAndMemberId(agoraId, memberId);
-        if (agoraMember.getDisconnectType()) {
-            processDisconnection(sessionId, agoraId, memberId);
-        } else {
-            log.warn("Temporary disconnection: sessionId={}, agoraId={}, memberId={}", sessionId, agoraId, memberId);
+            AgoraMember agoraMember = agoraMemberService.findAgoraMemberByAgoraIdAndMemberId(agoraId, memberId);
+            if (agoraMember.getDisconnectType()) {
+                processDisconnection(sessionId, agoraId, memberId);
+            } else {
+                log.warn("Temporary disconnection: sessionId={}, agoraId={}, memberId={}",
+                        sessionId, agoraId, memberId);
+            }
+        } catch (NotFoundSessionException e) {
+            log.info("Session already removed: sessionId={}", sessionId);
+        } catch (Exception e) {
+            log.error("Error handling session disconnect: sessionId={}", sessionId, e);
         }
     }
 

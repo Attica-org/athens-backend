@@ -5,8 +5,6 @@ import com.attica.athens.global.auth.application.CustomOAuth2UserService;
 import com.attica.athens.global.auth.config.oauth2.handler.OAuth2AuthenticationFailureHandler;
 import com.attica.athens.global.auth.config.oauth2.handler.OAuth2AuthenticationSuccessHandler;
 import com.attica.athens.global.auth.config.oauth2.repository.HttpCookieOAuth2AuthorizationRequestRepository;
-import com.attica.athens.global.auth.dao.RefreshTokenRepository;
-import com.attica.athens.global.auth.filter.CustomLogoutFilter;
 import com.attica.athens.global.auth.filter.JwtAuthenticationEntryPoint;
 import com.attica.athens.global.auth.filter.JwtFilter;
 import com.attica.athens.global.auth.filter.LoginFilter;
@@ -24,7 +22,6 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.web.cors.CorsUtils;
 
 @Configuration
@@ -45,7 +42,6 @@ public class SecurityConfig {
     };
 
     private final AuthenticationConfiguration authenticationConfiguration;
-    private final RefreshTokenRepository refreshTokenRepository;
     private final AuthService authService;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final CustomOAuth2UserService oAuth2UserService;
@@ -102,8 +98,6 @@ public class SecurityConfig {
         // 세션 설정 (statelss하도록)
         http
                 .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-        http
-                .addFilterBefore(new CustomLogoutFilter(authService, refreshTokenRepository), LogoutFilter.class);
 
         http
                 .headers(headers -> headers

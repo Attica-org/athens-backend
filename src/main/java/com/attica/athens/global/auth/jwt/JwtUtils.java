@@ -12,8 +12,6 @@ import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.Jwts.SIG;
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.Date;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
@@ -34,23 +32,9 @@ public class JwtUtils {
         this.refreshTokenExpirationTime = jwtProperties.getRefreshExpired();
     }
 
-    public String createJwtToken(String tokenType, Long id, String role) {
+    public String createAccessToken(Long id, String role) {
         Date now = new Date();
-        Date expire;
-
-        if (REFRESH_TOKEN.equals(tokenType)) {
-            expire = new Date(now.getTime() + refreshTokenExpirationTime);
-            return Jwts.builder()
-                    .claim(AUTHORITY_KEY, String.valueOf(id))
-                    .claim(AUTHORITY_ROLE, role)
-                    .issuedAt(now)
-                    .expiration(expire)
-                    .subject(REFRESH_TOKEN)
-                    .signWith(secretKey)
-                    .compact();
-        }
-
-        expire = new Date(now.getTime() + accessTokenExpirationTime);
+        Date expire = new Date(now.getTime() + accessTokenExpirationTime);
         return Jwts.builder()
                 .claim(AUTHORITY_KEY, String.valueOf(id))
                 .claim(AUTHORITY_ROLE, role)
@@ -61,7 +45,20 @@ public class JwtUtils {
                 .compact();
     }
 
-    public Long getUserId(String token) { // secretKey로 검증
+    public String createRefreshToken(Long id, String role) {
+        Date now = new Date();
+        Date expire = new Date(now.getTime() + refreshTokenExpirationTime);
+        return Jwts.builder()
+                .claim(AUTHORITY_KEY, String.valueOf(id))
+                .claim(AUTHORITY_ROLE, role)
+                .issuedAt(now)
+                .expiration(expire)
+                .subject(REFRESH_TOKEN)
+                .signWith(secretKey)
+                .compact();
+    }
+
+    public Long getUserId(String token) {
         try {
             return Long.parseLong(Jwts.parser()
                     .verifyWith(secretKey)
@@ -92,8 +89,8 @@ public class JwtUtils {
                 .getPayload();
     }
 
-    public LocalDateTime getExpirationAsLocalDateTime(String token) {
+    public long getExpirationTimeInMillis(String token) {
         Date expirationDate = getClaims(token).getExpiration();
-        return LocalDateTime.ofInstant(expirationDate.toInstant(), ZoneId.systemDefault());
+        return expirationDate.getTime();
     }
 }
