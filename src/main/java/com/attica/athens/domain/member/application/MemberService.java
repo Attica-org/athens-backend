@@ -6,10 +6,13 @@ import com.attica.athens.domain.member.dao.MemberRepository;
 import com.attica.athens.domain.member.domain.Member;
 import com.attica.athens.domain.member.dto.request.CreateMemberRequest;
 import com.attica.athens.domain.member.dto.response.GetMemberResponse;
+import com.attica.athens.domain.member.exception.AlreadyActivateMemberException;
 import com.attica.athens.domain.member.exception.DuplicateMemberException;
 import com.attica.athens.domain.member.exception.NotFoundMemberException;
+import com.attica.athens.domain.member.exception.UnauthorizedException;
 import com.attica.athens.global.auth.application.AuthService;
 import com.attica.athens.global.auth.domain.AuthProvider;
+import com.attica.athens.global.auth.domain.CustomUserDetails;
 import com.attica.athens.global.auth.exception.NotFoundRefreshTokenException;
 import com.attica.athens.global.utils.CookieUtils;
 import jakarta.servlet.http.Cookie;
@@ -84,5 +87,28 @@ public class MemberService {
 
     private String extractAccessTokenValue(final String accessToken) {
         return accessToken.substring(BEARER_BEGIN_INDEX);
+    }
+
+    @Transactional
+    public void deleteMember(Long memberId, CustomUserDetails userDetails) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new NotFoundMemberException(memberId));
+
+        if (!memberId.equals(userDetails.getUserId())) {
+            throw new UnauthorizedException();
+        }
+
+        member.delete();
+    }
+
+    @Transactional
+    public void restoreMember(Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new NotFoundMemberException(memberId));
+
+        if (!member.isDeleted()) {
+            throw new AlreadyActivateMemberException();
+        }
+        member.restore();
     }
 }
