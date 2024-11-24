@@ -12,6 +12,7 @@ import com.attica.athens.domain.agoraMember.dto.response.SendMetaResponse.Partic
 import com.attica.athens.domain.agoraMember.exception.NotFoundAgoraMemberException;
 import com.attica.athens.domain.agoraMember.exception.NotFoundSessionException;
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -80,6 +81,16 @@ public class AgoraMemberService {
     public AgoraMember findAgoraMemberByAgoraIdAndMemberId(Long agoraId, Long memberId) {
         return agoraMemberRepository.findByAgoraIdAndMemberId(agoraId, memberId)
                 .orElseThrow(() -> new NotFoundAgoraMemberException(agoraId, memberId));
+    }
+
+    public Optional<AgoraMember> findAgoraMemberOptional(String sessionId) {
+        try {
+            return Optional.ofNullable(agoraMemberRepository.findBySessionId(sessionId)
+                    .orElse(null));
+        } catch (Exception e) {
+            log.warn("Failed to find AgoraMember for session: {}", sessionId);
+            return Optional.empty();
+        }
     }
 
     public AgoraMember findAgoraMember(String sessionId) {

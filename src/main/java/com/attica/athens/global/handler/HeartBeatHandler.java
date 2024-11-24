@@ -6,6 +6,7 @@ import com.attica.athens.domain.agoraMember.domain.AgoraMember;
 import com.attica.athens.global.decorator.HeartBeatManager;
 import java.time.LocalDateTime;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 import lombok.RequiredArgsConstructor;
@@ -50,14 +51,22 @@ public class HeartBeatHandler {
     private void handleInactiveSession(String sessionId) {
         log.info("Inactive session detected: {}", sessionId);
         try {
-            AgoraMember agoraMember = agoraMemberService.findAgoraMember(sessionId);
+            // 세션이 여전히 유효한지 먼저 확인
+            Optional<AgoraMember> agoraMemberOpt = agoraMemberService.findAgoraMemberOptional(sessionId);
 
-            agoraService.exit(agoraMember.getMember().getId());
-            processDisconnection(sessionId, agoraMember.getAgora().getId(), agoraMember.getMember().getId());
-            log.info("Member exited due to inactivity: agoraId = {}, memberId={}", agoraMember.getAgora().getId(),
-                    agoraMember.getMember().getId());
+            if (agoraMemberOpt.isPresent()) {
+                AgoraMember agoraMember = agoraMemberOpt.get();
+                agoraService.exit(agoraMember.getMember().getId());
+                processDisconnection(sessionId, agoraMember.getAgora().getId(), agoraMember.getMember().getId());
+                log.info("Member exited due to inactivity: agoraId = {}, memberId={}",
+                        agoraMember.getAgora().getId(), agoraMember.getMember().getId());
+            } else {
+                heartBeatManager.removeSession(sessionId);
+                log.info("Session already removed or invalid: {}", sessionId);
+            }
         } catch (Exception e) {
             log.error("Error handling inactive session: {}", sessionId, e);
+            heartBeatManager.removeSession(sessionId);
         }
     }
 
