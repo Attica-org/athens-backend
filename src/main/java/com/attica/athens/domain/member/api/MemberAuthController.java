@@ -37,14 +37,11 @@ public class MemberAuthController {
     }
 
     @DeleteMapping("/{memberId}")
-    public ResponseEntity<ApiResponse<?>> deleteMember(
+    public void deleteMember(
             @PathVariable Long memberId,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        memberService.deleteMember(memberId);
-        return ResponseEntity.ok(
-                ApiUtil.success(memberService.getMember(userDetails.getUserId()))
-        );
+        memberService.deleteMember(memberId, userDetails);
     }
 
     @PostMapping("/{memberId}/restore")
