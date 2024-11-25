@@ -34,10 +34,6 @@ public class Member extends BaseMember {
     @Column(name = "oauth_id")
     private String oauthId;
 
-    @Column(length = 100)
-    @Size(max = 100)
-    private String nickname;
-
     @Column(length = 254, unique = true)
     @Size(max = 254)
     private String email;
@@ -46,7 +42,6 @@ public class Member extends BaseMember {
                    @NotNull String password,
                    @NotNull AuthProvider authProvider,
                    String oauthId,
-                   String nickname,
                    String email) {
         super(MemberRole.ROLE_USER);
 
@@ -58,7 +53,6 @@ public class Member extends BaseMember {
         this.password = password;
         this.authProvider = authProvider;
         this.oauthId = oauthId;
-        this.nickname = nickname;
         this.email = email;
     }
 
@@ -90,17 +84,15 @@ public class Member extends BaseMember {
      * @return
      */
     public static Member createMember(String username, String password, AuthProvider authProvider, String oauthId) {
-        return new Member(username, password, authProvider, oauthId, null, null);
+        return new Member(username, password, authProvider, oauthId, null);
     }
 
     public static Member createMemberWithOAuthInfo(OAuth2MemberInfo memberInfo, AuthProvider authProvider) {
         return new Member("DEFAULT", "NOPASSWORD", authProvider, memberInfo.getId(),
-                memberInfo.getNickname().orElse(null),
                 memberInfo.getEmail().orElse(null));
     }
 
     public void updateMemberInfo(OAuth2MemberInfo memberInfo) {
-        this.nickname = memberInfo.getNickname().orElse(null);
         this.email = memberInfo.getEmail().orElse(null);
     }
 }

@@ -17,11 +17,6 @@ public class GoogleOAuth2MemberInfo extends OAuth2MemberInfo {
     }
 
     @Override
-    public Optional<String> getNickname() {
-        return Optional.empty();
-    }
-
-    @Override
     public Optional<String> getEmail() {
         return Optional.ofNullable((String) attributes.get("email"));
     }
