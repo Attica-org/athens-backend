@@ -147,7 +147,7 @@ class MemberTest {
         void 성공_멤버갱신_KakaoOauth정보() {
             // given
             String kakaoAccountId = "kakao123456789";
-            String initialEmail = "kakao@daum.net";
+            String initialEmail = "kakao@hanmail.net";
             KakaoOAuth2MemberInfo initialKakaoInfo = new KakaoOAuth2MemberInfo(Map.of(
                     "id", kakaoAccountId,
                     "kakao_account", Map.of(
@@ -156,7 +156,7 @@ class MemberTest {
             );
             Member kakaoMember = createMemberWithOAuthInfo(initialKakaoInfo, AuthProvider.KAKAO);
 
-            String updatedEmail = "kakao2@daum.net";
+            String updatedEmail = "kakao2@hanmail.net";
             KakaoOAuth2MemberInfo updatedKakaoInfo = new KakaoOAuth2MemberInfo(Map.of(
                     "id", kakaoAccountId,
                     "kakao_account", Map.of(
