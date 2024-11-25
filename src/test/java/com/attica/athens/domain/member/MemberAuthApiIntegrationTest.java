@@ -1,6 +1,5 @@
 package com.attica.athens.domain.member;
 
-import static org.hamcrest.Matchers.nullValue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -35,8 +34,7 @@ public class MemberAuthApiIntegrationTest extends IntegrationTestSupport {
                             jsonPath("$.success").value(true),
                             jsonPath("$.response").exists(),
                             jsonPath("$.response.authProvider").value("KAKAO"),
-                            jsonPath("$.response.nickname").exists(),
-                            jsonPath("$.response.email").value(nullValue()));
+                            jsonPath("$.response.email").exists());
         }
 
         @Test
@@ -55,7 +53,6 @@ public class MemberAuthApiIntegrationTest extends IntegrationTestSupport {
                             jsonPath("$.success").value(true),
                             jsonPath("$.response").exists(),
                             jsonPath("$.response.authProvider").value("GOOGLE"),
-                            jsonPath("$.response.nickname").value(nullValue()),
                             jsonPath("$.response.email").exists());
         }
     }

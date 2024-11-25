@@ -113,7 +113,6 @@ class MemberTest {
             then(member.getPassword()).isEqualTo("NOPASSWORD");
             then(member.getAuthProvider()).isEqualTo(AuthProvider.KAKAO);
             then(member.getOauthId()).isEqualTo(oauthId);
-            then(member.getNickname()).isEqualTo(nickname);
         }
 
         @Test
@@ -148,20 +147,20 @@ class MemberTest {
         void 성공_멤버갱신_KakaoOauth정보() {
             // given
             String kakaoAccountId = "kakao123456789";
-            String initialNickname = "initialKakaoUser";
+            String initialEmail = "kakao@daum.net";
             KakaoOAuth2MemberInfo initialKakaoInfo = new KakaoOAuth2MemberInfo(Map.of(
                     "id", kakaoAccountId,
-                    "properties", Map.of(
-                            "nickname", initialNickname
+                    "kakao_account", Map.of(
+                            "email", initialEmail
                     ))
             );
             Member kakaoMember = createMemberWithOAuthInfo(initialKakaoInfo, AuthProvider.KAKAO);
 
-            String updatedNickname = "updatedKakaoUser";
+            String updatedEmail = "kakao2@daum.net";
             KakaoOAuth2MemberInfo updatedKakaoInfo = new KakaoOAuth2MemberInfo(Map.of(
                     "id", kakaoAccountId,
-                    "properties", Map.of(
-                            "nickname", updatedNickname
+                    "kakao_account", Map.of(
+                            "email", updatedEmail
                     ))
             );
 
@@ -169,7 +168,7 @@ class MemberTest {
             kakaoMember.updateMemberInfo(updatedKakaoInfo);
 
             // then
-            then(kakaoMember.getNickname()).isEqualTo(updatedNickname);
+            then(kakaoMember.getEmail()).isEqualTo(updatedEmail);
         }
 
         @Test
