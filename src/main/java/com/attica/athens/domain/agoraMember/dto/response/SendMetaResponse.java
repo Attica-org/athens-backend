@@ -16,7 +16,8 @@ public record SendMetaResponse(ChatType type, MetaData data) {
     public record MetaData(
             List<ParticipantsInfo> participants,
             AgoraInfo agora,
-            AgoraMemberInfo agoraMemberInfo) {
+            AgoraMemberInfo agoraMemberInfo
+    ) {
         public MetaData(List<ParticipantsInfo> participants, Agora agora, AgoraMember agoraMember) {
             this(participants, new AgoraInfo(agora), new AgoraMemberInfo(agoraMember));
         }
