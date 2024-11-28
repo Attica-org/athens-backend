@@ -12,7 +12,9 @@ import com.attica.athens.domain.agoraMember.dto.response.SendMetaResponse.Partic
 import com.attica.athens.domain.agoraMember.exception.NotFoundAgoraMemberException;
 import com.attica.athens.domain.agoraMember.exception.NotFoundSessionException;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -23,6 +25,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class AgoraMemberService {
+    private final Map<String, Long> lastMetaSentTime = new ConcurrentHashMap<>();
+    private static final long META_SEND_INTERVAL = 100;
 
     private final AgoraMemberRepository agoraMemberRepository;
     private final AgoraRepository agoraRepository;
@@ -53,14 +57,21 @@ public class AgoraMemberService {
     }
 
     public void sendMetaToActiveMembers(Long agoraId, Long userId) {
-        simpMessagingTemplate.convertAndSend("/topic/agoras/" + agoraId,
-                new SendMetaResponse(
-                        new MetaData(
-                                findAgoraMemberByType(agoraId),
-                                findAgoraById(agoraId),
-                                findAgoraMemberByAgoraIdAndMemberId(agoraId, userId)
-                        )
-                ));
+        String key = agoraId + "-" + userId;
+        long currentTime = System.currentTimeMillis();
+        Long lastSentTime = lastMetaSentTime.get(key);
+
+        if (lastSentTime == null || currentTime - lastSentTime > META_SEND_INTERVAL) {
+            simpMessagingTemplate.convertAndSend("/topic/agoras/" + agoraId,
+                    new SendMetaResponse(
+                            new MetaData(
+                                    findAgoraMemberByType(agoraId),
+                                    findAgoraById(agoraId),
+                                    findAgoraMemberByAgoraIdAndMemberId(agoraId, userId)
+                            )
+                    ));
+            lastMetaSentTime.put(key, currentTime);
+        }
     }
 
     private List<ParticipantsInfo> findAgoraMemberByType(Long agoraId) {

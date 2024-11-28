@@ -88,7 +88,9 @@ public class AgoraService {
                 .orElseThrow(() -> new NotFoundAgoraException(agoraId));
 
         long createMemberId = Long.parseLong(agora.getCreatedBy());
-        if (!isCreateMember(createMemberId, memberId)) throw new ImageUpdateAccessDeniedException();
+        if (!isCreateMember(createMemberId, memberId)) {
+            throw new ImageUpdateAccessDeniedException();
+        }
 
         AgoraThumbnail updateThumbnail = s3ThumbnailService.getAgoraThumbnail(file);
         agora.updateThumbnail(updateThumbnail);
@@ -141,9 +143,9 @@ public class AgoraService {
     }
 
     @Transactional
-    public AgoraExitResponse exit(final Long memberId) {
+    public AgoraExitResponse exit(final Long memberId, final Long agoraId) {
 
-        AgoraMember agoraMember = getAgoraMember(memberId);
+        AgoraMember agoraMember = getAgoraMember(memberId, agoraId);
         LocalDateTime socketDisconnectTime = LocalDateTime.now();
 
         agoraMember.updateDisconnectType(true);
@@ -152,8 +154,8 @@ public class AgoraService {
         return new AgoraExitResponse(memberId, agoraMember.getType(), socketDisconnectTime);
     }
 
-    private AgoraMember getAgoraMember(Long userId) {
-        return agoraMemberRepository.findByMemberIdAndSocketDisconnectTimeIsNull(userId)
+    private AgoraMember getAgoraMember(Long userId, Long agoraId) {
+        return agoraMemberRepository.findByMemberIdAndAgoraIdAndSocketDisconnectTimeIsNull(userId, agoraId)
                 .orElseThrow(() -> new NotFoundMemberException(userId));
     }
 
@@ -172,7 +174,8 @@ public class AgoraService {
                 .toList();
     }
 
-    private Agora createAgora(final AgoraCreateRequest request, final Category category, final AgoraThumbnail agoraThumbnail) {
+    private Agora createAgora(final AgoraCreateRequest request, final Category category,
+                              final AgoraThumbnail agoraThumbnail) {
         return new Agora(request.title(),
                 request.capacity(),
                 request.duration(),
@@ -288,7 +291,9 @@ public class AgoraService {
     }
 
     private void validateParticipate(Long memberId, Long agoraId, AgoraParticipateRequest request, Agora agora) {
-        if (agora.getStatus().equals(CLOSED)) throw new ClosedAgoraException();
+        if (agora.getStatus().equals(CLOSED)) {
+            throw new ClosedAgoraException();
+        }
 
         if (!Objects.equals(OBSERVER, request.type())) {
             int typeCount = agoraMemberRepository.countCapacityByAgoraMemberType(agora.getId(), request.type());

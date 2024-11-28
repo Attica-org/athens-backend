@@ -56,7 +56,7 @@ public class HeartBeatHandler {
 
             if (agoraMemberOpt.isPresent()) {
                 AgoraMember agoraMember = agoraMemberOpt.get();
-                agoraService.exit(agoraMember.getMember().getId());
+                agoraService.exit(agoraMember.getMember().getId(), agoraMember.getAgora().getId());
                 processDisconnection(sessionId, agoraMember.getAgora().getId(), agoraMember.getMember().getId());
                 log.info("Member exited due to inactivity: agoraId = {}, memberId={}",
                         agoraMember.getAgora().getId(), agoraMember.getMember().getId());
