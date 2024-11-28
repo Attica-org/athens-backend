@@ -48,7 +48,7 @@ spring:
           authorizationGrantType: authorization_code
           redirectUri: ${KAKAO_REDIRECT_URI}
           scope:
-            - profile_nickname
+            - account_email
           clientName: Kakao
       # Provider 설정
       provider:

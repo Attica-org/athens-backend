@@ -7,14 +7,21 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import java.util.Map;
+import java.util.Map.Entry;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
+@Table(uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"email", "auth_provider"})
+})
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Member extends BaseMember {
 
@@ -34,11 +41,7 @@ public class Member extends BaseMember {
     @Column(name = "oauth_id")
     private String oauthId;
 
-    @Column(length = 100)
-    @Size(max = 100)
-    private String nickname;
-
-    @Column(length = 254, unique = true)
+    @Column(length = 254)
     @Size(max = 254)
     private String email;
 
@@ -46,7 +49,6 @@ public class Member extends BaseMember {
                    @NotNull String password,
                    @NotNull AuthProvider authProvider,
                    String oauthId,
-                   String nickname,
                    String email) {
         super(MemberRole.ROLE_USER);
 
@@ -58,7 +60,6 @@ public class Member extends BaseMember {
         this.password = password;
         this.authProvider = authProvider;
         this.oauthId = oauthId;
-        this.nickname = nickname;
         this.email = email;
     }
 
@@ -90,17 +91,20 @@ public class Member extends BaseMember {
      * @return
      */
     public static Member createMember(String username, String password, AuthProvider authProvider, String oauthId) {
-        return new Member(username, password, authProvider, oauthId, null, null);
+        return new Member(username, password, authProvider, oauthId, null);
     }
 
     public static Member createMemberWithOAuthInfo(OAuth2MemberInfo memberInfo, AuthProvider authProvider) {
         return new Member("DEFAULT", "NOPASSWORD", authProvider, memberInfo.getId(),
-                memberInfo.getNickname().orElse(null),
                 memberInfo.getEmail().orElse(null));
     }
 
     public void updateMemberInfo(OAuth2MemberInfo memberInfo) {
-        this.nickname = memberInfo.getNickname().orElse(null);
+        System.out.println("memberInfo");
+        Map<String, Object> attributes = memberInfo.getAttributes();
+        for (Entry<String, Object> entry : attributes.entrySet()) {
+            System.out.println(entry.getKey() + ":" + entry.getValue());
+        }
         this.email = memberInfo.getEmail().orElse(null);
     }
 }
