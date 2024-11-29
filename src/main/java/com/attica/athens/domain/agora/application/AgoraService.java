@@ -303,10 +303,15 @@ public class AgoraService {
         }
 
         agoraMemberRepository.findByAgoraIdAndMemberId(agora.getId(), memberId)
+                .filter(this::isActiveParticipant)
                 .ifPresent(agoraMember -> {
-                            throw new AlreadyParticipateException(agora.getId(), memberId);
-                        }
-                );
+                    throw new AlreadyParticipateException(agora.getId(), memberId);
+                }
+            );
+    }
+
+    private boolean isActiveParticipant(AgoraMember agoraMember) {
+        return !agoraMember.getDisconnectType() && agoraMember.getSocketDisconnectTime() == null;
     }
 
 
