@@ -37,5 +37,5 @@ public interface AgoraMemberRepository extends JpaRepository<AgoraMember, Intege
 
     Optional<AgoraMember> deleteByAgoraIdAndMemberId(Long agoraId, Long memberId);
 
-    Optional<AgoraMember> findByMemberIdAndSocketDisconnectTimeIsNull(Long memberId);
+    Optional<AgoraMember> findByMemberIdAndAgoraIdAndSocketDisconnectTimeIsNull(Long memberId,Long agoraId);
 }

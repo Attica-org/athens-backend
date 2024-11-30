@@ -3,6 +3,7 @@ package com.attica.athens.domain.member.api;
 import com.attica.athens.domain.common.ApiResponse;
 import com.attica.athens.domain.common.ApiUtil;
 import com.attica.athens.domain.member.application.MemberService;
+import com.attica.athens.domain.member.dto.response.DeleteMemberResponse;
 import com.attica.athens.global.auth.domain.CustomUserDetails;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -47,11 +48,13 @@ public class MemberAuthController {
     }
 
     @DeleteMapping("/{memberId}")
-    public void deleteMember(
+    public ResponseEntity<ApiResponse<?>> deleteMember(
             @PathVariable Long memberId,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        memberService.deleteMember(memberId, userDetails);
+        DeleteMemberResponse response = memberService.deleteMember(memberId, userDetails);
+
+        return ResponseEntity.ok(ApiUtil.success(response));
     }
 
     @PostMapping("/{memberId}/restore")

@@ -5,11 +5,11 @@ import static com.attica.athens.global.auth.jwt.Constants.REFRESH_TOKEN;
 import com.attica.athens.domain.member.dao.MemberRepository;
 import com.attica.athens.domain.member.domain.Member;
 import com.attica.athens.domain.member.dto.request.CreateMemberRequest;
+import com.attica.athens.domain.member.dto.response.DeleteMemberResponse;
 import com.attica.athens.domain.member.dto.response.GetMemberResponse;
 import com.attica.athens.domain.member.exception.AlreadyActivateMemberException;
 import com.attica.athens.domain.member.exception.DuplicateMemberException;
 import com.attica.athens.domain.member.exception.NotFoundMemberException;
-import com.attica.athens.domain.member.exception.UnauthorizedException;
 import com.attica.athens.global.auth.application.AuthService;
 import com.attica.athens.global.auth.domain.AuthProvider;
 import com.attica.athens.global.auth.domain.CustomUserDetails;
@@ -90,15 +90,13 @@ public class MemberService {
     }
 
     @Transactional
-    public void deleteMember(Long memberId, CustomUserDetails userDetails) {
+    public DeleteMemberResponse deleteMember(Long memberId, CustomUserDetails userDetails) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new NotFoundMemberException(memberId));
 
-        if (!memberId.equals(userDetails.getUserId())) {
-            throw new UnauthorizedException();
-        }
-
         member.delete();
+
+        return new DeleteMemberResponse(memberId, member.isDeleted(), member.getDeletedAt(), member.getDeletedBy());
     }
 
     @Transactional
