@@ -36,6 +36,7 @@ import com.attica.athens.domain.agora.exception.InvalidAgoraStatusException;
 import com.attica.athens.domain.agora.exception.NotFoundAgoraException;
 import com.attica.athens.domain.agora.exception.NotFoundCategoryException;
 import com.attica.athens.domain.agora.exception.NotParticipateException;
+import com.attica.athens.domain.agora.vote.application.AgoraVoteService;
 import com.attica.athens.domain.agoraMember.dao.AgoraMemberRepository;
 import com.attica.athens.domain.agoraMember.domain.AgoraMember;
 import com.attica.athens.domain.agoraMember.exception.AlreadyEndVotedException;
@@ -70,6 +71,7 @@ public class AgoraService {
     private final SimpMessagingTemplate messagingTemplate;
     private final PopularRepository popularRepository;
     private final S3ThumbnailService s3ThumbnailService;
+    private final AgoraVoteService agoraVoteService;
 
     @Transactional
     public CreateAgoraResponse create(final AgoraCreateRequest request, final MultipartFile file) {
@@ -86,7 +88,9 @@ public class AgoraService {
                 .orElseThrow(() -> new NotFoundAgoraException(agoraId));
 
         long createMemberId = Long.parseLong(agora.getCreatedBy());
-        if (!isCreateMember(createMemberId, memberId)) throw new ImageUpdateAccessDeniedException();
+        if (!isCreateMember(createMemberId, memberId)) {
+            throw new ImageUpdateAccessDeniedException();
+        }
 
         AgoraThumbnail updateThumbnail = s3ThumbnailService.getAgoraThumbnail(file);
         agora.updateThumbnail(updateThumbnail);
@@ -139,9 +143,9 @@ public class AgoraService {
     }
 
     @Transactional
-    public AgoraExitResponse exit(final Long memberId) {
+    public AgoraExitResponse exit(final Long memberId, final Long agoraId) {
 
-        AgoraMember agoraMember = getAgoraMember(memberId);
+        AgoraMember agoraMember = getAgoraMember(memberId, agoraId);
         LocalDateTime socketDisconnectTime = LocalDateTime.now();
 
         agoraMember.updateDisconnectType(true);
@@ -150,8 +154,8 @@ public class AgoraService {
         return new AgoraExitResponse(memberId, agoraMember.getType(), socketDisconnectTime);
     }
 
-    private AgoraMember getAgoraMember(Long userId) {
-        return agoraMemberRepository.findByMemberIdAndSocketDisconnectTimeIsNull(userId)
+    private AgoraMember getAgoraMember(Long userId, Long agoraId) {
+        return agoraMemberRepository.findByMemberIdAndAgoraIdAndSocketDisconnectTimeIsNull(userId, agoraId)
                 .orElseThrow(() -> new NotFoundMemberException(userId));
     }
 
@@ -170,7 +174,8 @@ public class AgoraService {
                 .toList();
     }
 
-    private Agora createAgora(final AgoraCreateRequest request, final Category category, final AgoraThumbnail agoraThumbnail) {
+    private Agora createAgora(final AgoraCreateRequest request, final Category category,
+                              final AgoraThumbnail agoraThumbnail) {
         return new Agora(request.title(),
                 request.capacity(),
                 request.duration(),
@@ -286,11 +291,13 @@ public class AgoraService {
     }
 
     private void validateParticipate(Long memberId, Long agoraId, AgoraParticipateRequest request, Agora agora) {
-        if (agora.getStatus().equals(CLOSED)) throw new ClosedAgoraException();
+        if (agora.getStatus().equals(CLOSED)) {
+            throw new ClosedAgoraException();
+        }
 
         if (!Objects.equals(OBSERVER, request.type())) {
             int typeCount = agoraMemberRepository.countCapacityByAgoraMemberType(agora.getId(), request.type());
-            if (typeCount >= agora.getCapacity()) {
+            if (agora.isTypeCapacityExceeded(typeCount)) {
                 throw new FullAgoraCapacityException();
             }
 
@@ -301,10 +308,15 @@ public class AgoraService {
         }
 
         agoraMemberRepository.findByAgoraIdAndMemberId(agora.getId(), memberId)
+                .filter(this::isActiveParticipant)
                 .ifPresent(agoraMember -> {
-                            throw new AlreadyParticipateException(agora.getId(), memberId);
-                        }
-                );
+                    throw new AlreadyParticipateException(agora.getId(), memberId);
+                }
+            );
+    }
+
+    private boolean isActiveParticipant(AgoraMember agoraMember) {
+        return !agoraMember.getDisconnectType() && agoraMember.getSocketDisconnectTime() == null;
     }
 
 
@@ -317,6 +329,7 @@ public class AgoraService {
             throw new InvalidAgoraStatusException(AgoraStatus.RUNNING);
         } else {
             agora.endAgora();
+            agoraVoteService.removeVotes(agoraId);
             sendAgoraEndMessage(agora);
 
             return new EndAgoraResponse(agora);

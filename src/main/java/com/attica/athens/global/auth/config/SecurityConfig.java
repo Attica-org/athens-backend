@@ -90,7 +90,7 @@ public class SecurityConfig {
                                 authService),
                         UsernamePasswordAuthenticationFilter.class);
 
-//        // JWTFilter 등록 (모든 요청에 대해 동작)
+        // JWTFilter 등록 (모든 요청에 대해 동작)
         http
                 .addFilterBefore(new JwtFilter(authService), LoginFilter.class)
                 .exceptionHandling(handler -> handler.authenticationEntryPoint(jwtAuthenticationEntryPoint));

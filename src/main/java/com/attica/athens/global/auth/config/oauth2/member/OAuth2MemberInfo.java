@@ -22,7 +22,5 @@ public abstract class OAuth2MemberInfo {
 
     public abstract String getId();
 
-    public abstract Optional<String> getNickname();
-
     public abstract Optional<String> getEmail();
 }
