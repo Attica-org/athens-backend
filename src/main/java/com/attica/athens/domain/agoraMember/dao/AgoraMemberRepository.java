@@ -25,6 +25,10 @@ public interface AgoraMemberRepository extends JpaRepository<AgoraMember, Intege
             "GROUP BY au.type")
     List<ParticipantsInfo> countActiveAgoraMembersByType(@Param("agoraId") Long agoraId);
 
+    @Query("SELECT am FROM AgoraMember am WHERE am.agora.id = :agoraId AND am.member.id = :memberId ORDER BY am.createdAt DESC LIMIT 1")
+    Optional<AgoraMember> findLatestByAgoraIdAndMemberId(@Param("agoraId") Long agoraId,
+                                                         @Param("memberId") Long memberId);
+
     List<AgoraMember> findByAgoraId(Long agoraId);
 
     List<AgoraMember> findByAgoraIdAndTypeInAndSessionIdIsNotNull(Long agoraId, List<AgoraMemberType> types);
@@ -37,5 +41,5 @@ public interface AgoraMemberRepository extends JpaRepository<AgoraMember, Intege
 
     Optional<AgoraMember> deleteByAgoraIdAndMemberId(Long agoraId, Long memberId);
 
-    Optional<AgoraMember> findByMemberIdAndAgoraIdAndSocketDisconnectTimeIsNull(Long memberId,Long agoraId);
+    Optional<AgoraMember> findByMemberIdAndAgoraIdAndSocketDisconnectTimeIsNull(Long memberId, Long agoraId);
 }
