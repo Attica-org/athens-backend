@@ -79,7 +79,7 @@ public class AgoraMemberService {
     }
 
     public AgoraMember findAgoraMemberByAgoraIdAndMemberId(Long agoraId, Long memberId) {
-        return agoraMemberRepository.findByAgoraIdAndMemberId(agoraId, memberId)
+        return agoraMemberRepository.findLatestByAgoraIdAndMemberId(agoraId, memberId)
                 .orElseThrow(() -> new NotFoundAgoraMemberException(agoraId, memberId));
     }
 
