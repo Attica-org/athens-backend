@@ -114,4 +114,17 @@ public class AgoraMember extends AuditingFields {
         }
         return this;
     }
+
+    public void updateAgoraMember(String nickname, AgoraMemberType memberType) {
+        updateNickname(nickname);
+        updateMemberType(memberType);
+    }
+
+    private void updateNickname(String nickname) {
+        this.nickname = nickname;
+    }
+
+    private void updateMemberType(AgoraMemberType memberType) {
+        this.type = memberType;
+    }
 }
