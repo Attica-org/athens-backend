@@ -17,6 +17,7 @@ import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.simp.annotation.SubscribeMapping;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -45,6 +46,16 @@ public class ChatAuthController {
     @MessageMapping("/agoras/{agoraId}/chats/{chatId}/reactions")
     @SendTo(value = "/topic/agoras/{agoraId}/reactions")
     public SendReactionResponse sendReaction(
+            @DestinationVariable("agoraId") Long agoraId,
+            @DestinationVariable("chatId") Long chatId,
+            @Payload @Valid SendReactionRequest sendReactionRequest,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        return chatCommandService.sendReaction(userDetails, agoraId, chatId, sendReactionRequest);
+    }
+
+    @SubscribeMapping(value = "/topic/agoras/{agoraId}/kick")
+    public SendReactionResponse sendKick(
             @DestinationVariable("agoraId") Long agoraId,
             @DestinationVariable("chatId") Long chatId,
             @Payload @Valid SendReactionRequest sendReactionRequest,
