@@ -54,16 +54,6 @@ public class ChatAuthController {
         return chatCommandService.sendReaction(userDetails, agoraId, chatId, sendReactionRequest);
     }
 
-    @SubscribeMapping(value = "/topic/agoras/{agoraId}/kick")
-    public SendReactionResponse sendKick(
-            @DestinationVariable("agoraId") Long agoraId,
-            @DestinationVariable("chatId") Long chatId,
-            @Payload @Valid SendReactionRequest sendReactionRequest,
-            @AuthenticationPrincipal CustomUserDetails userDetails
-    ) {
-        return chatCommandService.sendReaction(userDetails, agoraId, chatId, sendReactionRequest);
-    }
-
     @PostMapping("/agoras/{agoraId}/chats/filter")
     public ResponseEntity<ApiResponse<BadWordResponse>> filterChat(
             @AuthenticationPrincipal CustomUserDetails userDetails,
