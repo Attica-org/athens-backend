@@ -148,6 +148,7 @@ public class AgoraService {
         AgoraMember agoraMember = getAgoraMember(memberId, agoraId);
         LocalDateTime socketDisconnectTime = LocalDateTime.now();
 
+        agoraMember.clearNickname();
         agoraMember.updateDisconnectType(true);
         agoraMember.updateSocketDisconnectTime(socketDisconnectTime);
 
@@ -310,15 +311,22 @@ public class AgoraService {
         agoraMemberRepository.findByAgoraIdAndMemberId(agora.getId(), memberId)
                 .filter(this::isActiveParticipant)
                 .ifPresent(agoraMember -> {
-                    throw new AlreadyParticipateException(agora.getId(), memberId);
-                }
-            );
+                            if (isUnActiveParticipant(agoraMember)) {
+                                agoraMember.updateAgoraMember(request.nickname(), request.type());
+                            } else {
+                                throw new AlreadyParticipateException(agora.getId(), memberId);
+                            }
+                        }
+                );
+    }
+
+    private boolean isUnActiveParticipant(AgoraMember agoraMember) {
+        return agoraMember.getDisconnectType() || agoraMember.getSocketDisconnectTime() != null;
     }
 
     private boolean isActiveParticipant(AgoraMember agoraMember) {
         return !agoraMember.getDisconnectType() && agoraMember.getSocketDisconnectTime() == null;
     }
-
 
     @Transactional
     public EndAgoraResponse timeOutAgora(Long agoraId) {

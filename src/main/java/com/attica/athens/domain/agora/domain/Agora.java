@@ -182,6 +182,6 @@ public class Agora extends AuditingFields {
     }
 
     public boolean isTypeCapacityExceeded(int typeCount) {
-        return typeCount > this.capacity / 2;
+        return typeCount >= this.capacity / 2;
     }
 }
