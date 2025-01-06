@@ -63,22 +63,23 @@ public class TrendService {
 
         popularRepository.saveAll(
                 scores.entrySet().stream()
-                .sorted(Entry.<AgoraMetrics, Double>comparingByValue().reversed())
-                .limit(size)
-                .map(entry -> {
-                    long agoraId = entry.getKey().agoraId();
-                    Agora agora = agoraRepository.findById(agoraId)
-                            .orElseThrow(() -> new NotFoundAgoraException(agoraId));
+                        .sorted(Entry.<AgoraMetrics, Double>comparingByValue().reversed())
+                        .limit(size)
+                        .map(entry -> {
+                            long agoraId = entry.getKey().agoraId();
+                            Agora agora = agoraRepository.findById(agoraId)
+                                    .orElseThrow(() -> new NotFoundAgoraException(agoraId));
 
-                    return new Trend(entry.getValue(), agora);
-                })
-                .toList()
+                            return new Trend(entry.getValue(), agora);
+                        })
+                        .toList()
         );
     }
 
     private void normalizedScore(Map<AgoraMetrics, Double> scores, double maxScore) {
         for (Entry<AgoraMetrics, Double> entry : scores.entrySet()) {
-            double normalizedScore = (maxScore != ZERO_VALUE.getValue()) ? entry.getValue() / maxScore : ZERO_VALUE.getValue();
+            double normalizedScore =
+                    (maxScore != ZERO_VALUE.getValue()) ? entry.getValue() / maxScore : ZERO_VALUE.getValue();
             scores.replace(entry.getKey(), normalizedScore);
         }
     }
@@ -87,13 +88,18 @@ public class TrendService {
         final int maxMembersCount = getMaxMemberCount(agoras);
         final int maxChatCount = getMaxChatCount(agoras);
 
-        final double maxMembersCountInverse = (maxMembersCount != ZERO_VALUE.getValue()) ? INVERSE_BASE.getValue() / maxMembersCount : ZERO_VALUE.getValue();
-        final double maxChatCountInverse = (maxChatCount != ZERO_VALUE.getValue()) ? INVERSE_BASE.getValue() / maxChatCount : ZERO_VALUE.getValue();
+        final double maxMembersCountInverse =
+                (maxMembersCount != ZERO_VALUE.getValue()) ? INVERSE_BASE.getValue() / maxMembersCount
+                        : ZERO_VALUE.getValue();
+        final double maxChatCountInverse =
+                (maxChatCount != ZERO_VALUE.getValue()) ? INVERSE_BASE.getValue() / maxChatCount
+                        : ZERO_VALUE.getValue();
 
         return calculateScoreAndMaxScore(scores, maxMembersCountInverse, maxChatCountInverse);
     }
 
-    private double calculateScoreAndMaxScore(Map<AgoraMetrics, Double> scores, double maxMembersCountInverse, double maxChatCountInverse) {
+    private double calculateScoreAndMaxScore(Map<AgoraMetrics, Double> scores, double maxMembersCountInverse,
+                                             double maxChatCountInverse) {
         return scores.entrySet().stream()
                 .mapToDouble(entry -> {
                     double originalValue = entry.getValue();
@@ -103,7 +109,8 @@ public class TrendService {
                     double normalizedMembers = agoraMembersCount * maxMembersCountInverse;
                     double normalizedChats = agoraChatCount * maxChatCountInverse;
 
-                    double score = (MEMBER_WEIGHT.getValue() * normalizedMembers) + (CHAT_WEIGHT.getValue() * normalizedChats);
+                    double score =
+                            (MEMBER_WEIGHT.getValue() * normalizedMembers) + (CHAT_WEIGHT.getValue() * normalizedChats);
                     entry.setValue(score);
                     return score;
                 })
@@ -114,10 +121,11 @@ public class TrendService {
     private Map<AgoraMetrics, Double> getAgoraScore(List<AgoraMetrics> agoras) {
         return agoras.stream()
                 .collect(
-                    Collectors.toMap(
-                        agora -> agora,
-                        agora -> (double) (agora.membersCount() * COUNT_MULTIPLIER.getValue() + agora.chatCount()))
-                    );
+                        Collectors.toMap(
+                                agora -> agora,
+                                agora -> (double) (agora.membersCount() * COUNT_MULTIPLIER.getValue()
+                                        + agora.chatCount()))
+                );
     }
 
     private int getMaxMemberCount(List<AgoraMetrics> agoras) {
