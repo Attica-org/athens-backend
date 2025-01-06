@@ -32,7 +32,6 @@ public class WebSocketEventHandler {
     private static final String AGORA_ID_HEADER = "AgoraId";
     private static final String AUTHORIZATION_HEADER = "Authorization";
     private static final String BEARER_PREFIX = "Bearer ";
-    private static final String TOPIC_PREFIX = "/topic/agoras/";
     private static final Integer AGORA_ID_INDEX = 3;
 
     private final HeartBeatManager heartBeatManager;
@@ -97,10 +96,10 @@ public class WebSocketEventHandler {
     @EventListener(SessionSubscribeEvent.class)
     public void handleWebSocketSessionSubscribe(SessionSubscribeEvent event) {
         StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
-        String sessionId = headerAccessor.getSessionId();
         String destination = headerAccessor.getDestination();
 
-        if (destination != null && destination.startsWith(TOPIC_PREFIX)) {
+        if (destination != null && destination.matches("/topic/agoras/\\d+$")) {
+            String sessionId = headerAccessor.getSessionId();
             Long agoraId = extractAgoraIdFromDestination(destination);
             Long userId = getUserId(headerAccessor);
 
