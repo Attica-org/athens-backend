@@ -49,10 +49,9 @@ public class MemberAuthController {
 
     @DeleteMapping("/{memberId}")
     public ResponseEntity<ApiResponse<?>> deleteMember(
-            @PathVariable Long memberId,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        DeleteMemberResponse response = memberService.deleteMember(memberId, userDetails);
+        DeleteMemberResponse response = memberService.deleteMember(userDetails.getUserId(), userDetails);
 
         return ResponseEntity.ok(ApiUtil.success(response));
     }

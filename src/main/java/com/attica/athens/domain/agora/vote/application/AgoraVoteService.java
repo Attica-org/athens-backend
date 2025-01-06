@@ -118,7 +118,7 @@ public class AgoraVoteService {
     }
 
     private AgoraMember findAgoraMemberByAgoraIdAndUserId(Long agoraId, Long userId) {
-        return agoraMemberRepository.findByAgoraIdAndMemberId(agoraId, userId)
+        return agoraMemberRepository.findLatestByAgoraIdAndMemberId(agoraId, userId)
                 .orElseThrow(() -> new NotFoundAgoraMemberException(agoraId, userId));
     }
 }
