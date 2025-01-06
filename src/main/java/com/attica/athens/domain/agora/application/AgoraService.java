@@ -336,10 +336,6 @@ public class AgoraService {
         return agoraMember.getDisconnectType() || agoraMember.getSocketDisconnectTime() != null;
     }
 
-    private boolean isActiveParticipant(AgoraMember agoraMember) {
-        return !agoraMember.getDisconnectType() && agoraMember.getSocketDisconnectTime() == null;
-    }
-
     private void validateClosedAgoraParticipate(Agora agora) {
         if (!agora.getStatus().equals(CLOSED)) {
             throw new ActiveAgoraException();
