@@ -32,7 +32,9 @@ public class AgoraMemberQueryRepositoryImpl implements AgoraMemberQueryRepositor
                         .select(agoraMember.count())
                         .from(agoraMember)
                         .where(agoraMember.type.eq(type)
-                                .and(agora.id.eq(agoraId)))
+                                .and(agora.id.eq(agoraId))
+                                .and(agoraMember.disconnectType.isFalse())
+                                .and(agoraMember.socketDisconnectTime.isNull()))
                         .fetchOne())
                 .intValue();
     }

@@ -20,6 +20,7 @@ import com.attica.athens.domain.agora.dto.response.AgoraIdResponse;
 import com.attica.athens.domain.agora.dto.response.AgoraParticipateResponse;
 import com.attica.athens.domain.agora.dto.response.AgoraSlice;
 import com.attica.athens.domain.agora.dto.response.AgoraTitleResponse;
+import com.attica.athens.domain.agora.dto.response.ClosedAgoraParticipateResponse;
 import com.attica.athens.domain.agora.dto.response.CreateAgoraResponse;
 import com.attica.athens.domain.agora.dto.response.EndAgoraResponse;
 import com.attica.athens.domain.agora.dto.response.EndNotificationResponse;
@@ -27,6 +28,7 @@ import com.attica.athens.domain.agora.dto.response.EndVoteAgoraResponse;
 import com.attica.athens.domain.agora.dto.response.StartAgoraResponse;
 import com.attica.athens.domain.agora.dto.response.StartNotificationResponse;
 import com.attica.athens.domain.agora.dto.response.UpdateThumbnailResponse;
+import com.attica.athens.domain.agora.exception.ActiveAgoraException;
 import com.attica.athens.domain.agora.exception.AlreadyParticipateException;
 import com.attica.athens.domain.agora.exception.ClosedAgoraException;
 import com.attica.athens.domain.agora.exception.DuplicatedNicknameException;
@@ -143,11 +145,22 @@ public class AgoraService {
     }
 
     @Transactional
+    public ClosedAgoraParticipateResponse closedAgoraParticipate(final Long agoraId, final Long memberId) {
+        Agora agora = agoraRepository.findAgoraById(agoraId)
+                .orElseThrow(() -> new NotFoundAgoraException(agoraId));
+
+        validateClosedAgoraParticipate(agora);
+
+        return new ClosedAgoraParticipateResponse(agoraId, memberId);
+    }
+
+    @Transactional
     public AgoraExitResponse exit(final Long memberId, final Long agoraId) {
 
         AgoraMember agoraMember = getAgoraMember(memberId, agoraId);
         LocalDateTime socketDisconnectTime = LocalDateTime.now();
 
+        agoraMember.clearNickname();
         agoraMember.updateDisconnectType(true);
         agoraMember.updateSocketDisconnectTime(socketDisconnectTime);
 
@@ -246,7 +259,7 @@ public class AgoraService {
     }
 
     private AgoraMember findValidAgoraMember(final Long agoraId, final Long memberId) {
-        return agoraMemberRepository.findByAgoraIdAndMemberId(agoraId, memberId)
+        return agoraMemberRepository.findLatestByAgoraIdAndMemberId(agoraId, memberId)
                 .orElseThrow(NotParticipateException::new)
                 .validateSendMessage();
     }
@@ -307,18 +320,30 @@ public class AgoraService {
             }
         }
 
-        agoraMemberRepository.findByAgoraIdAndMemberId(agora.getId(), memberId)
-                .filter(this::isActiveParticipant)
+        agoraMemberRepository.findLatestByAgoraIdAndMemberId(agora.getId(), memberId)
                 .ifPresent(agoraMember -> {
-                    throw new AlreadyParticipateException(agora.getId(), memberId);
-                }
-            );
+                            if (isUnActiveParticipant(agoraMember)) {
+                                agoraMember.updateAgoraMember(request.nickname(), request.type());
+                            } else {
+                                throw new AlreadyParticipateException(agora.getId(), memberId);
+                            }
+                        }
+                );
+    }
+
+    private boolean isUnActiveParticipant(AgoraMember agoraMember) {
+        return agoraMember.getDisconnectType() || agoraMember.getSocketDisconnectTime() != null;
     }
 
     private boolean isActiveParticipant(AgoraMember agoraMember) {
         return !agoraMember.getDisconnectType() && agoraMember.getSocketDisconnectTime() == null;
     }
 
+    private void validateClosedAgoraParticipate(Agora agora) {
+        if (!agora.getStatus().equals(CLOSED)) {
+            throw new ActiveAgoraException();
+        }
+    }
 
     @Transactional
     public EndAgoraResponse timeOutAgora(Long agoraId) {

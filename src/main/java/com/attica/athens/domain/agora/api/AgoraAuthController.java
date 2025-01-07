@@ -5,6 +5,7 @@ import com.attica.athens.domain.agora.dto.request.AgoraCreateRequest;
 import com.attica.athens.domain.agora.dto.request.AgoraParticipateRequest;
 import com.attica.athens.domain.agora.dto.response.AgoraExitResponse;
 import com.attica.athens.domain.agora.dto.response.AgoraParticipateResponse;
+import com.attica.athens.domain.agora.dto.response.ClosedAgoraParticipateResponse;
 import com.attica.athens.domain.agora.dto.response.CreateAgoraResponse;
 import com.attica.athens.domain.agora.dto.response.EndVoteAgoraResponse;
 import com.attica.athens.domain.agora.dto.response.StartAgoraResponse;
@@ -14,9 +15,9 @@ import com.attica.athens.domain.common.ApiUtil;
 import com.attica.athens.global.auth.domain.CustomUserDetails;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -61,13 +62,24 @@ public class AgoraAuthController {
         return ResponseEntity.ok(ApiUtil.success(response));
     }
 
+    @GetMapping("/{agoraId}/participants")
+    public ResponseEntity<ApiResponse<ClosedAgoraParticipateResponse>> participateAgora(
+            @AuthenticationPrincipal CustomUserDetails user,
+            @PathVariable("agoraId") Long agoraId
+    ) {
+        Long memberId = Long.parseLong(user.getUsername());
+        ClosedAgoraParticipateResponse response = agoraService.closedAgoraParticipate(agoraId,memberId);
+
+        return ResponseEntity.ok(ApiUtil.success(response));
+    }
+
     @PatchMapping("/{agoraId}/exit")
     public ResponseEntity<ApiResponse<AgoraExitResponse>> exitAgora(
             @AuthenticationPrincipal CustomUserDetails user,
             @PathVariable("agoraId") Long agoraId
     ) {
         Long memberId = Long.parseLong(user.getUsername());
-        AgoraExitResponse response = agoraService.exit(memberId,agoraId);
+        AgoraExitResponse response = agoraService.exit(memberId, agoraId);
 
         return ResponseEntity.ok(ApiUtil.success(response));
     }

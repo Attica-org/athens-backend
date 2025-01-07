@@ -64,7 +64,7 @@ public class AgoraVoteService {
 
     @Transactional
     public KickVoteResult kickVote(Long agoraId, Long memberId, KickVoteRequest request) {
-        findAgoraMemberByAgoraIdAndUserId(agoraId, memberId);
+        memberId = findAgoraMemberByAgoraIdAndUserId(agoraId, memberId).getId();
         Long targetMemberId = request.targetMemberId();
 
         Map<Long, KickVote> kickVoteMap = activeVotes.computeIfAbsent(agoraId, k -> new ConcurrentHashMap<>());
@@ -97,7 +97,7 @@ public class AgoraVoteService {
     }
 
     private void sendKickVoteInfo(Long agoraId, Long targetMemberId) {
-        String destination = "/topic/agoras/" + agoraId;
+        String destination = "/topic/agoras/" + agoraId + "/kick";
         KickVoteInfo kickVoteInfo = new KickVoteInfo(targetMemberId);
         SendKickResponse response = new SendKickResponse(kickVoteInfo);
         simpMessagingTemplate.convertAndSend(destination, response);
@@ -118,7 +118,7 @@ public class AgoraVoteService {
     }
 
     private AgoraMember findAgoraMemberByAgoraIdAndUserId(Long agoraId, Long userId) {
-        return agoraMemberRepository.findByAgoraIdAndMemberId(agoraId, userId)
+        return agoraMemberRepository.findLatestByAgoraIdAndMemberId(agoraId, userId)
                 .orElseThrow(() -> new NotFoundAgoraMemberException(agoraId, userId));
     }
 }
