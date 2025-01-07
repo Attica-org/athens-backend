@@ -30,7 +30,7 @@ public class AgoraMemberService {
 
     @Transactional
     public void updateSessionId(Long agoraId, Long memberId, String sessionId) {
-        agoraMemberRepository.findByAgoraIdAndMemberId(agoraId, memberId)
+        agoraMemberRepository.findLatestByAgoraIdAndMemberId(agoraId, memberId)
                 .ifPresent(agoraMember -> agoraMember.updateSessionId(sessionId));
     }
 
