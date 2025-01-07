@@ -80,13 +80,4 @@ public class AgoraOpenController {
 
         return ResponseEntity.ok(ApiUtil.success(response));
     }
-
-    @PostMapping("/{agoraId}/participants")
-    public ResponseEntity<ApiResponse<ClosedAgoraParticipateResponse>> participateAgora(
-            @PathVariable("agoraId") Long agoraId
-    ) {
-        ClosedAgoraParticipateResponse response = agoraService.closedAgoraParticipate(agoraId);
-
-        return ResponseEntity.ok(ApiUtil.success(response));
-    }
 }

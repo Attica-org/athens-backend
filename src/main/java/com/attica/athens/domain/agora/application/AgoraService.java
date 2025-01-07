@@ -1,8 +1,6 @@
 package com.attica.athens.domain.agora.application;
 
 import static com.attica.athens.domain.agora.domain.AgoraStatus.CLOSED;
-import static com.attica.athens.domain.agora.domain.AgoraStatus.QUEUED;
-import static com.attica.athens.domain.agora.domain.AgoraStatus.RUNNING;
 import static com.attica.athens.domain.agoraMember.domain.AgoraMemberType.OBSERVER;
 
 import com.attica.athens.domain.agora.dao.AgoraRepository;
@@ -147,13 +145,13 @@ public class AgoraService {
     }
 
     @Transactional
-    public ClosedAgoraParticipateResponse closedAgoraParticipate(final Long agoraId) {
+    public ClosedAgoraParticipateResponse closedAgoraParticipate(final Long agoraId, final Long memberId) {
         Agora agora = agoraRepository.findAgoraById(agoraId)
                 .orElseThrow(() -> new NotFoundAgoraException(agoraId));
 
         validateClosedAgoraParticipate(agora);
 
-        return new ClosedAgoraParticipateResponse(agoraId);
+        return new ClosedAgoraParticipateResponse(agoraId, memberId);
     }
 
     @Transactional
@@ -342,7 +340,7 @@ public class AgoraService {
     }
 
     private void validateClosedAgoraParticipate(Agora agora) {
-        if (agora.getStatus().equals(QUEUED) || agora.getStatus().equals(RUNNING)) {
+        if (!agora.getStatus().equals(CLOSED)) {
             throw new ActiveAgoraException();
         }
     }
