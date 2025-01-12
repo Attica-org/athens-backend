@@ -100,11 +100,6 @@ public class Member extends BaseMember {
     }
 
     public void updateMemberInfo(OAuth2MemberInfo memberInfo) {
-        System.out.println("memberInfo");
-        Map<String, Object> attributes = memberInfo.getAttributes();
-        for (Entry<String, Object> entry : attributes.entrySet()) {
-            System.out.println(entry.getKey() + ":" + entry.getValue());
-        }
         this.email = memberInfo.getEmail().orElse(null);
     }
 }

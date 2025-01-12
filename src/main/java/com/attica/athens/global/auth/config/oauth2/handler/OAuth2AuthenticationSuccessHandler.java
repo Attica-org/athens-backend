@@ -91,7 +91,8 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         String authority = extractAuthority(authentication);
 
         String accessToken = authService.createAccessToken(memberId, authority);
-        authService.createRefreshToken(memberId, authority, response);
+        String refreshToken = authService.createRefreshToken(memberId, authority, response);
+        authService.saveRefreshToken(memberId, refreshToken);
 
         String tempToken = UUID.randomUUID()
                 .toString();
