@@ -139,6 +139,8 @@ public class AuthService {
         String role = jwtUtils.getRole(refreshToken);
 
         saveRefreshToken(userId, createRefreshToken(userId, role, response));
+        deleteRefreshToken(refreshToken);
+
         return createAccessToken(userId, role);
     }
 
@@ -151,7 +153,7 @@ public class AuthService {
 
     public String createRefreshToken(Long userId, String role, HttpServletResponse response) {
         String newRefresh = jwtUtils.createRefreshToken(userId, role);
-        addSameSiteCookieAttribute(response, createCookie(REFRESH_TOKEN, newRefresh));
+        addSameSiteCookieToResponse(response, createCookie(REFRESH_TOKEN, newRefresh));
         return newRefresh;
     }
 
@@ -177,7 +179,7 @@ public class AuthService {
         return cookie;
     }
 
-    private void addSameSiteCookieAttribute(HttpServletResponse response, Cookie cookie) {
+    private void addSameSiteCookieToResponse(HttpServletResponse response, Cookie cookie) {
         String cookieString = String.format("%s=%s; Max-Age=%d; Path=%s; Secure; HttpOnly; SameSite=None",
                 cookie.getName(),
                 cookie.getValue(),
