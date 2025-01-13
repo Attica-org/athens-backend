@@ -47,7 +47,7 @@ public class MemberAuthController {
         return ResponseEntity.ok(ApiUtil.success(null));
     }
 
-    @DeleteMapping("/")
+    @DeleteMapping
     public ResponseEntity<ApiResponse<?>> deleteMember(
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
