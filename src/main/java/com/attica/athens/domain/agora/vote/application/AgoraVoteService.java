@@ -64,7 +64,6 @@ public class AgoraVoteService {
 
     @Transactional
     public KickVoteResult kickVote(Long agoraId, Long memberId, KickVoteRequest request) {
-        memberId = findAgoraMemberByAgoraIdAndUserId(agoraId, memberId).getId();
         Long targetMemberId = request.targetMemberId();
 
         Map<Long, KickVote> kickVoteMap = activeVotes.computeIfAbsent(agoraId, k -> new ConcurrentHashMap<>());
