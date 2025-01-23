@@ -8,10 +8,10 @@ public record SendKickResponse(ChatType type, KickVoteInfo kickVoteInfo) {
         this(ChatType.KICK, kickVoteInfo);
     }
 
-    public record KickVoteInfo(Long targetMemberId, String message) {
+    public record KickVoteInfo(Long targetMemberId, String nickname, String message) {
 
-        public KickVoteInfo(Long targetMemberId) {
-            this(targetMemberId, "사용자를 추방합니다. memberId: " + targetMemberId);
+        public KickVoteInfo(Long targetMemberId, String nickname) {
+            this(targetMemberId, nickname, "사용자를 추방합니다. memberId: " + targetMemberId);
         }
     }
 }
