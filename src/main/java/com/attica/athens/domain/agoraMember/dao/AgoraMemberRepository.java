@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-public interface AgoraMemberRepository extends JpaRepository<AgoraMember, Integer>, AgoraMemberQueryRepository {
+public interface AgoraMemberRepository extends JpaRepository<AgoraMember, Long>, AgoraMemberQueryRepository {
 
     boolean existsByAgoraIdAndMemberId(Long agoraId, Long memberId);
 

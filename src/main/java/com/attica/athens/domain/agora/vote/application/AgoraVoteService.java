@@ -18,6 +18,7 @@ import com.attica.athens.domain.agoraMember.dao.AgoraMemberRepository;
 import com.attica.athens.domain.agoraMember.domain.AgoraMember;
 import com.attica.athens.domain.agoraMember.exception.NotFoundAgoraMemberException;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -64,8 +65,10 @@ public class AgoraVoteService {
 
     @Transactional
     public KickVoteResult kickVote(Long agoraId, Long memberId, KickVoteRequest request) {
-        Long targetMemberId = request.targetMemberId();
+        AgoraMember member = agoraMemberRepository.findById(request.targetMemberId())
+                .orElseThrow(() -> new NotFoundAgoraMemberException(agoraId, request.targetMemberId()));
 
+        Long targetMemberId = member.getMember().getId();
         Map<Long, KickVote> kickVoteMap = activeVotes.computeIfAbsent(agoraId, k -> new ConcurrentHashMap<>());
         KickVote kickVote = kickVoteMap.computeIfAbsent(targetMemberId, k -> new KickVote());
 
@@ -73,7 +76,7 @@ public class AgoraVoteService {
 
         if (kickVote.kickPossible(request.currentMemberCount())) {
             handleKickVoteSuccess(kickVoteMap, targetMemberId);
-            sendKickVoteInfo(agoraId, targetMemberId);
+            sendKickVoteInfo(agoraId, member.getNickname(), targetMemberId);
             return KickVoteResult.KICK_REQUIRED;
         }
 
@@ -95,9 +98,9 @@ public class AgoraVoteService {
         kickVoteMap.values().forEach(vote -> vote.removeVoteMember(targetMemberId));
     }
 
-    private void sendKickVoteInfo(Long agoraId, Long targetMemberId) {
+    private void sendKickVoteInfo(Long agoraId, String nickname, Long targetMemberId) {
         String destination = "/topic/agoras/" + agoraId + "/kick";
-        KickVoteInfo kickVoteInfo = new KickVoteInfo(targetMemberId);
+        KickVoteInfo kickVoteInfo = new KickVoteInfo(targetMemberId, nickname);
         SendKickResponse response = new SendKickResponse(kickVoteInfo);
         simpMessagingTemplate.convertAndSend(destination, response);
     }
