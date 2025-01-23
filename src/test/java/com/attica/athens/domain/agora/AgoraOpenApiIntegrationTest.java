@@ -73,10 +73,6 @@ public class AgoraOpenApiIntegrationTest extends IntegrationTestSupport {
     }
 
     @Nested
-    @Sql(scripts = {
-            "/sql/get-category.sql",
-            "/sql/get-agora.sql"
-    })
     @DisplayName("아고라를 조회한다.")
     class getAgoraTest {
 
@@ -239,10 +235,10 @@ public class AgoraOpenApiIntegrationTest extends IntegrationTestSupport {
 
         @Test
         @DisplayName("타임아웃 시 아고라를 종료한다.")
-        void 성공_타임아웃체크_지속시간0인아고라전달() throws Exception {
+        void 성공_타임아웃체크_지속시간0인_아고라전달() throws Exception {
             // when
             final ResultActions result = mockMvc.perform(
-                    patch("/{prefix}/agoras/{agoraId}/time-out", API_V1_OPEN, 1)
+                    patch("/{prefix}/agoras/{agoraId}/time-out", API_V1_OPEN, 2)
                             .contentType(MediaType.APPLICATION_JSON)
             );
 
@@ -251,7 +247,7 @@ public class AgoraOpenApiIntegrationTest extends IntegrationTestSupport {
                     .andExpectAll(
                             jsonPath("$.success").value(true),
                             jsonPath("$.response").exists(),
-                            jsonPath("$.response.agoraId").value(1),
+                            jsonPath("$.response.agoraId").value(2),
                             jsonPath("$.response.isClosed").value(true),
                             jsonPath("$.response.endTime").exists(),
                             jsonPath("$.response.endTime").isString(),
