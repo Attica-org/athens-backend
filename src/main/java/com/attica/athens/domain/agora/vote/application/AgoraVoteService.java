@@ -12,6 +12,7 @@ import com.attica.athens.domain.agora.vote.dto.response.AgoraVoteResultResponse;
 import com.attica.athens.domain.agora.vote.dto.response.KickVoteResult;
 import com.attica.athens.domain.agora.vote.dto.response.SendKickResponse;
 import com.attica.athens.domain.agora.vote.dto.response.SendKickResponse.KickVoteInfo;
+import com.attica.athens.domain.agora.vote.dto.response.VoteResultResponse;
 import com.attica.athens.domain.agora.vote.exception.AlreadyKickVotedException;
 import com.attica.athens.domain.agora.vote.exception.AlreadyOpinionVotedException;
 import com.attica.athens.domain.agoraMember.dao.AgoraMemberRepository;
@@ -39,27 +40,24 @@ public class AgoraVoteService {
     public AgoraVoteResponse vote(Long userId, AgoraVoteRequest agoraVoteRequest, Long agoraId) {
 
         Agora agora = findAgoraById(agoraId);
-        agora.checkAgoraVoteRequest(agoraVoteRequest);
-        agora.checkAgoraStatus();
-        agora.checkVoteTime();
 
-        AgoraMember agoraMember = checkAgoraMemberVoted(agoraId, userId);
+        AgoraMember agoraMember = checkAgoraMemberVoteProcess(agoraVoteRequest, agora, userId);
 
         agoraMember.updateIsOpinionVotedAndVoteType(agoraVoteRequest.voteType(), agoraVoteRequest.isOpinionVoted());
 
         return new AgoraVoteResponse(agoraMember);
-
     }
 
     @Transactional
     public AgoraVoteResultResponse voteResult(Long agoraId) {
 
         Agora agora = findAgoraById(agoraId);
-        Integer prosVoteResult = agoraVoteRepository.getProsVoteResult(agoraId);
-        Integer consVoteResult = agoraVoteRepository.getConsVoteResult(agoraId);
-        agora.updateProsCountAndConsCount(prosVoteResult, consVoteResult);
-        return new AgoraVoteResultResponse(agoraId, prosVoteResult, consVoteResult);
 
+        VoteResultResponse voteResults = agoraVoteRepository.getVoteResults(agoraId);
+
+        agora.updateProsCountAndConsCount(voteResults.pros(), voteResults.cons());
+
+        return new AgoraVoteResultResponse(agoraId, voteResults.pros(), voteResults.cons());
     }
 
     @Transactional
@@ -103,8 +101,12 @@ public class AgoraVoteService {
         simpMessagingTemplate.convertAndSend(destination, response);
     }
 
-    private AgoraMember checkAgoraMemberVoted(Long agoraId, Long userId) {
-        AgoraMember agoraMember = findAgoraMemberByAgoraIdAndUserId(agoraId, userId);
+    private AgoraMember checkAgoraMemberVoteProcess(AgoraVoteRequest agoraVoteRequest, Agora agora, Long userId) {
+        agora.checkAgoraVoteRequest(agoraVoteRequest);
+        agora.checkAgoraStatus();
+        agora.checkVoteTime();
+
+        AgoraMember agoraMember = findAgoraMemberByAgoraIdAndUserId(agora.getId(), userId);
 
         if (agoraMember.getIsOpinionVoted()) {
             throw new AlreadyOpinionVotedException();
