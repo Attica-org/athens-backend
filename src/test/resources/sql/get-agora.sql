@@ -1,6 +1,6 @@
 SET REFERENTIAL_INTEGRITY FALSE;
 
-alter table agora alter column agora_id restart with 1;
+ALTER TABLE agora ALTER COLUMN agora_id RESTART WITH 1;
 
 -- 첫 번째 데이터
 insert into agora (
@@ -9,7 +9,7 @@ insert into agora (
     created_by, modified_by, color, status,
     is_deleted, deleted_at, deleted_by
 ) values (
-             1, 0, 40, 0, 0, 0,
+             20, 0, 40, 0, 0, 0,
              1, '2024-04-01 23:14:09', '2024-04-05 00:37:32', '2023-10-03 11:23:43', '2023-09-02 18:07:20', 'Games',
              1, 1, 'Green', 'QUEUED',
              false, CURRENT_TIMESTAMP(), 'system'
@@ -35,7 +35,7 @@ insert into agora (
     created_by, modified_by, color, status, agora_thumbnail_id,
     is_deleted, deleted_at, deleted_by
 ) values (
-             1, 0, 40, 0, 0, 0,
+             20, 0, 40, 0, 0, 0,
              1, '2024-04-01 23:14:09', '2024-04-05 00:37:32', '2023-10-03 11:23:43', '2023-09-02 18:07:20', 'Games',
              1, 1, 'Green', 'QUEUED', null,
              false, CURRENT_TIMESTAMP(), 'system'
@@ -48,7 +48,7 @@ insert into agora (
     created_by, modified_by, color, status, agora_thumbnail_id,
     is_deleted, deleted_at, deleted_by
 ) values (
-             1, 0, 40, 0, 0, 0,
+             20, 0, 40, 0, 0, 0,
              1, '2024-04-01 23:14:09', '2024-04-05 00:37:32', '2023-10-03 11:23:43', '2023-09-02 18:07:20', 'Games',
              1, 1, 'Green', 'QUEUED', null,
              false, CURRENT_TIMESTAMP(), 'system'
