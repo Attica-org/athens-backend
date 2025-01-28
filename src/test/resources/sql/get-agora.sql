@@ -1,6 +1,6 @@
 SET REFERENTIAL_INTEGRITY FALSE;
 
-ALTER TABLE agora ALTER COLUMN agora_id RESTART WITH 1;
+ALTER TABLE agora ALTER COLUMN agora_id RESTART WITH 6;
 
 -- 첫 번째 데이터
 insert into agora (

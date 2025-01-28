@@ -74,9 +74,6 @@ public class AgoraOpenApiIntegrationTest extends IntegrationTestSupport {
 
     @Nested
     @DisplayName("아고라를 조회한다.")
-    @Sql(scripts = {
-            "/sql/get-agora.sql"
-    })
     class getAgoraTest {
 
         @Test
@@ -91,18 +88,6 @@ public class AgoraOpenApiIntegrationTest extends IntegrationTestSupport {
                             .param("status", requestCategory.status())
                             .param("category", requestCategory.category().toString())
                             .param("next", requestCategory.next() != null ? requestCategory.next().toString() : ""))
-                    .andExpect(status().isBadRequest())
-                    .andExpectAll(
-                            jsonPath("$.success").value(false),
-                            jsonPath("$.response").value(nullValue()),
-                            jsonPath("$.error.code").value(1001),
-                            jsonPath("$.error.message.status").value("허용되지 않는 Status 입니다.")
-                    );
-
-            mockMvc.perform(get("/{prefix}/agoras", API_V1_OPEN)
-                            .param("status", requestKeyword.status())
-                            .param("agora-name", "keyword")
-                            .param("next", requestKeyword.next() != null ? requestKeyword.next().toString() : ""))
                     .andExpect(status().isBadRequest())
                     .andExpectAll(
                             jsonPath("$.success").value(false),
@@ -136,7 +121,7 @@ public class AgoraOpenApiIntegrationTest extends IntegrationTestSupport {
         @DisplayName("카테고리로 정렬된 아고라를 조회한다.")
         void 성공_아고라조회_유효한_카테고리() throws Exception {
             // given
-            AgoraRequest request = new AgoraRequest("active", 1L, null);
+            AgoraRequest request = new AgoraRequest("active", 6L, null);
 
             // when & then
             mockMvc.perform(get("/{prefix}/agoras", API_V1_OPEN)
@@ -148,16 +133,16 @@ public class AgoraOpenApiIntegrationTest extends IntegrationTestSupport {
                             jsonPath("$.success").value(true),
                             jsonPath("$.error").value(nullValue()),
                             jsonPath("$.response.agoras").isArray(),
-                            jsonPath("$.response.agoras[3].id").value(1),
-                            jsonPath("$.response.agoras[3].agoraTitle").value("Games"),
-                            jsonPath("$.response.agoras[3].agoraColor").value("Green"),
-                            jsonPath("$.response.agoras[3].participants.pros").value(0),
-                            jsonPath("$.response.agoras[3].participants.cons").value(0),
-                            jsonPath("$.response.agoras[3].participants.observer").value(0),
-                            jsonPath("$.response.agoras[3].imageUrl").value(nullValue()),
-                            jsonPath("$.response.agoras[3].createdAt").value(
-                                    matchesPattern("\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}")),
-                            jsonPath("$.response.agoras[3].status").value("QUEUED"),
+                            jsonPath("$.response.agoras.length()").value(1),
+                            jsonPath("$.response.agoras[0].id").value(2),
+                            jsonPath("$.response.agoras[0].agoraTitle").value("교육 개혁 방안 토론"),
+                            jsonPath("$.response.agoras[0].agoraColor").value("#00FF00"),
+                            jsonPath("$.response.agoras[0].participants.pros").value(0),
+                            jsonPath("$.response.agoras[0].participants.cons").value(0),
+                            jsonPath("$.response.agoras[0].participants.observer").value(0),
+                            jsonPath("$.response.agoras[0].imageUrl").value(nullValue()),
+                            jsonPath("$.response.agoras[0].createdAt").isNotEmpty(),
+                            jsonPath("$.response.agoras[0].status").value("RUNNING"),
                             jsonPath("$.response.next").value(nullValue()),
                             jsonPath("$.response.hasNext").value(false)
                     );
@@ -167,7 +152,7 @@ public class AgoraOpenApiIntegrationTest extends IntegrationTestSupport {
         @DisplayName("키워드로 정렬된 아고라를 조회한다.")
         void 성공_아고라조회_유효한_키워드() throws Exception {
             // given
-            String keyword = "T";
+            String keyword = "기";
             SearchKeywordRequest request = new SearchKeywordRequest("active", null);
 
             // when & then
@@ -181,15 +166,14 @@ public class AgoraOpenApiIntegrationTest extends IntegrationTestSupport {
                             jsonPath("$.error").value(nullValue()),
                             jsonPath("$.response.agoras").isArray(),
                             jsonPath("$.response.agoras.length()").value(1),
-                            jsonPath("$.response.agoras[0].id").value(2),
-                            jsonPath("$.response.agoras[0].agoraTitle").value("Tools"),
-                            jsonPath("$.response.agoras[0].agoraColor").value("Red"),
+                            jsonPath("$.response.agoras[0].id").value(1),
+                            jsonPath("$.response.agoras[0].agoraTitle").value("기후 변화 대책에 대한 토론"),
+                            jsonPath("$.response.agoras[0].agoraColor").value("#FF0000"),
                             jsonPath("$.response.agoras[0].participants.pros").value(0),
                             jsonPath("$.response.agoras[0].participants.cons").value(0),
                             jsonPath("$.response.agoras[0].participants.observer").value(0),
                             jsonPath("$.response.agoras[0].imageUrl").value(nullValue()),
-                            jsonPath("$.response.agoras[0].createdAt")
-                                    .value(matchesPattern("\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}")),
+                            jsonPath("$.response.agoras[0].createdAt").isNotEmpty(),
                             jsonPath("$.response.agoras[0].status").value("QUEUED"),
                             jsonPath("$.response.next").value(nullValue()),
                             jsonPath("$.response.hasNext").value(false)

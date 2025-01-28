@@ -537,11 +537,8 @@ public class AgoraAuthApiIntegrationTest extends IntegrationTestSupport {
     }
 
     @Nested
-    @Sql(scripts = {
-            "/sql/get-category.sql",
-            "/sql/get-agora.sql"
-    })
     @DisplayName("아고라 참가 테스트")
+    @Sql("/sql/get-agora.sql")
     @WithMockCustomUser
     class participateAgoraTest {
 
@@ -555,7 +552,7 @@ public class AgoraAuthApiIntegrationTest extends IntegrationTestSupport {
         void 성공_아고라참가_찬성역할() throws Exception {
             // given
             Long userId = 1L;
-            Long agoraId = 3L;
+            Long agoraId = 6L;
             AgoraParticipateRequest request = new AgoraParticipateRequest(
                     "test-nickname",
                     1,
@@ -580,7 +577,7 @@ public class AgoraAuthApiIntegrationTest extends IntegrationTestSupport {
         void 성공_아고라참가_반대역할() throws Exception {
             // given
             Long userId = 1L;
-            Long agoraId = 4L;
+            Long agoraId = 7L;
             AgoraParticipateRequest request = new AgoraParticipateRequest(
                     "test-nickname",
                     1,
@@ -606,7 +603,7 @@ public class AgoraAuthApiIntegrationTest extends IntegrationTestSupport {
         void 성공_아고라참가_관찰자역할() throws Exception {
             // given
             Long userId = 1L;
-            Long agoraId = 2L;
+            Long agoraId = 8L;
             AgoraParticipateRequest request = new AgoraParticipateRequest(
                     null,
                     null,
