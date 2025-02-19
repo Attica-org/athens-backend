@@ -34,14 +34,14 @@ public class AgoraVoteController {
             @RequestBody AgoraVoteRequest agoraVoteRequest
     ) {
 
-        AgoraVoteResponse agoraVoteProsResponse = agoraVoteService.vote(userDetails.getUserId(), agoraVoteRequest,
+        AgoraVoteResponse response = agoraVoteService.vote(userDetails.getUserId(), agoraVoteRequest,
                 agoraId);
 
-        return ResponseEntity.ok(ApiUtil.success(agoraVoteProsResponse));
+        return ResponseEntity.ok(ApiUtil.success(response));
     }
 
     @GetMapping("/{agoraId}/results")
-    public ResponseEntity<ApiResponse<?>> voteResult(
+    public ResponseEntity<ApiResponse<AgoraVoteResultResponse>> voteResult(
             @PathVariable("agoraId") Long agoraId
     ) {
         AgoraVoteResultResponse agoraVoteResultResponse = agoraVoteService.voteResult(agoraId);

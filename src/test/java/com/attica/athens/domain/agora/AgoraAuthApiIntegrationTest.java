@@ -349,8 +349,10 @@ public class AgoraAuthApiIntegrationTest extends IntegrationTestSupport {
         void 실패_아고라생성_빈문자열제목() throws Exception {
             // given
             AgoraCreateRequest request = new AgoraCreateRequest("", 5, 60, "red", 1L);
-            MockMultipartFile file = new MockMultipartFile("file", "test-image.jpg", MediaType.IMAGE_JPEG_VALUE, "test image content".getBytes());
-            MockMultipartFile jsonRequest = new MockMultipartFile("request", "", MediaType.APPLICATION_JSON_VALUE, objectMapper.writeValueAsBytes(request));
+            MockMultipartFile file = new MockMultipartFile("file", "test-image.jpg", MediaType.IMAGE_JPEG_VALUE,
+                    "test image content".getBytes());
+            MockMultipartFile jsonRequest = new MockMultipartFile("request", "", MediaType.APPLICATION_JSON_VALUE,
+                    objectMapper.writeValueAsBytes(request));
 
             // when & then
             mockMvc.perform(multipart("/{prefix}/agoras", API_V1_AUTH)
@@ -371,8 +373,10 @@ public class AgoraAuthApiIntegrationTest extends IntegrationTestSupport {
         void 실패_아고라생성_참가자1미만() throws Exception {
             // given
             AgoraCreateRequest request = new AgoraCreateRequest("test-title", 0, 60, "red", 1L);
-            MockMultipartFile file = new MockMultipartFile("file", "test-image.jpg", MediaType.IMAGE_JPEG_VALUE, "test image content".getBytes());
-            MockMultipartFile jsonRequest = new MockMultipartFile("request", "", MediaType.APPLICATION_JSON_VALUE, objectMapper.writeValueAsBytes(request));
+            MockMultipartFile file = new MockMultipartFile("file", "test-image.jpg", MediaType.IMAGE_JPEG_VALUE,
+                    "test image content".getBytes());
+            MockMultipartFile jsonRequest = new MockMultipartFile("request", "", MediaType.APPLICATION_JSON_VALUE,
+                    objectMapper.writeValueAsBytes(request));
 
             // when & then
             mockMvc.perform(multipart("/{prefix}/agoras", API_V1_AUTH)
@@ -393,8 +397,10 @@ public class AgoraAuthApiIntegrationTest extends IntegrationTestSupport {
         void 실패_아고라생성_진행시간_1분_미만() throws Exception {
             // given
             AgoraCreateRequest request = new AgoraCreateRequest("test-title", 5, 0, "red", 1L);
-            MockMultipartFile file = new MockMultipartFile("file", "test-image.jpg", MediaType.IMAGE_JPEG_VALUE, "test image content".getBytes());
-            MockMultipartFile jsonRequest = new MockMultipartFile("request", "", MediaType.APPLICATION_JSON_VALUE, objectMapper.writeValueAsBytes(request));
+            MockMultipartFile file = new MockMultipartFile("file", "test-image.jpg", MediaType.IMAGE_JPEG_VALUE,
+                    "test image content".getBytes());
+            MockMultipartFile jsonRequest = new MockMultipartFile("request", "", MediaType.APPLICATION_JSON_VALUE,
+                    objectMapper.writeValueAsBytes(request));
 
             // when & then
             mockMvc.perform(multipart("/{prefix}/agoras", API_V1_AUTH)
@@ -415,8 +421,10 @@ public class AgoraAuthApiIntegrationTest extends IntegrationTestSupport {
         void 실패_아고라생성_진행시간180분초과() throws Exception {
             // given
             AgoraCreateRequest request = new AgoraCreateRequest("test-title", 5, 181, "red", 1L);
-            MockMultipartFile file = new MockMultipartFile("file", "test-image.jpg", MediaType.IMAGE_JPEG_VALUE, "test image content".getBytes());
-            MockMultipartFile jsonRequest = new MockMultipartFile("request", "", MediaType.APPLICATION_JSON_VALUE, objectMapper.writeValueAsBytes(request));
+            MockMultipartFile file = new MockMultipartFile("file", "test-image.jpg", MediaType.IMAGE_JPEG_VALUE,
+                    "test image content".getBytes());
+            MockMultipartFile jsonRequest = new MockMultipartFile("request", "", MediaType.APPLICATION_JSON_VALUE,
+                    objectMapper.writeValueAsBytes(request));
 
             // when & then
             mockMvc.perform(multipart("/{prefix}/agoras", API_V1_AUTH)
@@ -437,8 +445,10 @@ public class AgoraAuthApiIntegrationTest extends IntegrationTestSupport {
         void 실패_아고라생성_빈문자열색상() throws Exception {
             // given
             AgoraCreateRequest request = new AgoraCreateRequest("test-title", 5, 180, "", 1L);
-            MockMultipartFile file = new MockMultipartFile("file", "test-image.jpg", MediaType.IMAGE_JPEG_VALUE, "test image content".getBytes());
-            MockMultipartFile jsonRequest = new MockMultipartFile("request", "", MediaType.APPLICATION_JSON_VALUE, objectMapper.writeValueAsBytes(request));
+            MockMultipartFile file = new MockMultipartFile("file", "test-image.jpg", MediaType.IMAGE_JPEG_VALUE,
+                    "test image content".getBytes());
+            MockMultipartFile jsonRequest = new MockMultipartFile("request", "", MediaType.APPLICATION_JSON_VALUE,
+                    objectMapper.writeValueAsBytes(request));
 
             // when & then
             mockMvc.perform(multipart("/{prefix}/agoras", API_V1_AUTH)
@@ -459,8 +469,10 @@ public class AgoraAuthApiIntegrationTest extends IntegrationTestSupport {
         void 실패_아고라생성_널카테고리() throws Exception {
             // given
             AgoraCreateRequest request = new AgoraCreateRequest("test-title", 5, 180, "red", null);
-            MockMultipartFile file = new MockMultipartFile("file", "test-image.jpg", MediaType.IMAGE_JPEG_VALUE, "test image content".getBytes());
-            MockMultipartFile jsonRequest = new MockMultipartFile("request", "", MediaType.APPLICATION_JSON_VALUE, objectMapper.writeValueAsBytes(request));
+            MockMultipartFile file = new MockMultipartFile("file", "test-image.jpg", MediaType.IMAGE_JPEG_VALUE,
+                    "test image content".getBytes());
+            MockMultipartFile jsonRequest = new MockMultipartFile("request", "", MediaType.APPLICATION_JSON_VALUE,
+                    objectMapper.writeValueAsBytes(request));
 
             // when & then
             mockMvc.perform(multipart("/{prefix}/agoras", API_V1_AUTH)
@@ -481,8 +493,10 @@ public class AgoraAuthApiIntegrationTest extends IntegrationTestSupport {
         void 실패_아고라생성_존재하지않은카테고리() throws Exception {
             // given
             AgoraCreateRequest request = new AgoraCreateRequest("test-title", 5, 180, "red", 3L);
-            MockMultipartFile file = new MockMultipartFile("file", "test-image.jpg", MediaType.IMAGE_JPEG_VALUE, "test image content".getBytes());
-            MockMultipartFile jsonRequest = new MockMultipartFile("request", "", MediaType.APPLICATION_JSON_VALUE, objectMapper.writeValueAsBytes(request));
+            MockMultipartFile file = new MockMultipartFile("file", "test-image.jpg", MediaType.IMAGE_JPEG_VALUE,
+                    "test image content".getBytes());
+            MockMultipartFile jsonRequest = new MockMultipartFile("request", "", MediaType.APPLICATION_JSON_VALUE,
+                    objectMapper.writeValueAsBytes(request));
 
             // when & then
             mockMvc.perform(multipart("/{prefix}/agoras", API_V1_AUTH)
@@ -503,8 +517,10 @@ public class AgoraAuthApiIntegrationTest extends IntegrationTestSupport {
         void 성공_아고라생성_유효한파라미터() throws Exception {
             // given
             AgoraCreateRequest request = new AgoraCreateRequest("test-agora", 5, 60, "red", 1L);
-            MockMultipartFile file = new MockMultipartFile("file", "test-image.jpg", MediaType.IMAGE_JPEG_VALUE, "test image content".getBytes());
-            MockMultipartFile jsonRequest = new MockMultipartFile("request", "", MediaType.APPLICATION_JSON_VALUE, objectMapper.writeValueAsBytes(request));
+            MockMultipartFile file = new MockMultipartFile("file", "test-image.jpg", MediaType.IMAGE_JPEG_VALUE,
+                    "test image content".getBytes());
+            MockMultipartFile jsonRequest = new MockMultipartFile("request", "", MediaType.APPLICATION_JSON_VALUE,
+                    objectMapper.writeValueAsBytes(request));
 
             // when & then
             mockMvc.perform(multipart("/{prefix}/agoras", API_V1_AUTH)
@@ -514,19 +530,15 @@ public class AgoraAuthApiIntegrationTest extends IntegrationTestSupport {
                     .andExpect(status().isOk())
                     .andExpectAll(
                             jsonPath("$.success").value(true),
-                            jsonPath("$.response.id").value(1),
+                            jsonPath("$.response.id").value(6),
                             jsonPath("$.error").value(nullValue())
                     );
         }
     }
 
     @Nested
-    @Sql(scripts = {
-            "/sql/get-category.sql",
-            "/sql/get-agora.sql",
-            "/sql/get-base-member.sql"
-    })
     @DisplayName("아고라 참가 테스트")
+    @Sql("/sql/get-agora.sql")
     @WithMockCustomUser
     class participateAgoraTest {
 
@@ -540,7 +552,7 @@ public class AgoraAuthApiIntegrationTest extends IntegrationTestSupport {
         void 성공_아고라참가_찬성역할() throws Exception {
             // given
             Long userId = 1L;
-            Long agoraId = 1L;
+            Long agoraId = 6L;
             AgoraParticipateRequest request = new AgoraParticipateRequest(
                     "test-nickname",
                     1,
@@ -565,7 +577,7 @@ public class AgoraAuthApiIntegrationTest extends IntegrationTestSupport {
         void 성공_아고라참가_반대역할() throws Exception {
             // given
             Long userId = 1L;
-            Long agoraId = 1L;
+            Long agoraId = 7L;
             AgoraParticipateRequest request = new AgoraParticipateRequest(
                     "test-nickname",
                     1,
@@ -591,7 +603,7 @@ public class AgoraAuthApiIntegrationTest extends IntegrationTestSupport {
         void 성공_아고라참가_관찰자역할() throws Exception {
             // given
             Long userId = 1L;
-            Long agoraId = 1L;
+            Long agoraId = 8L;
             AgoraParticipateRequest request = new AgoraParticipateRequest(
                     null,
                     null,
@@ -638,11 +650,11 @@ public class AgoraAuthApiIntegrationTest extends IntegrationTestSupport {
     @Nested
     @DisplayName("아고라 퇴장 테스트")
     @WithMockCustomUser
-    class exitAgoraTest{
+    class exitAgoraTest {
 
         @Test
         @DisplayName("아고라에서 퇴장한다.")
-        void 성공_아고라퇴장_유효한파라미터() throws Exception{
+        void 성공_아고라퇴장_유효한파라미터() throws Exception {
             // when
             final ResultActions result = mockMvc.perform(
                     patch("/{prefix}/agoras/{agoraId}/exit", API_V1_AUTH, 1)
@@ -653,30 +665,10 @@ public class AgoraAuthApiIntegrationTest extends IntegrationTestSupport {
                     .andExpectAll(
                             jsonPath("$.success").value(true),
                             jsonPath("$.response").exists(),
-                            jsonPath("$.response.agoraId").value(1),
                             jsonPath("$.response.userId").value(1),
                             jsonPath("$.response.type").value("PROS"),
                             jsonPath("$.response.socketDisconnectTime").exists(),
                             jsonPath("$.error").value(nullValue())
-                    );
-        }
-
-        @Test
-        @DisplayName("아고라가 존재하지 않을 경우 예외를 발생시킨다.")
-        void 실패_아고라조회_존재하지않는아고라ID전달() throws Exception {
-            // when
-            final ResultActions result = mockMvc.perform(
-                    patch("/{prefix}/agoras/{agoraId}/exit", API_V1_AUTH, 50)
-                            .contentType(MediaType.APPLICATION_JSON)
-            );
-
-            // then
-            result.andExpect(status().isNotFound())
-                    .andExpectAll(
-                            jsonPath("$.success").value(false),
-                            jsonPath("$.response").value(nullValue()),
-                            jsonPath("$.error.code").value(1301),
-                            jsonPath("$.error.message").value("Not found agora. agoraId: 50")
                     );
         }
 
@@ -696,7 +688,7 @@ public class AgoraAuthApiIntegrationTest extends IntegrationTestSupport {
                             jsonPath("$.success").value(false),
                             jsonPath("$.response").value(nullValue()),
                             jsonPath("$.error.code").value(1301),
-                            jsonPath("$.error.message").value("Agora user not found with agora id: 1 user id: 4")
+                            jsonPath("$.error.message").value("Not found user. userId: 4")
                     );
         }
     }

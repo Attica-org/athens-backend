@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 
 import com.attica.athens.global.auth.application.AuthService;
 import com.attica.athens.global.decorator.HeartBeatManager;
+import com.attica.athens.global.handler.MessageHandler.MessageProcessorFactory;
 import com.attica.athens.global.interceptor.JwtChannelInterceptor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -37,12 +38,15 @@ public class HeartBeatInterceptorTest {
     @Mock
     private MessageChannel channel;
 
+    private MessageProcessorFactory messageProcessorFactory;
     private JwtChannelInterceptor interceptor;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        interceptor = new JwtChannelInterceptor(authService, heartBeatManager);
+
+        messageProcessorFactory = new MessageProcessorFactory(authService, heartBeatManager);
+        interceptor = new JwtChannelInterceptor(messageProcessorFactory);
     }
 
     @Nested
@@ -55,7 +59,6 @@ public class HeartBeatInterceptorTest {
             // given
             SimpMessageHeaderAccessor accessor = StompHeaderAccessor.createForHeartbeat();
             accessor.setSessionId("test-session-id");
-
             byte[] payload = new byte[]{'\n'};
             Message<?> message = MessageBuilder.createMessage(payload, accessor.getMessageHeaders());
 
@@ -72,7 +75,6 @@ public class HeartBeatInterceptorTest {
             // given
             StompHeaderAccessor accessor = StompHeaderAccessor.create(StompCommand.SEND);
             accessor.setSessionId("test-session-id");
-
             Message<?> message = MessageBuilder.createMessage("Some payload", accessor.getMessageHeaders());
 
             // when

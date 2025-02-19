@@ -7,7 +7,6 @@ import com.attica.athens.domain.agora.dto.request.SearchKeywordRequest;
 import com.attica.athens.domain.agora.dto.response.AgoraIdResponse;
 import com.attica.athens.domain.agora.dto.response.AgoraSlice;
 import com.attica.athens.domain.agora.dto.response.AgoraTitleResponse;
-import com.attica.athens.domain.agora.dto.response.ClosedAgoraParticipateResponse;
 import com.attica.athens.domain.agora.dto.response.EndAgoraResponse;
 import com.attica.athens.domain.common.ApiResponse;
 import com.attica.athens.domain.common.ApiUtil;
@@ -18,7 +17,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -50,32 +48,33 @@ public class AgoraOpenController {
     }
 
     @GetMapping("/{agoraId}/title")
-    public ResponseEntity<ApiResponse<?>> getAgoraTitle(
+    public ResponseEntity<ApiResponse<AgoraTitleResponse>> getAgoraTitle(
             @PathVariable("agoraId") Long agoraId
     ) {
-        AgoraTitleResponse agoraTitle = agoraService.getAgoraTitleAndImageUrl(agoraId);
+        AgoraTitleResponse response = agoraService.getAgoraTitleAndImageUrl(agoraId);
 
-        return ResponseEntity.ok(ApiUtil.success(agoraTitle));
+        return ResponseEntity.ok(ApiUtil.success(response));
     }
 
     @GetMapping("/ids")
-    public ResponseEntity<ApiResponse<?>> getAgoraIdList() {
+    public ResponseEntity<ApiResponse<AgoraIdResponse>> getAgoraIdList() {
 
-        AgoraIdResponse agoraIdList = agoraService.getAgoraIdList();
+        AgoraIdResponse response = agoraService.getAgoraIdList();
 
-        return ResponseEntity.ok(ApiUtil.success(agoraIdList));
+        return ResponseEntity.ok(ApiUtil.success(response));
     }
 
     @PatchMapping("/{agoraId}/time-out")
-    public ResponseEntity<ApiResponse<?>> timeOutAgora(@PathVariable("agoraId") Long agoraId) {
-
+    public ResponseEntity<ApiResponse<EndAgoraResponse>> timeOutAgora(
+            @PathVariable("agoraId") Long agoraId
+    ) {
         EndAgoraResponse response = agoraService.timeOutAgora(agoraId);
 
         return ResponseEntity.ok(ApiUtil.success(response));
     }
 
     @GetMapping("/active")
-    public ResponseEntity<ApiResponse<?>> getTrendAgora() {
+    public ResponseEntity<ApiResponse<List<SimpleAgoraResult>>> getTrendAgora() {
         List<SimpleAgoraResult> response = agoraService.findTrendAgora();
 
         return ResponseEntity.ok(ApiUtil.success(response));

@@ -52,8 +52,8 @@ public class AgoraAuthController {
 
     @PostMapping("/{agoraId}/participants")
     public ResponseEntity<ApiResponse<AgoraParticipateResponse>> participateAgora(
-            @AuthenticationPrincipal CustomUserDetails user,
             @PathVariable("agoraId") Long agoraId,
+            @AuthenticationPrincipal CustomUserDetails user,
             @RequestBody @Valid AgoraParticipateRequest request
     ) {
         Long memberId = Long.parseLong(user.getUsername());
@@ -64,19 +64,19 @@ public class AgoraAuthController {
 
     @GetMapping("/{agoraId}/participants")
     public ResponseEntity<ApiResponse<ClosedAgoraParticipateResponse>> participateAgora(
-            @AuthenticationPrincipal CustomUserDetails user,
-            @PathVariable("agoraId") Long agoraId
+            @PathVariable("agoraId") Long agoraId,
+            @AuthenticationPrincipal CustomUserDetails user
     ) {
         Long memberId = Long.parseLong(user.getUsername());
-        ClosedAgoraParticipateResponse response = agoraService.closedAgoraParticipate(agoraId,memberId);
+        ClosedAgoraParticipateResponse response = agoraService.closedAgoraParticipate(agoraId, memberId);
 
         return ResponseEntity.ok(ApiUtil.success(response));
     }
 
     @PatchMapping("/{agoraId}/exit")
     public ResponseEntity<ApiResponse<AgoraExitResponse>> exitAgora(
-            @AuthenticationPrincipal CustomUserDetails user,
-            @PathVariable("agoraId") Long agoraId
+            @PathVariable("agoraId") Long agoraId,
+            @AuthenticationPrincipal CustomUserDetails user
     ) {
         Long memberId = Long.parseLong(user.getUsername());
         AgoraExitResponse response = agoraService.exit(memberId, agoraId);
@@ -97,8 +97,7 @@ public class AgoraAuthController {
     @PatchMapping("/{agoraId}")
     public ResponseEntity<ApiResponse<UpdateThumbnailResponse>> updateAgoraThumbnail(
             @PathVariable("agoraId") Long agoraId,
-            @AuthenticationPrincipal CustomUserDetails user,
-            MultipartFile file
+            @AuthenticationPrincipal CustomUserDetails user, MultipartFile file
     ) {
         Long memberId = Long.parseLong(user.getUsername());
         UpdateThumbnailResponse response = agoraService.updateAgoraImage(agoraId, memberId, file);

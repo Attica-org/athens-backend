@@ -2,9 +2,10 @@ package com.attica.athens.global.utils;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
-@NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class TimeFormatter {
 
     private static final DateTimeFormatter FORMATTER =

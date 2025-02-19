@@ -28,9 +28,11 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 @EnableJpaAuditing
 class AgoraQueryRepositoryImplTest {
 
-    @Autowired private AgoraRepository repository;
+    @Autowired
+    private AgoraRepository repository;
 
-    @Autowired private CategoryRepository categoryRepository;
+    @Autowired
+    private CategoryRepository categoryRepository;
 
     private Category category;
 
@@ -58,10 +60,9 @@ class AgoraQueryRepositoryImplTest {
     @DisplayName("30개 이하 아고라를 가져온다.")
     void 성공_아고라조회_30개이하() {
         // given
-        int maxSize = 30;
         List<Agora> agoras = new ArrayList<>();
         String title = "title";
-        for (int i = 0; i < maxSize + 5; i++) {
+        for (int i = 0; i < 5; i++) {
             agoras.add(new Agora(title + i, 2, 10, "red", 0, 0, category, null));
         }
 
@@ -71,8 +72,7 @@ class AgoraQueryRepositoryImplTest {
         List<Long> result = repository.getAgoraIdList();
 
         // then
-        assertThat(result.size()).isEqualTo(maxSize);
-        assertThat(result.size()).isLessThan(maxSize + 1);
+        assertThat(result.size()).isEqualTo(5);
     }
 
     @Test

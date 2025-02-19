@@ -23,7 +23,7 @@ public class Category {
     @Column(name = "category_id")
     private Long id;
 
-    @ManyToOne()
+    @ManyToOne
     @JoinColumn(name = "parent_id")
     private Category parent;
 
