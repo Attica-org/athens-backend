@@ -11,7 +11,7 @@ spring:
       enabled: true
       location: ./charming/tmp
       max-request-size: 100MB
-      max-file-size: 100MB
+      max-file-size: 5MB
   datasource:
     url: jdbc:mysql://${MYSQL_HOST}:${MYSQL_PORT}/${MYSQL_DB}?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=Asia/Seoul
     username: ${MYSQL_USER}

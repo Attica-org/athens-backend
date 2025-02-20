@@ -1,6 +1,6 @@
 package com.attica.athens.domain.chat.domain;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -41,17 +41,17 @@ public class ChatAuthApiIntegrationTest extends IntegrationTestSupport {
 
             //when
             final ResultActions result = mockMvc.perform(
-                    get("/{prefix}/agoras/{agoraId}/chats/filter", API_V1_AUTH, 1)
+                    post("/{prefix}/agoras/{agoraId}/chats/filter", API_V1_AUTH, 1)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(jsonContent)
             );
 
             result.andExpectAll(
-                    jsonPath("$.hasBadWord").value(true),
-                    jsonPath("$.badword").isNotEmpty(),
-                    jsonPath("$.badword[0].start").value(3),
-                    jsonPath("$.badword[0].end").value(4),
-                    jsonPath("$.badword[0].keyword").value("병신")
+                    jsonPath("$.response.hasBadWord").value(true),
+                    jsonPath("$.response.badword").isNotEmpty(),
+                    jsonPath("$.response.badword[0].start").value(3),
+                    jsonPath("$.response.badword[0].end").value(4),
+                    jsonPath("$.response.badword[0].keyword").value("병신")
             );
         }
 
@@ -69,15 +69,15 @@ public class ChatAuthApiIntegrationTest extends IntegrationTestSupport {
 
             //when
             final ResultActions result = mockMvc.perform(
-                    get("/{prefix}/agoras/{agoraId}/chats/filter", API_V1_AUTH, 1)
+                    post("/{prefix}/agoras/{agoraId}/chats/filter", API_V1_AUTH, 1)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(jsonContent)
             );
 
             result.andExpect(status().isOk())
                     .andExpectAll(
-                            jsonPath("$.hasBadWord").value(false),
-                            jsonPath("$.badword").isEmpty()
+                            jsonPath("$.response.hasBadWord").value(false),
+                            jsonPath("$.response.badword").isEmpty()
                     );
         }
 
@@ -93,7 +93,7 @@ public class ChatAuthApiIntegrationTest extends IntegrationTestSupport {
 
             // when
             final ResultActions result = mockMvc.perform(
-                    get("/{prefix}/agoras/{agoraId}/chats/filter", API_V1_AUTH, 1)
+                    post("/{prefix}/agoras/{agoraId}/chats/filter", API_V1_AUTH, 1)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(jsonContent)
             );

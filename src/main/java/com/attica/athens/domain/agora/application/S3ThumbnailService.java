@@ -6,7 +6,12 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.attica.athens.domain.agora.dao.AgoraThumbnailRepository;
 import com.attica.athens.domain.agora.domain.AgoraThumbnail;
+import com.attica.athens.domain.agora.exception.InvalidFileSizeException;
+import com.attica.athens.domain.agora.exception.NotFoundFileException;
+import com.attica.athens.domain.agora.exception.NotSupportFileFormatException;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +24,10 @@ import org.springframework.web.multipart.MultipartFile;
 @RequiredArgsConstructor
 public class S3ThumbnailService {
 
+    private static final long MAX_FILE_SIZE = 5 * 1024 * 1024;   // 5MB 제한
+    private static final List<String> ALLOWED_EXTENSIONS =
+            Arrays.asList("jpg", "jpeg", "png", "gif");
+
     private final AmazonS3 s3client;
     private final AgoraThumbnailRepository agoraThumbnailRepository;
 
@@ -27,10 +36,24 @@ public class S3ThumbnailService {
 
     @Transactional
     public AgoraThumbnail getAgoraThumbnail(MultipartFile file) {
+        validateFile(file);
         return Optional.ofNullable(file)
                 .filter(f -> !f.isEmpty())
                 .map(this::saveFile)
                 .orElse(null);
+    }
+
+    private void validateFile(MultipartFile file) {
+        if (file == null || file.isEmpty()) {
+            throw new NotFoundFileException();
+        }
+        if (file.getSize() > MAX_FILE_SIZE) {
+            throw new InvalidFileSizeException();
+        }
+        String extension = extractExtension(file.getOriginalFilename());
+        if (!ALLOWED_EXTENSIONS.contains(extension.toLowerCase())) {
+            throw new NotSupportFileFormatException();
+        }
     }
 
     private AgoraThumbnail saveFile(MultipartFile file) {

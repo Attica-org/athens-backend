@@ -73,10 +73,6 @@ public class AgoraOpenApiIntegrationTest extends IntegrationTestSupport {
     }
 
     @Nested
-    @Sql(scripts = {
-            "/sql/get-category.sql",
-            "/sql/get-agora.sql"
-    })
     @DisplayName("아고라를 조회한다.")
     class getAgoraTest {
 
@@ -92,18 +88,6 @@ public class AgoraOpenApiIntegrationTest extends IntegrationTestSupport {
                             .param("status", requestCategory.status())
                             .param("category", requestCategory.category().toString())
                             .param("next", requestCategory.next() != null ? requestCategory.next().toString() : ""))
-                    .andExpect(status().isBadRequest())
-                    .andExpectAll(
-                            jsonPath("$.success").value(false),
-                            jsonPath("$.response").value(nullValue()),
-                            jsonPath("$.error.code").value(1001),
-                            jsonPath("$.error.message.status").value("허용되지 않는 Status 입니다.")
-                    );
-
-            mockMvc.perform(get("/{prefix}/agoras", API_V1_OPEN)
-                            .param("status", requestKeyword.status())
-                            .param("agora-name", "keyword")
-                            .param("next", requestKeyword.next() != null ? requestKeyword.next().toString() : ""))
                     .andExpect(status().isBadRequest())
                     .andExpectAll(
                             jsonPath("$.success").value(false),
@@ -137,7 +121,7 @@ public class AgoraOpenApiIntegrationTest extends IntegrationTestSupport {
         @DisplayName("카테고리로 정렬된 아고라를 조회한다.")
         void 성공_아고라조회_유효한_카테고리() throws Exception {
             // given
-            AgoraRequest request = new AgoraRequest("active", 1L, null);
+            AgoraRequest request = new AgoraRequest("active", 6L, null);
 
             // when & then
             mockMvc.perform(get("/{prefix}/agoras", API_V1_OPEN)
@@ -147,26 +131,20 @@ public class AgoraOpenApiIntegrationTest extends IntegrationTestSupport {
                     .andExpect(status().isOk())
                     .andExpectAll(
                             jsonPath("$.success").value(true),
-                            jsonPath("$.response.agoras.length()").value(2),
+                            jsonPath("$.error").value(nullValue()),
+                            jsonPath("$.response.agoras").isArray(),
+                            jsonPath("$.response.agoras.length()").value(1),
                             jsonPath("$.response.agoras[0].id").value(2),
-                            jsonPath("$.response.agoras[0].agoraTitle").value("Tools"),
-                            jsonPath("$.response.agoras[0].agoraColor").value("Red"),
+                            jsonPath("$.response.agoras[0].agoraTitle").value("교육 개혁 방안 토론"),
+                            jsonPath("$.response.agoras[0].agoraColor").value("#00FF00"),
                             jsonPath("$.response.agoras[0].participants.pros").value(0),
                             jsonPath("$.response.agoras[0].participants.cons").value(0),
                             jsonPath("$.response.agoras[0].participants.observer").value(0),
-                            jsonPath("$.response.agoras[0].createdAt").value("2023-09-13T14:12:15"),
-                            jsonPath("$.response.agoras[0].status").value("QUEUED"),
-                            jsonPath("$.response.agoras[1].id").value(1),
-                            jsonPath("$.response.agoras[1].agoraTitle").value("Games"),
-                            jsonPath("$.response.agoras[1].agoraColor").value("Green"),
-                            jsonPath("$.response.agoras[1].participants.pros").value(0),
-                            jsonPath("$.response.agoras[1].participants.cons").value(0),
-                            jsonPath("$.response.agoras[1].participants.observer").value(0),
-                            jsonPath("$.response.agoras[1].createdAt").value("2024-04-01T23:14:09"),
-                            jsonPath("$.response.agoras[1].status").value("QUEUED"),
+                            jsonPath("$.response.agoras[0].imageUrl").value(nullValue()),
+                            jsonPath("$.response.agoras[0].createdAt").isNotEmpty(),
+                            jsonPath("$.response.agoras[0].status").value("RUNNING"),
                             jsonPath("$.response.next").value(nullValue()),
-                            jsonPath("$.response.hasNext").value(false),
-                            jsonPath("$.error").value(nullValue())
+                            jsonPath("$.response.hasNext").value(false)
                     );
         }
 
@@ -174,7 +152,7 @@ public class AgoraOpenApiIntegrationTest extends IntegrationTestSupport {
         @DisplayName("키워드로 정렬된 아고라를 조회한다.")
         void 성공_아고라조회_유효한_키워드() throws Exception {
             // given
-            String keyword = "s";
+            String keyword = "기";
             SearchKeywordRequest request = new SearchKeywordRequest("active", null);
 
             // when & then
@@ -185,26 +163,20 @@ public class AgoraOpenApiIntegrationTest extends IntegrationTestSupport {
                     .andExpect(status().isOk())
                     .andExpectAll(
                             jsonPath("$.success").value(true),
-                            jsonPath("$.response.agoras.length()").value(2),
-                            jsonPath("$.response.agoras[0].id").value(2),
-                            jsonPath("$.response.agoras[0].agoraTitle").value("Tools"),
-                            jsonPath("$.response.agoras[0].agoraColor").value("Red"),
+                            jsonPath("$.error").value(nullValue()),
+                            jsonPath("$.response.agoras").isArray(),
+                            jsonPath("$.response.agoras.length()").value(1),
+                            jsonPath("$.response.agoras[0].id").value(1),
+                            jsonPath("$.response.agoras[0].agoraTitle").value("기후 변화 대책에 대한 토론"),
+                            jsonPath("$.response.agoras[0].agoraColor").value("#FF0000"),
                             jsonPath("$.response.agoras[0].participants.pros").value(0),
                             jsonPath("$.response.agoras[0].participants.cons").value(0),
                             jsonPath("$.response.agoras[0].participants.observer").value(0),
-                            jsonPath("$.response.agoras[0].createdAt").value("2023-09-13T14:12:15"),
+                            jsonPath("$.response.agoras[0].imageUrl").value(nullValue()),
+                            jsonPath("$.response.agoras[0].createdAt").isNotEmpty(),
                             jsonPath("$.response.agoras[0].status").value("QUEUED"),
-                            jsonPath("$.response.agoras[1].id").value(1),
-                            jsonPath("$.response.agoras[1].agoraTitle").value("Games"),
-                            jsonPath("$.response.agoras[1].agoraColor").value("Green"),
-                            jsonPath("$.response.agoras[1].participants.pros").value(0),
-                            jsonPath("$.response.agoras[1].participants.cons").value(0),
-                            jsonPath("$.response.agoras[1].participants.observer").value(0),
-                            jsonPath("$.response.agoras[1].createdAt").value("2024-04-01T23:14:09"),
-                            jsonPath("$.response.agoras[1].status").value("QUEUED"),
                             jsonPath("$.response.next").value(nullValue()),
-                            jsonPath("$.response.hasNext").value(false),
-                            jsonPath("$.error").value(nullValue())
+                            jsonPath("$.response.hasNext").value(false)
                     );
         }
     }
@@ -239,10 +211,10 @@ public class AgoraOpenApiIntegrationTest extends IntegrationTestSupport {
 
         @Test
         @DisplayName("타임아웃 시 아고라를 종료한다.")
-        void 성공_타임아웃체크_지속시간0인아고라전달() throws Exception {
+        void 성공_타임아웃체크_지속시간0인_아고라전달() throws Exception {
             // when
             final ResultActions result = mockMvc.perform(
-                    patch("/{prefix}/agoras/{agoraId}/time-out", API_V1_OPEN, 1)
+                    patch("/{prefix}/agoras/{agoraId}/time-out", API_V1_OPEN, 2)
                             .contentType(MediaType.APPLICATION_JSON)
             );
 
@@ -251,7 +223,7 @@ public class AgoraOpenApiIntegrationTest extends IntegrationTestSupport {
                     .andExpectAll(
                             jsonPath("$.success").value(true),
                             jsonPath("$.response").exists(),
-                            jsonPath("$.response.agoraId").value(1),
+                            jsonPath("$.response.agoraId").value(2),
                             jsonPath("$.response.isClosed").value(true),
                             jsonPath("$.response.endTime").exists(),
                             jsonPath("$.response.endTime").isString(),

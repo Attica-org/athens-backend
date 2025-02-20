@@ -1,8 +1,8 @@
 package com.attica.athens.domain.agora.vote.dao;
 
+import com.attica.athens.domain.agora.vote.dto.response.VoteResultResponse;
+
 public interface AgoraQueryVoteRepository {
 
-    Integer getProsVoteResult(Long agoraId);
-
-    Integer getConsVoteResult(Long agoraId);
+    VoteResultResponse getVoteResults(Long agoraId);
 }

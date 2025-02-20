@@ -131,7 +131,10 @@ public class Agora extends AuditingFields {
         this.endTime = LocalDateTime.now();
     }
 
-    public void changeStatus(AgoraStatus status) {
+    /**
+     * 아고라 상태는 변경 순서가 있다.
+     * QUEUED -> CLOSED로 변경될 수 없으므로 순차적으로 변경가능한지 확인 후 아고라 상태를 변경한다.
+     */    public void changeStatus(AgoraStatus status) {
         if ((this.status == AgoraStatus.QUEUED && status == AgoraStatus.RUNNING) ||
                 (this.status == AgoraStatus.RUNNING && status == AgoraStatus.CLOSED) ||
                 (this.status == AgoraStatus.QUEUED && status == AgoraStatus.CLOSED)

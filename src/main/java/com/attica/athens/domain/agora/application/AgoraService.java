@@ -86,8 +86,7 @@ public class AgoraService {
 
     @Transactional
     public UpdateThumbnailResponse updateAgoraImage(Long agoraId, Long memberId, MultipartFile file) {
-        Agora agora = agoraRepository.findById(agoraId)
-                .orElseThrow(() -> new NotFoundAgoraException(agoraId));
+        Agora agora = getAgoraFrom(agoraId);
 
         long createMemberId = Long.parseLong(agora.getCreatedBy());
         if (!isCreateMember(createMemberId, memberId)) {
@@ -129,8 +128,7 @@ public class AgoraService {
     @Transactional
     public AgoraParticipateResponse participate(final Long memberId, final Long agoraId,
                                                 final AgoraParticipateRequest request) {
-        Agora agora = agoraRepository.findAgoraById(agoraId)
-                .orElseThrow(() -> new NotFoundAgoraException(agoraId));
+        Agora agora = getAgoraFrom(agoraId);
 
         validateParticipate(memberId, agoraId, request, agora);
 
@@ -146,8 +144,7 @@ public class AgoraService {
 
     @Transactional
     public ClosedAgoraParticipateResponse closedAgoraParticipate(final Long agoraId, final Long memberId) {
-        Agora agora = agoraRepository.findAgoraById(agoraId)
-                .orElseThrow(() -> new NotFoundAgoraException(agoraId));
+        Agora agora = getAgoraFrom(agoraId);
 
         validateClosedAgoraParticipate(agora);
 
@@ -170,6 +167,11 @@ public class AgoraService {
     private AgoraMember getAgoraMember(Long userId, Long agoraId) {
         return agoraMemberRepository.findByMemberIdAndAgoraIdAndSocketDisconnectTimeIsNull(userId, agoraId)
                 .orElseThrow(() -> new NotFoundMemberException(userId));
+    }
+
+    private Agora getAgoraFrom(final Long agoraId) {
+        return agoraRepository.findAgoraById(agoraId)
+                .orElseThrow(() -> new NotFoundAgoraException(agoraId));
     }
 
     public List<SimpleAgoraResult> findTrendAgora() {
@@ -350,15 +352,23 @@ public class AgoraService {
         Agora agora = findAgoraById(agoraId);
         boolean isAgoraClosed = agora.isAgoraClosed(agora);
 
+        return getEndAgoraResponse(agoraId, agora, isAgoraClosed);
+    }
+
+    private EndAgoraResponse getEndAgoraResponse(Long agoraId, Agora agora, boolean isAgoraClosed) {
         if (isAgoraClosed) {
             throw new InvalidAgoraStatusException(AgoraStatus.RUNNING);
         } else {
-            agora.endAgora();
-            agoraVoteService.removeVotes(agoraId);
-            sendAgoraEndMessage(agora);
+            proceedEndAgora(agoraId, agora);
 
             return new EndAgoraResponse(agora);
         }
+    }
+
+    private void proceedEndAgora(Long agoraId, Agora agora) {
+        agora.endAgora();
+        agoraVoteService.removeVotes(agoraId);
+        sendAgoraEndMessage(agora);
     }
 
     private void sendAgoraEndMessage(Agora agora) {

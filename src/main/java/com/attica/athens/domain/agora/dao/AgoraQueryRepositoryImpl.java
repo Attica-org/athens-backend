@@ -70,7 +70,7 @@ public class AgoraQueryRepositoryImpl implements AgoraQueryRepository {
                 ))
                 .from(agora)
                 .leftJoin(agora.agoraThumbnail)
-                .where(gtAgoraId(agoraId),
+                .where(gtAgoraId(agoraId),          // ID 기반 페이징
                         (containKeyword(keyword))
                                 .and((agora.status.in(status)))
                 )
