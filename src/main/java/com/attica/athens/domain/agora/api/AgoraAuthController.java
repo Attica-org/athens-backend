@@ -62,7 +62,7 @@ public class AgoraAuthController {
         return ResponseEntity.ok(ApiUtil.success(response));
     }
 
-    @GetMapping("/{agoraId}/participants")
+    @PostMapping("/{agoraId}/closed/participants")
     public ResponseEntity<ApiResponse<ClosedAgoraParticipateResponse>> participateAgora(
             @PathVariable("agoraId") Long agoraId,
             @AuthenticationPrincipal CustomUserDetails user
