@@ -7,7 +7,6 @@ import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.attica.athens.domain.agora.dao.AgoraThumbnailRepository;
 import com.attica.athens.domain.agora.domain.AgoraThumbnail;
 import com.attica.athens.domain.agora.exception.InvalidFileSizeException;
-import com.attica.athens.domain.agora.exception.NotFoundFileException;
 import com.attica.athens.domain.agora.exception.NotSupportFileFormatException;
 import java.io.IOException;
 import java.util.Arrays;
@@ -44,9 +43,6 @@ public class S3ThumbnailService {
     }
 
     private void validateFile(MultipartFile file) {
-        if (file == null || file.isEmpty()) {
-            throw new NotFoundFileException();
-        }
         if (file.getSize() > MAX_FILE_SIZE) {
             throw new InvalidFileSizeException();
         }
