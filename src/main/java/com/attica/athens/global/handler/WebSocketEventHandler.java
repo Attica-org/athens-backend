@@ -79,8 +79,13 @@ public class WebSocketEventHandler {
             Long agoraId = agoraMemberService.findAgoraIdBySessionId(sessionId);
             Long memberId = getUserId(StompHeaderAccessor.wrap(event.getMessage()));
 
-            processDisconnection(sessionId, agoraId, memberId);
-
+            AgoraMember agoraMember = agoraMemberService.findAgoraMemberByAgoraIdAndMemberId(agoraId, memberId);
+            if (agoraMember.getDisconnectType()) {
+                processDisconnection(sessionId, agoraId, memberId);
+            } else {
+                log.warn("Temporary disconnection: sessionId={}, agoraId={}, memberId={}",
+                        sessionId, agoraId, memberId);
+            }
         } catch (NotFoundSessionException e) {
             log.info("Session already removed: sessionId={}", sessionId);
         } catch (Exception e) {
