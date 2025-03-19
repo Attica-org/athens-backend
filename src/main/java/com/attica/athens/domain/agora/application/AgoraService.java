@@ -157,7 +157,6 @@ public class AgoraService {
         AgoraMember agoraMember = getAgoraMember(memberId, agoraId);
         LocalDateTime socketDisconnectTime = LocalDateTime.now();
 
-        agoraMember.clearNickname();
         agoraMember.updateDisconnectType(true);
         agoraMember.updateSocketDisconnectTime(socketDisconnectTime);
 

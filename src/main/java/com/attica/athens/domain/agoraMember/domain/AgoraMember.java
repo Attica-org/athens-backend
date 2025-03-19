@@ -115,10 +115,6 @@ public class AgoraMember extends AuditingFields {
         return this;
     }
 
-    public void clearNickname() {
-        this.nickname = null;
-    }
-
     public void updateAgoraMember(String nickname, AgoraMemberType memberType) {
         updateNickname(nickname);
         updateMemberType(memberType);
