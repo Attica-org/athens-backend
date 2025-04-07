@@ -35,7 +35,9 @@ public class S3ThumbnailService {
 
     @Transactional
     public AgoraThumbnail getAgoraThumbnail(MultipartFile file) {
-        validateFile(file);
+        if(!file.isEmpty()) {
+            validateFile(file);
+        }
         return Optional.ofNullable(file)
                 .filter(f -> !f.isEmpty())
                 .map(this::saveFile)
