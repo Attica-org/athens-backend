@@ -72,7 +72,7 @@ public class ChatQueryService {
     public GetChatParticipants getChatParticipants(final Long agoraId) {
         Agora agora = validateAgoraExists(agoraId);
 
-        return new GetChatParticipants(findActiveParticipants(agoraId), agoraId, agora.getThumbnail());
+        return new GetChatParticipants(findActiveParticipants(agoraId), agoraId, agora.getAgoraThumbnail() == null ? "" : agora.getAgoraThumbnail().getImageUrl());
     }
 
     private Agora validateAgoraExists(final Long agoraId) {
