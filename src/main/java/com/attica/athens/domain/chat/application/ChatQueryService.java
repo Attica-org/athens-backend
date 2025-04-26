@@ -1,6 +1,7 @@
 package com.attica.athens.domain.chat.application;
 
 import com.attica.athens.domain.agora.dao.AgoraRepository;
+import com.attica.athens.domain.agora.domain.Agora;
 import com.attica.athens.domain.agora.exception.NotFoundAgoraException;
 import com.attica.athens.domain.agoraMember.dao.AgoraMemberRepository;
 import com.attica.athens.domain.agoraMember.domain.AgoraMember;
@@ -69,13 +70,13 @@ public class ChatQueryService {
     }
 
     public GetChatParticipants getChatParticipants(final Long agoraId) {
-        validateAgoraExists(agoraId);
+        Agora agora = validateAgoraExists(agoraId);
 
-        return new GetChatParticipants(findActiveParticipants(agoraId), agoraId);
+        return new GetChatParticipants(findActiveParticipants(agoraId), agoraId, agora.getAgoraThumbnail() == null ? "" : agora.getAgoraThumbnail().getImageUrl());
     }
 
-    private void validateAgoraExists(final Long agoraId) {
-        agoraRepository.findById(agoraId)
+    private Agora validateAgoraExists(final Long agoraId) {
+        return agoraRepository.findById(agoraId)
                 .orElseThrow(() -> new NotFoundAgoraException(agoraId));
     }
 
